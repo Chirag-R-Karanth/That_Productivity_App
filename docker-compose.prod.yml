@@ -1,0 +1,78 @@
+name: prodapp
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      POSTGRES_DB: ${DB_NAME:-productivity}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${DB_USER:-postgres} -d $${DB_NAME:-productivity}"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+
+  backend:
+    build:
+      context: .
+      dockerfile: apps/backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/${DB_NAME:-productivity}
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      # Public origin users open in their browser (used for Google OAuth callback
+      # redirects). Required in prod — the localhost default is dev-only.
+      WEB_APP_URL: ${WEB_APP_URL:?Set WEB_APP_URL in .env to the public origin, e.g. https://app.example.com}
+      PORT: "4000"
+    env_file: .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:4000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        # Prod serves the app and API from the same origin (nginx reverse-proxies
+        # /api to the backend). Do NOT inherit NEXT_PUBLIC_API_URL from .env —
+        # that points the browser at a host-local port. Override here only if the
+        # API genuinely lives on another host.
+        NEXT_PUBLIC_API_URL: ""
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3000/tasks"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  nginx:
+    build:
+      context: .
+      dockerfile: deploy/nginx.Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${PRODAPP_PORT:-8080}:80"
+    depends_on:
+      web:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+
+volumes:
+  pgdata:

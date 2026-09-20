@@ -1,0 +1,12 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+# pnpm 11: approve dependency build scripts (postinstall) that run during install.
+allowBuilds:
+  '@firebase/util': true
+  '@prisma/engines': true
+  esbuild: true
+  prisma: true
+  protobufjs: true
+  tesseract.js: true

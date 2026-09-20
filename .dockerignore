@@ -1,0 +1,14 @@
+node_modules
+**/node_modules
+.next
+**/.next
+**/dist
+**/.turbo
+.git
+apps/mobile/*
+!apps/mobile/package.json
+.turbo
+*.log
+.DS_Store
+coverage
+**/tsconfig.tsbuildinfo
