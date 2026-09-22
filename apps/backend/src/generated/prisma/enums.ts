@@ -42,3 +42,22 @@ export const CalendarEventSource = {
 } as const
 
 export type CalendarEventSource = (typeof CalendarEventSource)[keyof typeof CalendarEventSource]
+
+
+export const EventType = {
+  TASK_CREATED: 'TASK_CREATED',
+  TASK_COMPLETED: 'TASK_COMPLETED',
+  TASK_UNCOMPLETED: 'TASK_UNCOMPLETED',
+  TASK_UPDATED: 'TASK_UPDATED',
+  TASK_DELETED: 'TASK_DELETED',
+  FOCUS_STARTED: 'FOCUS_STARTED',
+  FOCUS_COMPLETED: 'FOCUS_COMPLETED',
+  FOCUS_CANCELLED: 'FOCUS_CANCELLED',
+  ATTENDANCE_RECORDED: 'ATTENDANCE_RECORDED',
+  CLASS_SCHEDULED: 'CLASS_SCHEDULED',
+  CALENDAR_EVENT_SYNCED: 'CALENDAR_EVENT_SYNCED',
+  CALENDAR_EVENT_UPDATED: 'CALENDAR_EVENT_UPDATED',
+  GOOGLE_TASK_SYNCED: 'GOOGLE_TASK_SYNCED'
+} as const
+
+export type EventType = (typeof EventType)[keyof typeof EventType]

@@ -9,6 +9,8 @@ type RecurrencePreset = "none" | "daily" | "weekdays" | "weekly" | "biweekly" | 
 
 interface TaskInputProps {
   onAdd: (input: CreateTaskRequest) => void;
+  /** Open the form immediately on mount (used by the "N" shortcut / palette). */
+  autoFocus?: boolean;
 }
 
 const RECURRENCE_LABELS: Record<RecurrencePreset, string> = {
@@ -27,9 +29,9 @@ function weekdayOf(dateStr: string): string {
   return DAY_CODES[new Date(y, m - 1, d).getDay()];
 }
 
-export function TaskInput({ onAdd }: TaskInputProps) {
+export function TaskInput({ onAdd, autoFocus }: TaskInputProps) {
   const [courses, setCourses] = useState<Course[]>([]);
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(autoFocus ?? false);
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState("");
   const [dueDate, setDueDate] = useState("");

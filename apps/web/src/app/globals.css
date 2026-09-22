@@ -1,23 +1,98 @@
 @import "tailwindcss";
 
+/*
+ * Design tokens (Tailwind v4 @theme inline → utilities resolve to runtime CSS
+ * variables, so switching themes just swaps the variables on <html>).
+ *
+ * Themes: .light / .dark (default) / .zen. Every surface color in the app is
+ * drawn from these tokens; literals in older pages are being migrated phase by
+ * phase. Radii/spacing use the default scale (rounded-lg / rounded-2xl / p-4 /
+ * p-5 / p-6) for consistency.
+ */
+
+/* ---------- Dark (default) ---------- */
+:root,
+.dark {
+  --t-background: #0b0d12;
+  --t-surface: #13161d;
+  --t-surface-elevated: #1a1f28;
+  --t-border: #262c38;
+  --t-text: #e6e9ef;
+  --t-text-muted: #8a93a6;
+  --t-accent: #7c6cff;
+  --t-accent-hover: #9485ff;
+  --t-accent-soft: #211d3a;
+  --t-success: #35d07f;
+  --t-warning: #f0b429;
+  --t-danger: #ef4444;
+  --t-focus: #8fb0ff;
+  --t-backdrop: rgba(4, 6, 10, 0.72);
+}
+
+/* ---------- Light ---------- */
+.light {
+  --t-background: #f6f7f9;
+  --t-surface: #ffffff;
+  --t-surface-elevated: #eef1f5;
+  --t-border: #dfe3ea;
+  --t-text: #16181d;
+  --t-text-muted: #5b6472;
+  --t-accent: #5b4cf0;
+  --t-accent-hover: #4a3cd8;
+  --t-accent-soft: #ece9fe;
+  --t-success: #0f9d58;
+  --t-warning: #b7791f;
+  --t-danger: #d92d20;
+  --t-focus: #3a5bd9;
+  --t-backdrop: rgba(20, 22, 28, 0.42);
+}
+
+/* ---------- Zen (Phase 4 applies this class; tokens defined up front) ---------- */
+.zen {
+  --t-background: #020203;
+  --t-surface: #050507;
+  --t-surface-elevated: #0a0b10;
+  --t-border: #16181f;
+  --t-text: #dfe2e8;
+  --t-text-muted: #5f6572;
+  --t-accent: #6d5cff;
+  --t-accent-hover: #8273ff;
+  --t-accent-soft: #14102e;
+  --t-success: #2bb673;
+  --t-warning: #d4a437;
+  --t-danger: #d84545;
+  --t-focus: #7a8fe0;
+  --t-backdrop: rgba(0, 0, 0, 0.85);
+}
+
 @theme inline {
-  --color-background: #0b0d12;
-  --color-surface: #13161d;
-  --color-surface-elevated: #1a1f28;
-  --color-border: #262c38;
-  --color-text: #e6e9ef;
-  --color-text-muted: #8a93a6;
-  --color-accent: #7c6cff;
-  --color-accent-hover: #9485ff;
-  --color-success: #35d07f;
-  --color-warning: #f0b429;
-  --color-danger: #ef4444;
+  --color-background: var(--t-background);
+  --color-surface: var(--t-surface);
+  --color-surface-elevated: var(--t-surface-elevated);
+  --color-border: var(--t-border);
+  --color-text: var(--t-text);
+  --color-text-muted: var(--t-text-muted);
+  --color-accent: var(--t-accent);
+  --color-accent-hover: var(--t-accent-hover);
+  --color-accent-soft: var(--t-accent-soft);
+  --color-success: var(--t-success);
+  --color-warning: var(--t-warning);
+  --color-danger: var(--t-danger);
+  --color-focus: var(--t-focus);
+  --color-backdrop: var(--t-backdrop);
 
   --font-sans:
     ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
-:root {
+:root,
+.dark {
+  color-scheme: dark;
+}
+.light {
+  color-scheme: light;
+}
+.zen {
   color-scheme: dark;
 }
 
@@ -27,13 +102,142 @@ body {
 }
 
 body {
-  background-color: var(--color-background);
-  color: var(--color-text);
+  background-color: var(--t-background);
+  color: var(--t-text);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
 }
 
-/* Flip clock digits need explicit 3D context. */
+/* Semantic surfaces used across pages. */
+.bg-backdrop {
+  background-color: var(--t-backdrop);
+}
+
+/* Consistent keyboard focus ring (replaces outline-none + border-only). */
+.focus-ring {
+  outline: none;
+}
+.focus-ring:focus-visible {
+  outline: 2px solid var(--t-focus);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Subtle time-of-day context shift for the Today hero. */
+.hero-morning {
+  background:
+    radial-gradient(900px 420px at 12% -10%, color-mix(in srgb, var(--t-accent) 16%, transparent), transparent 60%);
+}
+.hero-midday {
+  background:
+    radial-gradient(900px 420px at 12% -10%, color-mix(in srgb, var(--t-warning) 12%, transparent), transparent 60%);
+}
+.hero-evening {
+  background:
+    radial-gradient(900px 420px at 12% -10%, color-mix(in srgb, var(--t-accent) 22%, transparent), transparent 60%);
+}
+.hero-night {
+  background:
+    radial-gradient(900px 420px at 12% -10%, color-mix(in srgb, var(--t-focus) 14%, transparent), transparent 60%);
+}
+
+/* Flip clock digits — one tile per digit with a half-split static face and
+   two animated "leaf" halves that peel away when the value changes. */
+/* One card per digit (classic flip-clock look): charcoal tile, faint center
+   seam, inner top highlight. Halves are opaque with the tile's own pieces so
+   the fold animation occludes seamlessly. */
+.flip-digit {
+  --flip-card: color-mix(in srgb, var(--t-text) 7%, var(--t-surface-elevated));
+  position: relative;
+  width: 0.8em;
+  height: 1em;
+  font-size: 1em;
+  perspective: 700px;
+  border-radius: 0.25em;
+  background: var(--flip-card);
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, var(--t-text) 12%, transparent),
+    0 0.06em 0.18em color-mix(in srgb, #000 55%, transparent);
+}
+@media (max-width: 480px) {
+  .flip-digit { border-radius: 0.2em; }
+}
+
+.flip-card-top,
+.flip-card-bottom,
+.flip-leaf-top,
+.flip-leaf-bottom,
+.flip-leaf-bottom-cover {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 50%;
+  overflow: hidden;
+  text-align: center;
+  color: var(--t-text);
+  background: var(--flip-card);
+}
+.flip-card-top,
+.flip-leaf-top {
+  top: 0;
+  transform-origin: 50% 100%;
+  border-bottom: 1px solid color-mix(in srgb, #000 30%, transparent);
+  border-top-left-radius: inherit;
+  border-top-right-radius: inherit;
+}
+.flip-card-bottom,
+.flip-leaf-bottom,
+.flip-leaf-bottom-cover {
+  bottom: 0;
+  transform-origin: 50% 0%;
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #000 25%, transparent);
+  border-bottom-left-radius: inherit;
+  border-bottom-right-radius: inherit;
+}
+
+/* The glyph sits on a 1em line box; the bottom half shifts it up half a
+   height so each half shows a TRUE half of the digit (the old flex-center
+   trick rendered the top half twice). */
+.flip-glyph {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1em;
+  line-height: 1em;
+}
+.flip-card-bottom .flip-glyph,
+.flip-leaf-bottom .flip-glyph,
+.flip-leaf-bottom-cover .flip-glyph {
+  top: -0.5em;
+}
+
+/* Leaves carry the OLD value and fold away to reveal the new face. */
+.flip-leaf-bottom-cover { z-index: 2; }
+.flip-leaf-top { z-index: 3; will-change: transform; backface-visibility: hidden; }
+.flip-leaf-bottom { z-index: 4; will-change: transform; backface-visibility: hidden; }
+
+.flip-leaf-top { animation: flipLeafTop 0.4s ease-in forwards; }
+.flip-leaf-bottom {
+  animation: flipLeafBottom 0.4s ease-out forwards;
+  animation-delay: 0.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flip-leaf-top,
+  .flip-leaf-bottom {
+    animation: none;
+  }
+}
+
+@keyframes flipLeafTop {
+  from { transform: rotateX(0deg); }
+  to { transform: rotateX(-90deg); }
+}
+@keyframes flipLeafBottom {
+  from { transform: rotateX(90deg); }
+  to { transform: rotateX(0deg); }
+}
 .perspective-600 {
   perspective: 600px;
 }
@@ -44,15 +248,40 @@ body {
   backface-visibility: hidden;
 }
 
-/* Subtle scrollbar, dark by default. */
+/* Subtle scrollbar. */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #262c38;
+  background: var(--t-border);
   border-radius: 8px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/*
+ * Reduced motion: honored both from the OS preference and from the explicit
+ * "Reduce motion" toggle (html.reduce-motion). Animations collapse to ~0 so
+ * nothing meaningful is lost.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html.reduce-motion *,
+html.reduce-motion *::before,
+html.reduce-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
 }

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { animate } from "animejs";
+import { wantsReducedMotion } from "@/lib/motion";
 
 interface AnimatedNumberProps {
   value: number;
@@ -26,6 +27,12 @@ export function AnimatedNumber({
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+
+    if (wantsReducedMotion()) {
+      prevRef.current = value;
+      el.textContent = format(value);
+      return;
+    }
 
     const from = prevRef.current;
     prevRef.current = value;

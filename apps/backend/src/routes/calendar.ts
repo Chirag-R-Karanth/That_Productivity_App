@@ -5,6 +5,8 @@ import { prisma } from "../lib/prisma.js";
 import { requireAuth } from "../middleware/auth.js";
 import { idempotency } from "../middleware/idempotency.js";
 import { ApiError } from "../lib/errors.js";
+import { recordEvent } from "../services/events.js";
+import { EventType } from "../generated/prisma/enums.js";
 import type { CalendarEvent } from "@prodapp/shared-types";
 import {
   ensureAccessToken,
@@ -129,6 +131,11 @@ router.post("/", async (req, res, next) => {
     });
 
     res.status(201).json({ ok: true, data: toPublicEvent(event) });
+    recordEvent(req.user.id, EventType.CALENDAR_EVENT_SYNCED, {
+      eventId: event.id,
+      title: event.title,
+      source: event.source,
+    });
   } catch (err) {
     next(err);
   }
@@ -165,6 +172,11 @@ router.patch("/:id", async (req, res, next) => {
     });
 
     res.json({ ok: true, data: toPublicEvent(event) });
+    recordEvent(req.user.id, EventType.CALENDAR_EVENT_UPDATED, {
+      eventId: event.id,
+      title: event.title,
+      source: event.source,
+    });
   } catch (err) {
     next(err);
   }
@@ -380,6 +392,13 @@ router.post("/google/sync", async (req, res, next) => {
         eventsDeleted,
         mergedDuplicates,
       },
+    });
+    recordEvent(req.user.id, EventType.CALENDAR_EVENT_SYNCED, {
+      source: "GOOGLE",
+      eventsAdded,
+      eventsUpdated,
+      eventsDeleted,
+      mergedDuplicates,
     });
   } catch (err) {
     next(err);

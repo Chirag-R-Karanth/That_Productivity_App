@@ -1,5 +1,6 @@
 import type { ApiResult, ApiErrorEnvelope, ApiEnvelope } from "@prodapp/shared-types";
 import { pushAction } from "@/lib/offlineQueue";
+import { emitSync, setLastSyncAt } from "@/lib/syncStatus";
 
 // Empty string → same-origin `/api/...` (used in the Docker/nginx deployment);
 // set NEXT_PUBLIC_API_URL at build time for cross-origin API servers.
@@ -36,6 +37,9 @@ async function request<T>(
   const idempotencyKey = ["POST", "PUT", "PATCH"].includes(method) ? crypto.randomUUID() : undefined;
   if (idempotencyKey) headers["Idempotency-Key"] = idempotencyKey;
 
+  const isMutation = MUTATING.includes(method);
+  if (isMutation) emitSync("saving");
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
 
@@ -49,9 +53,10 @@ async function request<T>(
     });
   } catch {
     // Offline (or unreachable): queue mutations for replay so nothing is lost.
-    if (MUTATING.includes(method)) {
+    if (isMutation) {
       try {
         await pushAction({ method, path, body, idempotencyKey });
+        emitSync("pending");
         return { ok: true, data: { queued: true } as unknown as T };
       } catch {
         // Queue unavailable — surface the failure to the caller.
@@ -70,11 +75,17 @@ async function request<T>(
     | null;
 
   if (!res.ok || !json || !("ok" in json) || json.ok !== true) {
+    if (isMutation) emitSync("issue");
     const err = (json as ApiErrorEnvelope | null)?.error ?? {
       code: "NETWORK_ERROR",
       message: `Request failed (${res.status})`,
     };
     throw Object.assign(new Error(err.message), { code: err.code, details: err.details });
+  }
+
+  if (isMutation) {
+    setLastSyncAt();
+    emitSync("saved");
   }
 
   return json;

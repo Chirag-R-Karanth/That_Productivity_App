@@ -37,6 +37,8 @@ model User {
   attendanceAutoMarkHours Int? // null = stay unconfirmed forever
   pomodoroWorkMinutes     Int?
   pomodoroBreakMinutes    Int?
+  pomodoroLongBreakMinutes Int?      // null = default 15
+  pomodoroSessionsPerCycle Int?      // null = default 4
   chimeOnTheHour          Boolean  @default(true)
   onboardingComplete      Boolean  @default(false)
 
@@ -49,6 +51,7 @@ model User {
   attendanceRecords AttendanceRecord[]
   pomodoroSessions PomodoroSession[]
   googleCalendars  LinkedGoogleCalendar[]
+  events         Event[]
 
   @@map("users")
 }
@@ -238,4 +241,39 @@ model PendingSync {
   error     String?
   createdAt DateTime @default(now())
   appliedAt DateTime?
+}
+
+// ---------- Immutable event log (analytics) ----------
+// A chronological, append-only record of what happened. Events are never
+// mutated or deleted after insert; analytics read from here instead of
+// re-deriving history from mutating tables.
+
+enum EventType {
+  TASK_CREATED
+  TASK_COMPLETED
+  TASK_UNCOMPLETED
+  TASK_UPDATED
+  TASK_DELETED
+  FOCUS_STARTED
+  FOCUS_COMPLETED
+  FOCUS_CANCELLED
+  ATTENDANCE_RECORDED
+  CLASS_SCHEDULED
+  CALENDAR_EVENT_SYNCED
+  CALENDAR_EVENT_UPDATED
+  GOOGLE_TASK_SYNCED
+}
+
+model Event {
+  id         String    @id @default(cuid())
+  userId     String
+  type       EventType
+  occurredAt DateTime  @default(now())
+  payload    Json      @default("{}")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, occurredAt])
+  @@index([userId, type])
+  @@map("events")
 }

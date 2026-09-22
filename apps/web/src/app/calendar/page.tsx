@@ -69,6 +69,24 @@ function ymd(date: Date): string {
   return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 }
 
+/**
+ * Serialize a Date as an ISO string in the *local* timezone. The calendar API
+ * range is meant to be local-day boundaries, so `.toISOString()` (UTC) would
+ * shift the window at non-UTC offsets and could drop events near midnight.
+ * The backend parses with `new Date()`, which understands the ±HH:MM suffix.
+ */
+function localISO(d: Date): string {
+  const pad = (n: number, w = 2) => String(n).padStart(w, "0");
+  const off = -d.getTimezoneOffset();
+  const sign = off >= 0 ? "+" : "-";
+  const abs = Math.abs(off);
+  return (
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}` +
+    `T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}.${pad(d.getMilliseconds(), 3)}` +
+    `${sign}${pad(Math.floor(abs / 60))}:${pad(abs % 60)}`
+  );
+}
+
 function addDays(date: Date, n: number): Date {
   const d = new Date(date);
   d.setDate(d.getDate() + n);
@@ -101,7 +119,12 @@ export default function CalendarPage() {
     from.setDate(1 - from.getDay());
     const to = new Date(year, month, 1, 0, 0, 0, 0);
     to.setDate(to.getDate() + 42 - from.getDate());
-    return { from: from.toISOString(), to: to.toISOString(), fromYmd: ymd(from), toYmd: ymd(addDays(to, -1)) };
+    return {
+      from: localISO(from),
+      to: localISO(to),
+      fromYmd: ymd(from),
+      toYmd: ymd(addDays(to, -1)),
+    };
   }, [year, month]);
 
   useEffect(() => {

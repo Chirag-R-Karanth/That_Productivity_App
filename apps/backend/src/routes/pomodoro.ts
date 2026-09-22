@@ -5,6 +5,8 @@ import { prisma } from "../lib/prisma.js";
 import { requireAuth } from "../middleware/auth.js";
 import { idempotency } from "../middleware/idempotency.js";
 import { ApiError } from "../lib/errors.js";
+import { recordEvent } from "../services/events.js";
+import { EventType } from "../generated/prisma/enums.js";
 import type { PomodoroSession, FocusTimeSummary } from "@prodapp/shared-types";
 
 const router: RouterType = Router();
@@ -64,6 +66,11 @@ router.post("/", async (req, res, next) => {
     });
 
     res.status(201).json({ ok: true, data: toPublicSession(session) });
+    recordEvent(req.user.id, EventType.FOCUS_STARTED, {
+      sessionId: session.id,
+      taskId: session.taskId,
+      plannedMinutes: session.durationMinutes,
+    });
   } catch (err) {
     next(err);
   }
@@ -87,6 +94,15 @@ router.patch("/:id/end", async (req, res, next) => {
     });
 
     res.json({ ok: true, data: toPublicSession(updated) });
+    recordEvent(
+      req.user.id,
+      updated.completed ? EventType.FOCUS_COMPLETED : EventType.FOCUS_CANCELLED,
+      {
+        sessionId: updated.id,
+        taskId: updated.taskId,
+        plannedMinutes: updated.durationMinutes,
+      },
+    );
   } catch (err) {
     next(err);
   }

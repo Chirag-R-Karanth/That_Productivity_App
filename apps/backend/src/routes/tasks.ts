@@ -6,6 +6,8 @@ import { requireAuth } from "../middleware/auth.js";
 import { idempotency } from "../middleware/idempotency.js";
 import { ApiError } from "../lib/errors.js";
 import { recurrence } from "../services/recurrence.js";
+import { recordEvent } from "../services/events.js";
+import { EventType } from "../generated/prisma/enums.js";
 
 const router: RouterType = Router();
 router.use(requireAuth);
@@ -261,6 +263,14 @@ router.post("/", async (req, res, next) => {
     }
 
     res.status(201).json({ ok: true, data: enrich(task) });
+    recordEvent(req.user.id, EventType.TASK_CREATED, {
+      taskId: task.id,
+      title: task.title,
+      priority: task.priority,
+      courseId: task.courseId,
+      dueDate: task.dueDate,
+      recurrenceRule: task.recurrenceRule,
+    });
   } catch (err) {
     next(err);
   }
@@ -300,6 +310,14 @@ router.patch("/:id", async (req, res, next) => {
     });
 
     res.json({ ok: true, data: enrich(task) });
+    recordEvent(req.user.id, EventType.TASK_UPDATED, {
+      taskId: task.id,
+      title: task.title,
+      priority: task.priority,
+      courseId: task.courseId,
+      dueDate: task.dueDate,
+      recurrenceRule: task.recurrenceRule,
+    });
   } catch (err) {
     next(err);
   }
@@ -351,6 +369,16 @@ router.post("/:id/complete", async (req, res, next) => {
         include: { course: { select: { name: true } } },
       });
 
+      recordEvent(
+        req.user.id,
+        body.completed ? EventType.TASK_COMPLETED : EventType.TASK_UNCOMPLETED,
+        {
+          taskId: task.id,
+          title: task.title,
+          occurrenceDate: body.occurrenceDate,
+        },
+      );
+
       return res.json({ ok: true, data: enrich(task) });
     }
 
@@ -371,6 +399,11 @@ router.post("/:id/complete", async (req, res, next) => {
     });
 
     res.json({ ok: true, data: enrich(task) });
+    recordEvent(
+      req.user.id,
+      body.completed ? EventType.TASK_COMPLETED : EventType.TASK_UNCOMPLETED,
+      { taskId: task.id, title: task.title },
+    );
   } catch (err) {
     next(err);
   }
@@ -392,6 +425,10 @@ router.delete("/:id", async (req, res, next) => {
     });
 
     res.json({ ok: true, data: { deleted: true } });
+    recordEvent(req.user.id, EventType.TASK_DELETED, {
+      taskId: existing.id,
+      title: existing.title,
+    });
   } catch (err) {
     next(err);
   }

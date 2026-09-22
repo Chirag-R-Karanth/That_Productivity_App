@@ -33,6 +33,9 @@ export const env = {
     process.env.GOOGLE_REDIRECT_URI ?? `${process.env.WEB_APP_URL ?? "http://localhost:3000"}/api/auth/google/callback`,
   // Known browser origin of the web app — OAuth callbacks redirect back here.
   webAppUrl: process.env.WEB_APP_URL ?? "http://localhost:3000",
+  // Where server-side snapshots (backups + pre-restore safety copies) live.
+  // Defaults to a local ./snapshots dir; mount a volume in Docker.
+  snapshotsDir: process.env.PRODAPP_SNAPSHOTS_DIR ?? path.resolve(process.cwd(), "snapshots"),
   fcmProjectId: process.env.FCM_PROJECT_ID ?? "",
   fcmPrivateKey: process.env.FCM_PRIVATE_KEY ?? "",
   fcmClientEmail: process.env.FCM_CLIENT_EMAIL ?? "",

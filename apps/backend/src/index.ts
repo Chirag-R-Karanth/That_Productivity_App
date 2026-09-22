@@ -7,13 +7,16 @@ import coursesRouter from "./routes/courses.js";
 import attendanceRouter from "./routes/attendance.js";
 import calendarRouter from "./routes/calendar.js";
 import pomodoroRouter from "./routes/pomodoro.js";
+import syncRouter from "./routes/sync.js";
+import eventsRouter from "./routes/events.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 import { startAttendanceCron, generateCatchUp } from "./services/attendanceCron.js";
 
 const app = express();
 
 app.use(cors({ origin: true, credentials: true }));
-app.use(express.json({ limit: "1mb" }));
+// Generous limit so snapshot imports (data-export JSON) can be restored.
+app.use(express.json({ limit: "50mb" }));
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true, data: { status: "ok", uptime: process.uptime() } });
@@ -26,6 +29,8 @@ app.use("/api/courses", coursesRouter);
 app.use("/api/attendance", attendanceRouter);
 app.use("/api/calendar", calendarRouter);
 app.use("/api/pomodoro", pomodoroRouter);
+app.use("/api/sync", syncRouter);
+app.use("/api/events", eventsRouter);
 
 app.use(notFound);
 app.use(errorHandler);

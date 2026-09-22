@@ -46,6 +46,41 @@ pnpm build                      # typecheck + build every package
 Apps are wired through `web` (browser → `NEXT_PUBLIC_API_URL` → API) and
 `mobile` (Metro bundles `EXPO_PUBLIC_API_URL`, default `http://localhost:4000`).
 
+## Backups (data safety)
+
+The database is the source of truth for tasks, courses, **timetable slots**
+(the `schedule` JSON on each course), attendance, calendar and focus data.
+Never run `prisma migrate reset` or a destructive seed. Use the backup tooling
+before any schema work:
+
+```bash
+pnpm backup          # pg_dump -> deploy/backups/productivity-<timestamp>.sql (+ row-count snapshot)
+pnpm backup:verify   # checks the newest dump's integrity + diffs current row counts
+pnpm backup:list     # list existing dumps
+```
+
+The database typically runs in the `productivity-db` Docker container; the
+script prefers `docker exec` and falls back to host `pg_dump`/`psql` when the
+container is absent. Connection settings come from `DATABASE_URL` in `.env`.
+
+**Migration rules enforced across this repo:**
+
+- Every schema change is additive with a migration path.
+- The timetable slot contract `{ dayOfWeek, startTime, endTime }` is frozen;
+  expansions use optional new fields and a separate date-based model.
+- Before/after every migration: run `pnpm backup`, verify record counts, then
+  re-run `pnpm backup:verify` after the change.
+
+## Data & Sync and conflict rules
+
+In-app, **Settings → Data & Sync** (and the `/data-sync` page) shows device and
+server health, exports and restores your data as validated JSON snapshots, and
+creates server-side snapshot backups. Restoring is never blind: the file is
+validated first, a `pre-restore` snapshot of the current state is written, and
+the replacement runs in one transaction against your user's data only.
+See [CONFLICTS.md](./CONFLICTS.md) for the sync conflict-resolution rules and
+the immutable event log, and [ROADMAP.md](./ROADMAP.md) for the phased redesign.
+
 ## Production (Docker self-host)
 
 `docker-compose.prod.yml` brings up the whole stack behind an nginx reverse

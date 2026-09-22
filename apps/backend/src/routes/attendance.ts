@@ -5,6 +5,8 @@ import { prisma } from "../lib/prisma.js";
 import { requireAuth } from "../middleware/auth.js";
 import { idempotency } from "../middleware/idempotency.js";
 import { ApiError } from "../lib/errors.js";
+import { recordEvent } from "../services/events.js";
+import { EventType } from "../generated/prisma/enums.js";
 import type { AttendanceRecord, AttendanceRecordWithCourse, TodayClass, AttendanceStatus } from "@prodapp/shared-types";
 import type { CourseScheduleSlot } from "@prodapp/shared-types";
 
@@ -52,6 +54,14 @@ function todayYMD(): string {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
+
+/**
+ * History window defaults. Fetching the history without explicit from/to should
+ * never silently hide data, so the default is a generous full-range window
+ * (never a single day, and never a hardcoded calendar year).
+ */
+const HISTORY_DEFAULT_FROM = "2000-01-01";
+const HISTORY_DEFAULT_TO = "2100-12-31";
 
 // Generate today's attendance records for all the user's courses that have a
 // scheduled slot today (used by onboarding + when adding a course mid-day).
@@ -154,8 +164,8 @@ router.get("/today", async (req, res, next) => {
 router.get("/", async (req, res, next) => {
   try {
     const userId = req.user.id;
-    const from = (req.query.from as string) ?? todayYMD();
-    const to = (req.query.to as string) ?? from;
+    const from = (req.query.from as string) ?? HISTORY_DEFAULT_FROM;
+    const to = (req.query.to as string) ?? HISTORY_DEFAULT_TO;
 
     const records = await prisma.attendanceRecord.findMany({
       where: {
@@ -218,6 +228,12 @@ router.patch("/:id/resolve", async (req, res, next) => {
         confirmedAt: updated.confirmedAt?.toISOString() ?? null,
         createdAt: updated.createdAt.toISOString(),
       },
+    });
+    recordEvent(req.user.id, EventType.ATTENDANCE_RECORDED, {
+      recordId: updated.id,
+      courseId: updated.courseId,
+      date: updated.date,
+      status: updated.status,
     });
   } catch (err) {
     next(err);

@@ -57,3 +57,8 @@ export type PomodoroSession = Prisma.PomodoroSessionModel
  * 
  */
 export type PendingSync = Prisma.PendingSyncModel
+/**
+ * Model Event
+ * 
+ */
+export type Event = Prisma.EventModel

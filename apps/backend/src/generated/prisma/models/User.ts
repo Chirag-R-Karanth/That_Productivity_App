@@ -30,12 +30,16 @@ export type UserAvgAggregateOutputType = {
   attendanceAutoMarkHours: number | null
   pomodoroWorkMinutes: number | null
   pomodoroBreakMinutes: number | null
+  pomodoroLongBreakMinutes: number | null
+  pomodoroSessionsPerCycle: number | null
 }
 
 export type UserSumAggregateOutputType = {
   attendanceAutoMarkHours: number | null
   pomodoroWorkMinutes: number | null
   pomodoroBreakMinutes: number | null
+  pomodoroLongBreakMinutes: number | null
+  pomodoroSessionsPerCycle: number | null
 }
 
 export type UserMinAggregateOutputType = {
@@ -51,6 +55,8 @@ export type UserMinAggregateOutputType = {
   attendanceAutoMarkHours: number | null
   pomodoroWorkMinutes: number | null
   pomodoroBreakMinutes: number | null
+  pomodoroLongBreakMinutes: number | null
+  pomodoroSessionsPerCycle: number | null
   chimeOnTheHour: boolean | null
   onboardingComplete: boolean | null
   createdAt: Date | null
@@ -70,6 +76,8 @@ export type UserMaxAggregateOutputType = {
   attendanceAutoMarkHours: number | null
   pomodoroWorkMinutes: number | null
   pomodoroBreakMinutes: number | null
+  pomodoroLongBreakMinutes: number | null
+  pomodoroSessionsPerCycle: number | null
   chimeOnTheHour: boolean | null
   onboardingComplete: boolean | null
   createdAt: Date | null
@@ -89,6 +97,8 @@ export type UserCountAggregateOutputType = {
   attendanceAutoMarkHours: number
   pomodoroWorkMinutes: number
   pomodoroBreakMinutes: number
+  pomodoroLongBreakMinutes: number
+  pomodoroSessionsPerCycle: number
   chimeOnTheHour: number
   onboardingComplete: number
   createdAt: number
@@ -101,12 +111,16 @@ export type UserAvgAggregateInputType = {
   attendanceAutoMarkHours?: true
   pomodoroWorkMinutes?: true
   pomodoroBreakMinutes?: true
+  pomodoroLongBreakMinutes?: true
+  pomodoroSessionsPerCycle?: true
 }
 
 export type UserSumAggregateInputType = {
   attendanceAutoMarkHours?: true
   pomodoroWorkMinutes?: true
   pomodoroBreakMinutes?: true
+  pomodoroLongBreakMinutes?: true
+  pomodoroSessionsPerCycle?: true
 }
 
 export type UserMinAggregateInputType = {
@@ -122,6 +136,8 @@ export type UserMinAggregateInputType = {
   attendanceAutoMarkHours?: true
   pomodoroWorkMinutes?: true
   pomodoroBreakMinutes?: true
+  pomodoroLongBreakMinutes?: true
+  pomodoroSessionsPerCycle?: true
   chimeOnTheHour?: true
   onboardingComplete?: true
   createdAt?: true
@@ -141,6 +157,8 @@ export type UserMaxAggregateInputType = {
   attendanceAutoMarkHours?: true
   pomodoroWorkMinutes?: true
   pomodoroBreakMinutes?: true
+  pomodoroLongBreakMinutes?: true
+  pomodoroSessionsPerCycle?: true
   chimeOnTheHour?: true
   onboardingComplete?: true
   createdAt?: true
@@ -160,6 +178,8 @@ export type UserCountAggregateInputType = {
   attendanceAutoMarkHours?: true
   pomodoroWorkMinutes?: true
   pomodoroBreakMinutes?: true
+  pomodoroLongBreakMinutes?: true
+  pomodoroSessionsPerCycle?: true
   chimeOnTheHour?: true
   onboardingComplete?: true
   createdAt?: true
@@ -266,6 +286,8 @@ export type UserGroupByOutputType = {
   attendanceAutoMarkHours: number | null
   pomodoroWorkMinutes: number | null
   pomodoroBreakMinutes: number | null
+  pomodoroLongBreakMinutes: number | null
+  pomodoroSessionsPerCycle: number | null
   chimeOnTheHour: boolean
   onboardingComplete: boolean
   createdAt: Date
@@ -308,6 +330,8 @@ export type UserWhereInput = {
   attendanceAutoMarkHours?: Prisma.IntNullableFilter<"User"> | number | null
   pomodoroWorkMinutes?: Prisma.IntNullableFilter<"User"> | number | null
   pomodoroBreakMinutes?: Prisma.IntNullableFilter<"User"> | number | null
+  pomodoroLongBreakMinutes?: Prisma.IntNullableFilter<"User"> | number | null
+  pomodoroSessionsPerCycle?: Prisma.IntNullableFilter<"User"> | number | null
   chimeOnTheHour?: Prisma.BoolFilter<"User"> | boolean
   onboardingComplete?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -318,6 +342,7 @@ export type UserWhereInput = {
   attendanceRecords?: Prisma.AttendanceRecordListRelationFilter
   pomodoroSessions?: Prisma.PomodoroSessionListRelationFilter
   googleCalendars?: Prisma.LinkedGoogleCalendarListRelationFilter
+  events?: Prisma.EventListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -333,6 +358,8 @@ export type UserOrderByWithRelationInput = {
   attendanceAutoMarkHours?: Prisma.SortOrderInput | Prisma.SortOrder
   pomodoroWorkMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   pomodoroBreakMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
+  pomodoroLongBreakMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
+  pomodoroSessionsPerCycle?: Prisma.SortOrderInput | Prisma.SortOrder
   chimeOnTheHour?: Prisma.SortOrder
   onboardingComplete?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -343,6 +370,7 @@ export type UserOrderByWithRelationInput = {
   attendanceRecords?: Prisma.AttendanceRecordOrderByRelationAggregateInput
   pomodoroSessions?: Prisma.PomodoroSessionOrderByRelationAggregateInput
   googleCalendars?: Prisma.LinkedGoogleCalendarOrderByRelationAggregateInput
+  events?: Prisma.EventOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -361,6 +389,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   attendanceAutoMarkHours?: Prisma.IntNullableFilter<"User"> | number | null
   pomodoroWorkMinutes?: Prisma.IntNullableFilter<"User"> | number | null
   pomodoroBreakMinutes?: Prisma.IntNullableFilter<"User"> | number | null
+  pomodoroLongBreakMinutes?: Prisma.IntNullableFilter<"User"> | number | null
+  pomodoroSessionsPerCycle?: Prisma.IntNullableFilter<"User"> | number | null
   chimeOnTheHour?: Prisma.BoolFilter<"User"> | boolean
   onboardingComplete?: Prisma.BoolFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
@@ -371,6 +401,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   attendanceRecords?: Prisma.AttendanceRecordListRelationFilter
   pomodoroSessions?: Prisma.PomodoroSessionListRelationFilter
   googleCalendars?: Prisma.LinkedGoogleCalendarListRelationFilter
+  events?: Prisma.EventListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -386,6 +417,8 @@ export type UserOrderByWithAggregationInput = {
   attendanceAutoMarkHours?: Prisma.SortOrderInput | Prisma.SortOrder
   pomodoroWorkMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   pomodoroBreakMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
+  pomodoroLongBreakMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
+  pomodoroSessionsPerCycle?: Prisma.SortOrderInput | Prisma.SortOrder
   chimeOnTheHour?: Prisma.SortOrder
   onboardingComplete?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -413,6 +446,8 @@ export type UserScalarWhereWithAggregatesInput = {
   attendanceAutoMarkHours?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   pomodoroWorkMinutes?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   pomodoroBreakMinutes?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
+  pomodoroLongBreakMinutes?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
+  pomodoroSessionsPerCycle?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   chimeOnTheHour?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   onboardingComplete?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -432,6 +467,8 @@ export type UserCreateInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -442,6 +479,7 @@ export type UserCreateInput = {
   attendanceRecords?: Prisma.AttendanceRecordCreateNestedManyWithoutUserInput
   pomodoroSessions?: Prisma.PomodoroSessionCreateNestedManyWithoutUserInput
   googleCalendars?: Prisma.LinkedGoogleCalendarCreateNestedManyWithoutUserInput
+  events?: Prisma.EventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -457,6 +495,8 @@ export type UserUncheckedCreateInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -467,6 +507,7 @@ export type UserUncheckedCreateInput = {
   attendanceRecords?: Prisma.AttendanceRecordUncheckedCreateNestedManyWithoutUserInput
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedCreateNestedManyWithoutUserInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedCreateNestedManyWithoutUserInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -482,6 +523,8 @@ export type UserUpdateInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -492,6 +535,7 @@ export type UserUpdateInput = {
   attendanceRecords?: Prisma.AttendanceRecordUpdateManyWithoutUserNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUpdateManyWithoutUserNestedInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -507,6 +551,8 @@ export type UserUncheckedUpdateInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -517,6 +563,7 @@ export type UserUncheckedUpdateInput = {
   attendanceRecords?: Prisma.AttendanceRecordUncheckedUpdateManyWithoutUserNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedUpdateManyWithoutUserNestedInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -532,6 +579,8 @@ export type UserCreateManyInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -551,6 +600,8 @@ export type UserUpdateManyMutationInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -570,6 +621,8 @@ export type UserUncheckedUpdateManyInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -589,6 +642,8 @@ export type UserCountOrderByAggregateInput = {
   attendanceAutoMarkHours?: Prisma.SortOrder
   pomodoroWorkMinutes?: Prisma.SortOrder
   pomodoroBreakMinutes?: Prisma.SortOrder
+  pomodoroLongBreakMinutes?: Prisma.SortOrder
+  pomodoroSessionsPerCycle?: Prisma.SortOrder
   chimeOnTheHour?: Prisma.SortOrder
   onboardingComplete?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -599,6 +654,8 @@ export type UserAvgOrderByAggregateInput = {
   attendanceAutoMarkHours?: Prisma.SortOrder
   pomodoroWorkMinutes?: Prisma.SortOrder
   pomodoroBreakMinutes?: Prisma.SortOrder
+  pomodoroLongBreakMinutes?: Prisma.SortOrder
+  pomodoroSessionsPerCycle?: Prisma.SortOrder
 }
 
 export type UserMaxOrderByAggregateInput = {
@@ -614,6 +671,8 @@ export type UserMaxOrderByAggregateInput = {
   attendanceAutoMarkHours?: Prisma.SortOrder
   pomodoroWorkMinutes?: Prisma.SortOrder
   pomodoroBreakMinutes?: Prisma.SortOrder
+  pomodoroLongBreakMinutes?: Prisma.SortOrder
+  pomodoroSessionsPerCycle?: Prisma.SortOrder
   chimeOnTheHour?: Prisma.SortOrder
   onboardingComplete?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -633,6 +692,8 @@ export type UserMinOrderByAggregateInput = {
   attendanceAutoMarkHours?: Prisma.SortOrder
   pomodoroWorkMinutes?: Prisma.SortOrder
   pomodoroBreakMinutes?: Prisma.SortOrder
+  pomodoroLongBreakMinutes?: Prisma.SortOrder
+  pomodoroSessionsPerCycle?: Prisma.SortOrder
   chimeOnTheHour?: Prisma.SortOrder
   onboardingComplete?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -643,6 +704,8 @@ export type UserSumOrderByAggregateInput = {
   attendanceAutoMarkHours?: Prisma.SortOrder
   pomodoroWorkMinutes?: Prisma.SortOrder
   pomodoroBreakMinutes?: Prisma.SortOrder
+  pomodoroLongBreakMinutes?: Prisma.SortOrder
+  pomodoroSessionsPerCycle?: Prisma.SortOrder
 }
 
 export type UserScalarRelationFilter = {
@@ -766,6 +829,20 @@ export type UserUpdateOneRequiredWithoutPomodoroSessionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPomodoroSessionsInput, Prisma.UserUpdateWithoutPomodoroSessionsInput>, Prisma.UserUncheckedUpdateWithoutPomodoroSessionsInput>
 }
 
+export type UserCreateNestedOneWithoutEventsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEventsInput, Prisma.UserUncheckedCreateWithoutEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEventsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEventsInput, Prisma.UserUncheckedCreateWithoutEventsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEventsInput
+  upsert?: Prisma.UserUpsertWithoutEventsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEventsInput, Prisma.UserUpdateWithoutEventsInput>, Prisma.UserUncheckedUpdateWithoutEventsInput>
+}
+
 export type UserCreateWithoutTasksInput = {
   id?: string
   email: string
@@ -779,6 +856,8 @@ export type UserCreateWithoutTasksInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -788,6 +867,7 @@ export type UserCreateWithoutTasksInput = {
   attendanceRecords?: Prisma.AttendanceRecordCreateNestedManyWithoutUserInput
   pomodoroSessions?: Prisma.PomodoroSessionCreateNestedManyWithoutUserInput
   googleCalendars?: Prisma.LinkedGoogleCalendarCreateNestedManyWithoutUserInput
+  events?: Prisma.EventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTasksInput = {
@@ -803,6 +883,8 @@ export type UserUncheckedCreateWithoutTasksInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -812,6 +894,7 @@ export type UserUncheckedCreateWithoutTasksInput = {
   attendanceRecords?: Prisma.AttendanceRecordUncheckedCreateNestedManyWithoutUserInput
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedCreateNestedManyWithoutUserInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedCreateNestedManyWithoutUserInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTasksInput = {
@@ -843,6 +926,8 @@ export type UserUpdateWithoutTasksInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -852,6 +937,7 @@ export type UserUpdateWithoutTasksInput = {
   attendanceRecords?: Prisma.AttendanceRecordUpdateManyWithoutUserNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUpdateManyWithoutUserNestedInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTasksInput = {
@@ -867,6 +953,8 @@ export type UserUncheckedUpdateWithoutTasksInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -876,6 +964,7 @@ export type UserUncheckedUpdateWithoutTasksInput = {
   attendanceRecords?: Prisma.AttendanceRecordUncheckedUpdateManyWithoutUserNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedUpdateManyWithoutUserNestedInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCoursesInput = {
@@ -891,6 +980,8 @@ export type UserCreateWithoutCoursesInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -900,6 +991,7 @@ export type UserCreateWithoutCoursesInput = {
   attendanceRecords?: Prisma.AttendanceRecordCreateNestedManyWithoutUserInput
   pomodoroSessions?: Prisma.PomodoroSessionCreateNestedManyWithoutUserInput
   googleCalendars?: Prisma.LinkedGoogleCalendarCreateNestedManyWithoutUserInput
+  events?: Prisma.EventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCoursesInput = {
@@ -915,6 +1007,8 @@ export type UserUncheckedCreateWithoutCoursesInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -924,6 +1018,7 @@ export type UserUncheckedCreateWithoutCoursesInput = {
   attendanceRecords?: Prisma.AttendanceRecordUncheckedCreateNestedManyWithoutUserInput
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedCreateNestedManyWithoutUserInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedCreateNestedManyWithoutUserInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCoursesInput = {
@@ -955,6 +1050,8 @@ export type UserUpdateWithoutCoursesInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -964,6 +1061,7 @@ export type UserUpdateWithoutCoursesInput = {
   attendanceRecords?: Prisma.AttendanceRecordUpdateManyWithoutUserNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUpdateManyWithoutUserNestedInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCoursesInput = {
@@ -979,6 +1077,8 @@ export type UserUncheckedUpdateWithoutCoursesInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -988,6 +1088,7 @@ export type UserUncheckedUpdateWithoutCoursesInput = {
   attendanceRecords?: Prisma.AttendanceRecordUncheckedUpdateManyWithoutUserNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedUpdateManyWithoutUserNestedInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAttendanceRecordsInput = {
@@ -1003,6 +1104,8 @@ export type UserCreateWithoutAttendanceRecordsInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -1012,6 +1115,7 @@ export type UserCreateWithoutAttendanceRecordsInput = {
   calendarEvents?: Prisma.CalendarEventCreateNestedManyWithoutUserInput
   pomodoroSessions?: Prisma.PomodoroSessionCreateNestedManyWithoutUserInput
   googleCalendars?: Prisma.LinkedGoogleCalendarCreateNestedManyWithoutUserInput
+  events?: Prisma.EventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
@@ -1027,6 +1131,8 @@ export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -1036,6 +1142,7 @@ export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
   calendarEvents?: Prisma.CalendarEventUncheckedCreateNestedManyWithoutUserInput
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedCreateNestedManyWithoutUserInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedCreateNestedManyWithoutUserInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAttendanceRecordsInput = {
@@ -1067,6 +1174,8 @@ export type UserUpdateWithoutAttendanceRecordsInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1076,6 +1185,7 @@ export type UserUpdateWithoutAttendanceRecordsInput = {
   calendarEvents?: Prisma.CalendarEventUpdateManyWithoutUserNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUpdateManyWithoutUserNestedInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
@@ -1091,6 +1201,8 @@ export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1100,6 +1212,7 @@ export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
   calendarEvents?: Prisma.CalendarEventUncheckedUpdateManyWithoutUserNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedUpdateManyWithoutUserNestedInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCalendarEventsInput = {
@@ -1115,6 +1228,8 @@ export type UserCreateWithoutCalendarEventsInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -1124,6 +1239,7 @@ export type UserCreateWithoutCalendarEventsInput = {
   attendanceRecords?: Prisma.AttendanceRecordCreateNestedManyWithoutUserInput
   pomodoroSessions?: Prisma.PomodoroSessionCreateNestedManyWithoutUserInput
   googleCalendars?: Prisma.LinkedGoogleCalendarCreateNestedManyWithoutUserInput
+  events?: Prisma.EventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCalendarEventsInput = {
@@ -1139,6 +1255,8 @@ export type UserUncheckedCreateWithoutCalendarEventsInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -1148,6 +1266,7 @@ export type UserUncheckedCreateWithoutCalendarEventsInput = {
   attendanceRecords?: Prisma.AttendanceRecordUncheckedCreateNestedManyWithoutUserInput
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedCreateNestedManyWithoutUserInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedCreateNestedManyWithoutUserInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCalendarEventsInput = {
@@ -1179,6 +1298,8 @@ export type UserUpdateWithoutCalendarEventsInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1188,6 +1309,7 @@ export type UserUpdateWithoutCalendarEventsInput = {
   attendanceRecords?: Prisma.AttendanceRecordUpdateManyWithoutUserNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUpdateManyWithoutUserNestedInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCalendarEventsInput = {
@@ -1203,6 +1325,8 @@ export type UserUncheckedUpdateWithoutCalendarEventsInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1212,6 +1336,7 @@ export type UserUncheckedUpdateWithoutCalendarEventsInput = {
   attendanceRecords?: Prisma.AttendanceRecordUncheckedUpdateManyWithoutUserNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedUpdateManyWithoutUserNestedInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutGoogleCalendarsInput = {
@@ -1227,6 +1352,8 @@ export type UserCreateWithoutGoogleCalendarsInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -1236,6 +1363,7 @@ export type UserCreateWithoutGoogleCalendarsInput = {
   calendarEvents?: Prisma.CalendarEventCreateNestedManyWithoutUserInput
   attendanceRecords?: Prisma.AttendanceRecordCreateNestedManyWithoutUserInput
   pomodoroSessions?: Prisma.PomodoroSessionCreateNestedManyWithoutUserInput
+  events?: Prisma.EventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGoogleCalendarsInput = {
@@ -1251,6 +1379,8 @@ export type UserUncheckedCreateWithoutGoogleCalendarsInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -1260,6 +1390,7 @@ export type UserUncheckedCreateWithoutGoogleCalendarsInput = {
   calendarEvents?: Prisma.CalendarEventUncheckedCreateNestedManyWithoutUserInput
   attendanceRecords?: Prisma.AttendanceRecordUncheckedCreateNestedManyWithoutUserInput
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedCreateNestedManyWithoutUserInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGoogleCalendarsInput = {
@@ -1291,6 +1422,8 @@ export type UserUpdateWithoutGoogleCalendarsInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1300,6 +1433,7 @@ export type UserUpdateWithoutGoogleCalendarsInput = {
   calendarEvents?: Prisma.CalendarEventUpdateManyWithoutUserNestedInput
   attendanceRecords?: Prisma.AttendanceRecordUpdateManyWithoutUserNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGoogleCalendarsInput = {
@@ -1315,6 +1449,8 @@ export type UserUncheckedUpdateWithoutGoogleCalendarsInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1324,6 +1460,7 @@ export type UserUncheckedUpdateWithoutGoogleCalendarsInput = {
   calendarEvents?: Prisma.CalendarEventUncheckedUpdateManyWithoutUserNestedInput
   attendanceRecords?: Prisma.AttendanceRecordUncheckedUpdateManyWithoutUserNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPomodoroSessionsInput = {
@@ -1339,6 +1476,8 @@ export type UserCreateWithoutPomodoroSessionsInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -1348,6 +1487,7 @@ export type UserCreateWithoutPomodoroSessionsInput = {
   calendarEvents?: Prisma.CalendarEventCreateNestedManyWithoutUserInput
   attendanceRecords?: Prisma.AttendanceRecordCreateNestedManyWithoutUserInput
   googleCalendars?: Prisma.LinkedGoogleCalendarCreateNestedManyWithoutUserInput
+  events?: Prisma.EventCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPomodoroSessionsInput = {
@@ -1363,6 +1503,8 @@ export type UserUncheckedCreateWithoutPomodoroSessionsInput = {
   attendanceAutoMarkHours?: number | null
   pomodoroWorkMinutes?: number | null
   pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: Date | string
@@ -1372,6 +1514,7 @@ export type UserUncheckedCreateWithoutPomodoroSessionsInput = {
   calendarEvents?: Prisma.CalendarEventUncheckedCreateNestedManyWithoutUserInput
   attendanceRecords?: Prisma.AttendanceRecordUncheckedCreateNestedManyWithoutUserInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedCreateNestedManyWithoutUserInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPomodoroSessionsInput = {
@@ -1403,6 +1546,8 @@ export type UserUpdateWithoutPomodoroSessionsInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1412,6 +1557,7 @@ export type UserUpdateWithoutPomodoroSessionsInput = {
   calendarEvents?: Prisma.CalendarEventUpdateManyWithoutUserNestedInput
   attendanceRecords?: Prisma.AttendanceRecordUpdateManyWithoutUserNestedInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPomodoroSessionsInput = {
@@ -1427,6 +1573,8 @@ export type UserUncheckedUpdateWithoutPomodoroSessionsInput = {
   attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1435,6 +1583,131 @@ export type UserUncheckedUpdateWithoutPomodoroSessionsInput = {
   courses?: Prisma.CourseUncheckedUpdateManyWithoutUserNestedInput
   calendarEvents?: Prisma.CalendarEventUncheckedUpdateManyWithoutUserNestedInput
   attendanceRecords?: Prisma.AttendanceRecordUncheckedUpdateManyWithoutUserNestedInput
+  googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutEventsInput = {
+  id?: string
+  email: string
+  name?: string
+  passwordHash?: string | null
+  authProvider?: $Enums.AuthProvider
+  googleRefreshToken?: string | null
+  googleAccessToken?: string | null
+  googleTokenExpiresAt?: Date | string | null
+  fcmToken?: string | null
+  attendanceAutoMarkHours?: number | null
+  pomodoroWorkMinutes?: number | null
+  pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
+  chimeOnTheHour?: boolean
+  onboardingComplete?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  courses?: Prisma.CourseCreateNestedManyWithoutUserInput
+  calendarEvents?: Prisma.CalendarEventCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceRecordCreateNestedManyWithoutUserInput
+  pomodoroSessions?: Prisma.PomodoroSessionCreateNestedManyWithoutUserInput
+  googleCalendars?: Prisma.LinkedGoogleCalendarCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutEventsInput = {
+  id?: string
+  email: string
+  name?: string
+  passwordHash?: string | null
+  authProvider?: $Enums.AuthProvider
+  googleRefreshToken?: string | null
+  googleAccessToken?: string | null
+  googleTokenExpiresAt?: Date | string | null
+  fcmToken?: string | null
+  attendanceAutoMarkHours?: number | null
+  pomodoroWorkMinutes?: number | null
+  pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
+  chimeOnTheHour?: boolean
+  onboardingComplete?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  courses?: Prisma.CourseUncheckedCreateNestedManyWithoutUserInput
+  calendarEvents?: Prisma.CalendarEventUncheckedCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceRecordUncheckedCreateNestedManyWithoutUserInput
+  pomodoroSessions?: Prisma.PomodoroSessionUncheckedCreateNestedManyWithoutUserInput
+  googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutEventsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutEventsInput, Prisma.UserUncheckedCreateWithoutEventsInput>
+}
+
+export type UserUpsertWithoutEventsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutEventsInput, Prisma.UserUncheckedUpdateWithoutEventsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutEventsInput, Prisma.UserUncheckedCreateWithoutEventsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutEventsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutEventsInput, Prisma.UserUncheckedUpdateWithoutEventsInput>
+}
+
+export type UserUpdateWithoutEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleAccessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fcmToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  courses?: Prisma.CourseUpdateManyWithoutUserNestedInput
+  calendarEvents?: Prisma.CalendarEventUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceRecordUpdateManyWithoutUserNestedInput
+  pomodoroSessions?: Prisma.PomodoroSessionUpdateManyWithoutUserNestedInput
+  googleCalendars?: Prisma.LinkedGoogleCalendarUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutEventsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleAccessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fcmToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  courses?: Prisma.CourseUncheckedUpdateManyWithoutUserNestedInput
+  calendarEvents?: Prisma.CalendarEventUncheckedUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceRecordUncheckedUpdateManyWithoutUserNestedInput
+  pomodoroSessions?: Prisma.PomodoroSessionUncheckedUpdateManyWithoutUserNestedInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -1450,6 +1723,7 @@ export type UserCountOutputType = {
   attendanceRecords: number
   pomodoroSessions: number
   googleCalendars: number
+  events: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1459,6 +1733,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   attendanceRecords?: boolean | UserCountOutputTypeCountAttendanceRecordsArgs
   pomodoroSessions?: boolean | UserCountOutputTypeCountPomodoroSessionsArgs
   googleCalendars?: boolean | UserCountOutputTypeCountGoogleCalendarsArgs
+  events?: boolean | UserCountOutputTypeCountEventsArgs
 }
 
 /**
@@ -1513,6 +1788,13 @@ export type UserCountOutputTypeCountGoogleCalendarsArgs<ExtArgs extends runtime.
   where?: Prisma.LinkedGoogleCalendarWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EventWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1527,6 +1809,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   attendanceAutoMarkHours?: boolean
   pomodoroWorkMinutes?: boolean
   pomodoroBreakMinutes?: boolean
+  pomodoroLongBreakMinutes?: boolean
+  pomodoroSessionsPerCycle?: boolean
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: boolean
@@ -1537,6 +1821,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   attendanceRecords?: boolean | Prisma.User$attendanceRecordsArgs<ExtArgs>
   pomodoroSessions?: boolean | Prisma.User$pomodoroSessionsArgs<ExtArgs>
   googleCalendars?: boolean | Prisma.User$googleCalendarsArgs<ExtArgs>
+  events?: boolean | Prisma.User$eventsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1553,6 +1838,8 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   attendanceAutoMarkHours?: boolean
   pomodoroWorkMinutes?: boolean
   pomodoroBreakMinutes?: boolean
+  pomodoroLongBreakMinutes?: boolean
+  pomodoroSessionsPerCycle?: boolean
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: boolean
@@ -1572,6 +1859,8 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   attendanceAutoMarkHours?: boolean
   pomodoroWorkMinutes?: boolean
   pomodoroBreakMinutes?: boolean
+  pomodoroLongBreakMinutes?: boolean
+  pomodoroSessionsPerCycle?: boolean
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: boolean
@@ -1591,13 +1880,15 @@ export type UserSelectScalar = {
   attendanceAutoMarkHours?: boolean
   pomodoroWorkMinutes?: boolean
   pomodoroBreakMinutes?: boolean
+  pomodoroLongBreakMinutes?: boolean
+  pomodoroSessionsPerCycle?: boolean
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "passwordHash" | "authProvider" | "googleRefreshToken" | "googleAccessToken" | "googleTokenExpiresAt" | "fcmToken" | "attendanceAutoMarkHours" | "pomodoroWorkMinutes" | "pomodoroBreakMinutes" | "chimeOnTheHour" | "onboardingComplete" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "passwordHash" | "authProvider" | "googleRefreshToken" | "googleAccessToken" | "googleTokenExpiresAt" | "fcmToken" | "attendanceAutoMarkHours" | "pomodoroWorkMinutes" | "pomodoroBreakMinutes" | "pomodoroLongBreakMinutes" | "pomodoroSessionsPerCycle" | "chimeOnTheHour" | "onboardingComplete" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tasks?: boolean | Prisma.User$tasksArgs<ExtArgs>
   courses?: boolean | Prisma.User$coursesArgs<ExtArgs>
@@ -1605,6 +1896,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   attendanceRecords?: boolean | Prisma.User$attendanceRecordsArgs<ExtArgs>
   pomodoroSessions?: boolean | Prisma.User$pomodoroSessionsArgs<ExtArgs>
   googleCalendars?: boolean | Prisma.User$googleCalendarsArgs<ExtArgs>
+  events?: boolean | Prisma.User$eventsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1619,6 +1911,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     attendanceRecords: Prisma.$AttendanceRecordPayload<ExtArgs>[]
     pomodoroSessions: Prisma.$PomodoroSessionPayload<ExtArgs>[]
     googleCalendars: Prisma.$LinkedGoogleCalendarPayload<ExtArgs>[]
+    events: Prisma.$EventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1633,6 +1926,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     attendanceAutoMarkHours: number | null
     pomodoroWorkMinutes: number | null
     pomodoroBreakMinutes: number | null
+    pomodoroLongBreakMinutes: number | null
+    pomodoroSessionsPerCycle: number | null
     chimeOnTheHour: boolean
     onboardingComplete: boolean
     createdAt: Date
@@ -2037,6 +2332,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   attendanceRecords<T extends Prisma.User$attendanceRecordsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$attendanceRecordsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AttendanceRecordPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   pomodoroSessions<T extends Prisma.User$pomodoroSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$pomodoroSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PomodoroSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   googleCalendars<T extends Prisma.User$googleCalendarsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$googleCalendarsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LinkedGoogleCalendarPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  events<T extends Prisma.User$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2078,6 +2374,8 @@ export interface UserFieldRefs {
   readonly attendanceAutoMarkHours: Prisma.FieldRef<"User", 'Int'>
   readonly pomodoroWorkMinutes: Prisma.FieldRef<"User", 'Int'>
   readonly pomodoroBreakMinutes: Prisma.FieldRef<"User", 'Int'>
+  readonly pomodoroLongBreakMinutes: Prisma.FieldRef<"User", 'Int'>
+  readonly pomodoroSessionsPerCycle: Prisma.FieldRef<"User", 'Int'>
   readonly chimeOnTheHour: Prisma.FieldRef<"User", 'Boolean'>
   readonly onboardingComplete: Prisma.FieldRef<"User", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"User", 'DateTime'>
@@ -2616,6 +2914,30 @@ export type User$googleCalendarsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.LinkedGoogleCalendarScalarFieldEnum | Prisma.LinkedGoogleCalendarScalarFieldEnum[]
+}
+
+/**
+ * User.events
+ */
+export type User$eventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Event
+   */
+  select?: Prisma.EventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Event
+   */
+  omit?: Prisma.EventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EventInclude<ExtArgs> | null
+  where?: Prisma.EventWhereInput
+  orderBy?: Prisma.EventOrderByWithRelationInput | Prisma.EventOrderByWithRelationInput[]
+  cursor?: Prisma.EventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EventScalarFieldEnum | Prisma.EventScalarFieldEnum[]
 }
 
 /**

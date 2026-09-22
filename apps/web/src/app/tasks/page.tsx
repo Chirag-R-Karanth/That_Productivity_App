@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { animate, stagger } from "animejs";
 import { AppShell } from "@/components/AppShell";
 import { useTasks, type TaskFilter } from "@/lib/useTasks";
@@ -18,6 +18,13 @@ export default function TasksPage() {
   const { tasks, loading, filter, setFilter, addTask, completeTask, deleteTask } =
     useTasks();
   const listRef = useRef<HTMLDivElement>(null);
+  const [autoFocus, setAutoFocus] = useState(false);
+
+  // "N" shortcut / palette navigate to ?new=1 — pick it up client-side.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setAutoFocus(new URLSearchParams(window.location.search).get("new") === "1");
+  }, []);
 
   // Staggered entrance on filter change / first load.
   useEffect(() => {
@@ -66,7 +73,7 @@ export default function TasksPage() {
 
       <Reveal delay={0}>
         <div className="mb-6">
-          <TaskInput onAdd={addTask} />
+          <TaskInput onAdd={addTask} autoFocus={autoFocus} />
         </div>
       </Reveal>
 

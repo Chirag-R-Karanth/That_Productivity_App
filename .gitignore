@@ -8,3 +8,5 @@ dist/
 .DS_Store
 android/.gradle/
 android/app/build/
+# server-side JSON snapshot backups (created via the Data & Sync page)
+**/snapshots/

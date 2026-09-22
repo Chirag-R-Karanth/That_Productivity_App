@@ -13,7 +13,10 @@
     "docker:prod:build": "docker compose -f docker-compose.prod.yml build",
     "docker:prod:up": "docker compose -f docker-compose.prod.yml up -d --build",
     "docker:prod:down": "docker compose -f docker-compose.prod.yml down",
-    "docker:prod:ps": "docker compose -f docker-compose.prod.yml ps"
+    "docker:prod:ps": "docker compose -f docker-compose.prod.yml ps",
+    "backup": "node scripts/backup.mjs backup",
+    "backup:verify": "node scripts/backup.mjs verify",
+    "backup:list": "node scripts/backup.mjs list"
   },
   "devDependencies": {
     "turbo": "^2.10.13",

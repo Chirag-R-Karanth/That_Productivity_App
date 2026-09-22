@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { api, setAuthToken, getAuthToken } from "@/lib/api";
 import { pushAction, getPendingActions, removeAction } from "@/lib/offlineQueue";
+import { emitSync, setLastSyncAt } from "@/lib/syncStatus";
 
 const SYNC_TAG = "prodapp-flush";
 const AUTH_TOKEN_STORAGE_KEY = "token";
@@ -87,6 +88,8 @@ export async function replayOfflineQueue(): Promise<boolean> {
     }
   }
   if (replayed) {
+    setLastSyncAt();
+    emitSync("saved");
     window.dispatchEvent(new CustomEvent("sync-refresh"));
   }
   return replayed;

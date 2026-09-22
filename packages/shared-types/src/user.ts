@@ -18,6 +18,8 @@ export interface UserCredentials {
   attendanceAutoMarkHours: number | null;
   pomodoroWorkMinutes: number | null;
   pomodoroBreakMinutes: number | null;
+  pomodoroLongBreakMinutes: number | null;
+  pomodoroSessionsPerCycle: number | null;
   chimeOnTheHour: boolean;
   googleRefreshToken: string | null;
   googleAccessToken: string | null;
@@ -47,6 +49,8 @@ export interface UpdateUserRequest {
   attendanceAutoMarkHours?: number | null;
   pomodoroWorkMinutes?: number;
   pomodoroBreakMinutes?: number;
+  pomodoroLongBreakMinutes?: number;
+  pomodoroSessionsPerCycle?: number;
   chimeOnTheHour?: boolean;
   /** Endpoint only — client sends the new FCM token. */
   fcmToken?: string | null;
@@ -61,6 +65,8 @@ export interface AttendanceSettings {
 export interface PomodoroSettings {
   pomodoroWorkMinutes: number;
   pomodoroBreakMinutes: number;
+  pomodoroLongBreakMinutes: number;
+  pomodoroSessionsPerCycle: number;
 }
 
 export interface ChimeSettings {

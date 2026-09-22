@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { animate } from "animejs";
+import { wantsReducedMotion } from "@/lib/motion";
 
 interface RevealProps {
   children: React.ReactNode;
@@ -16,6 +17,10 @@ export function Reveal({ children, delay = 0, className }: RevealProps) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    if (wantsReducedMotion()) {
+      el.style.opacity = "1";
+      return;
+    }
     const anim = animate(el, {
       opacity: [0, 1],
       translateY: [12, 0],

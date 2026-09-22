@@ -6,7 +6,7 @@ import { Reveal } from "@/components/Reveal";
 import { useServiceWorker } from "@/hooks/useServiceWorker";
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
-  const { user, loading, login, register, logout } = useAuth();
+  const { user, loading, login, register } = useAuth();
   useServiceWorker();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -93,18 +93,5 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return (
-    <>
-      <div className="fixed right-4 top-4 z-50 flex items-center gap-3">
-        <span className="text-xs text-text-muted">{user.email}</span>
-        <button
-          onClick={logout}
-          className="rounded-md bg-surface px-3 py-1 text-xs text-text-muted transition-colors hover:bg-surface-elevated"
-        >
-          Sign out
-        </button>
-      </div>
-      {children}
-    </>
-  );
+  return <>{children}</>;
 }

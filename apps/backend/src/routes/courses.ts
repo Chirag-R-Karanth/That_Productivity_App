@@ -6,6 +6,8 @@ import { requireAuth } from "../middleware/auth.js";
 import { idempotency } from "../middleware/idempotency.js";
 import { ApiError } from "../lib/errors.js";
 import type { Course } from "@prodapp/shared-types";
+import { recordEvent } from "../services/events.js";
+import { EventType } from "../generated/prisma/enums.js";
 
 const router: RouterType = Router();
 router.use(requireAuth);
@@ -80,6 +82,13 @@ router.post("/", async (req, res, next) => {
       },
     });
     res.status(201).json({ ok: true, data: toPublicCourse(course) });
+    if (course.schedule && Array.isArray(course.schedule) && course.schedule.length > 0) {
+      recordEvent(req.user.id, EventType.CLASS_SCHEDULED, {
+        courseId: course.id,
+        courseName: course.name,
+        schedule: course.schedule,
+      });
+    }
   } catch (err) {
     next(err);
   }
@@ -107,6 +116,13 @@ router.patch("/:id", async (req, res, next) => {
     });
 
     res.json({ ok: true, data: toPublicCourse(course) });
+    if (course.schedule && Array.isArray(course.schedule) && course.schedule.length > 0) {
+      recordEvent(req.user.id, EventType.CLASS_SCHEDULED, {
+        courseId: course.id,
+        courseName: course.name,
+        schedule: course.schedule,
+      });
+    }
   } catch (err) {
     next(err);
   }

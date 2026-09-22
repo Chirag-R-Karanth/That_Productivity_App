@@ -30,7 +30,7 @@ export default function AttendancePage() {
       const [s, t, h] = await Promise.all([
         api.get<CourseAttendanceSummary[]>("/api/courses/summaries"),
         api.get<TodayClass[]>("/api/attendance/today"),
-        api.get<{ date: string; records: AttendanceRecordWithCourse[] }[]>("/api/attendance?from=2026-01-01&to=2026-12-31"),
+        api.get<{ date: string; records: AttendanceRecordWithCourse[] }[]>("/api/attendance"),
       ]);
       if ("ok" in s && s.ok) setSummaries(s.data);
       if ("ok" in t && t.ok) setToday(t.data);
@@ -165,7 +165,7 @@ export default function AttendancePage() {
               <p className="text-sm text-text-muted">No attendance records yet.</p>
             </div>
           )}
-          {history.slice(0, 14).map((day) => (
+          {history.map((day) => (
             <div key={day.date}>
               <p className="mb-2 text-xs font-medium text-text-muted">{day.date}</p>
               <div className="space-y-1">

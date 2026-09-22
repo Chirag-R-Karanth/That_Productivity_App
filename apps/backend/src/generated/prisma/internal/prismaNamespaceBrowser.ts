@@ -58,7 +58,8 @@ export const ModelName = {
   CalendarEvent: 'CalendarEvent',
   LinkedGoogleCalendar: 'LinkedGoogleCalendar',
   PomodoroSession: 'PomodoroSession',
-  PendingSync: 'PendingSync'
+  PendingSync: 'PendingSync',
+  Event: 'Event'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -90,6 +91,8 @@ export const UserScalarFieldEnum = {
   attendanceAutoMarkHours: 'attendanceAutoMarkHours',
   pomodoroWorkMinutes: 'pomodoroWorkMinutes',
   pomodoroBreakMinutes: 'pomodoroBreakMinutes',
+  pomodoroLongBreakMinutes: 'pomodoroLongBreakMinutes',
+  pomodoroSessionsPerCycle: 'pomodoroSessionsPerCycle',
   chimeOnTheHour: 'chimeOnTheHour',
   onboardingComplete: 'onboardingComplete',
   createdAt: 'createdAt',
@@ -209,6 +212,17 @@ export const PendingSyncScalarFieldEnum = {
 } as const
 
 export type PendingSyncScalarFieldEnum = (typeof PendingSyncScalarFieldEnum)[keyof typeof PendingSyncScalarFieldEnum]
+
+
+export const EventScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  type: 'type',
+  occurredAt: 'occurredAt',
+  payload: 'payload'
+} as const
+
+export type EventScalarFieldEnum = (typeof EventScalarFieldEnum)[keyof typeof EventScalarFieldEnum]
 
 
 export const SortOrder = {
