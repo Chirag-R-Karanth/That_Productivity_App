@@ -26,6 +26,17 @@ export const TaskPriority = {
 export type TaskPriority = (typeof TaskPriority)[keyof typeof TaskPriority]
 
 
+export const TimetableEntryKind = {
+  EXAM: 'EXAM',
+  HOLIDAY: 'HOLIDAY',
+  EXCEPTION: 'EXCEPTION',
+  RESCHEDULED: 'RESCHEDULED',
+  EVENT: 'EVENT'
+} as const
+
+export type TimetableEntryKind = (typeof TimetableEntryKind)[keyof typeof TimetableEntryKind]
+
+
 export const AttendanceStatus = {
   ATTENDED: 'ATTENDED',
   MISSED: 'MISSED',

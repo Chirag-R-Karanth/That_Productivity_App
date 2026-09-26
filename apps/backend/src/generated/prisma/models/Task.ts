@@ -20,8 +20,18 @@ export type TaskModel = runtime.Types.Result.DefaultSelection<Prisma.$TaskPayloa
 
 export type AggregateTask = {
   _count: TaskCountAggregateOutputType | null
+  _avg: TaskAvgAggregateOutputType | null
+  _sum: TaskSumAggregateOutputType | null
   _min: TaskMinAggregateOutputType | null
   _max: TaskMaxAggregateOutputType | null
+}
+
+export type TaskAvgAggregateOutputType = {
+  estimateMinutes: number | null
+}
+
+export type TaskSumAggregateOutputType = {
+  estimateMinutes: number | null
 }
 
 export type TaskMinAggregateOutputType = {
@@ -31,6 +41,8 @@ export type TaskMinAggregateOutputType = {
   notes: string | null
   dueDate: string | null
   dueTime: string | null
+  plannedDate: string | null
+  estimateMinutes: number | null
   completed: boolean | null
   completedAt: Date | null
   deletedAt: Date | null
@@ -40,6 +52,12 @@ export type TaskMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   courseId: string | null
+  connectionId: string | null
+  googleTaskListId: string | null
+  googleTaskId: string | null
+  googleETag: string | null
+  googleDeleted: boolean | null
+  googlePushedAt: Date | null
 }
 
 export type TaskMaxAggregateOutputType = {
@@ -49,6 +67,8 @@ export type TaskMaxAggregateOutputType = {
   notes: string | null
   dueDate: string | null
   dueTime: string | null
+  plannedDate: string | null
+  estimateMinutes: number | null
   completed: boolean | null
   completedAt: Date | null
   deletedAt: Date | null
@@ -58,6 +78,12 @@ export type TaskMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   courseId: string | null
+  connectionId: string | null
+  googleTaskListId: string | null
+  googleTaskId: string | null
+  googleETag: string | null
+  googleDeleted: boolean | null
+  googlePushedAt: Date | null
 }
 
 export type TaskCountAggregateOutputType = {
@@ -67,6 +93,8 @@ export type TaskCountAggregateOutputType = {
   notes: number
   dueDate: number
   dueTime: number
+  plannedDate: number
+  estimateMinutes: number
   completed: number
   completedAt: number
   deletedAt: number
@@ -76,9 +104,23 @@ export type TaskCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   courseId: number
+  connectionId: number
+  googleTaskListId: number
+  googleTaskId: number
+  googleETag: number
+  googleDeleted: number
+  googlePushedAt: number
   _all: number
 }
 
+
+export type TaskAvgAggregateInputType = {
+  estimateMinutes?: true
+}
+
+export type TaskSumAggregateInputType = {
+  estimateMinutes?: true
+}
 
 export type TaskMinAggregateInputType = {
   id?: true
@@ -87,6 +129,8 @@ export type TaskMinAggregateInputType = {
   notes?: true
   dueDate?: true
   dueTime?: true
+  plannedDate?: true
+  estimateMinutes?: true
   completed?: true
   completedAt?: true
   deletedAt?: true
@@ -96,6 +140,12 @@ export type TaskMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   courseId?: true
+  connectionId?: true
+  googleTaskListId?: true
+  googleTaskId?: true
+  googleETag?: true
+  googleDeleted?: true
+  googlePushedAt?: true
 }
 
 export type TaskMaxAggregateInputType = {
@@ -105,6 +155,8 @@ export type TaskMaxAggregateInputType = {
   notes?: true
   dueDate?: true
   dueTime?: true
+  plannedDate?: true
+  estimateMinutes?: true
   completed?: true
   completedAt?: true
   deletedAt?: true
@@ -114,6 +166,12 @@ export type TaskMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   courseId?: true
+  connectionId?: true
+  googleTaskListId?: true
+  googleTaskId?: true
+  googleETag?: true
+  googleDeleted?: true
+  googlePushedAt?: true
 }
 
 export type TaskCountAggregateInputType = {
@@ -123,6 +181,8 @@ export type TaskCountAggregateInputType = {
   notes?: true
   dueDate?: true
   dueTime?: true
+  plannedDate?: true
+  estimateMinutes?: true
   completed?: true
   completedAt?: true
   deletedAt?: true
@@ -132,6 +192,12 @@ export type TaskCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   courseId?: true
+  connectionId?: true
+  googleTaskListId?: true
+  googleTaskId?: true
+  googleETag?: true
+  googleDeleted?: true
+  googlePushedAt?: true
   _all?: true
 }
 
@@ -173,6 +239,18 @@ export type TaskAggregateArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: TaskAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: TaskSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: TaskMinAggregateInputType
@@ -203,6 +281,8 @@ export type TaskGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
   take?: number
   skip?: number
   _count?: TaskCountAggregateInputType | true
+  _avg?: TaskAvgAggregateInputType
+  _sum?: TaskSumAggregateInputType
   _min?: TaskMinAggregateInputType
   _max?: TaskMaxAggregateInputType
 }
@@ -214,6 +294,8 @@ export type TaskGroupByOutputType = {
   notes: string | null
   dueDate: string | null
   dueTime: string | null
+  plannedDate: string | null
+  estimateMinutes: number | null
   completed: boolean
   completedAt: Date | null
   deletedAt: Date | null
@@ -223,7 +305,15 @@ export type TaskGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   courseId: string | null
+  connectionId: string | null
+  googleTaskListId: string | null
+  googleTaskId: string | null
+  googleETag: string | null
+  googleDeleted: boolean
+  googlePushedAt: Date | null
   _count: TaskCountAggregateOutputType | null
+  _avg: TaskAvgAggregateOutputType | null
+  _sum: TaskSumAggregateOutputType | null
   _min: TaskMinAggregateOutputType | null
   _max: TaskMaxAggregateOutputType | null
 }
@@ -253,6 +343,8 @@ export type TaskWhereInput = {
   notes?: Prisma.StringNullableFilter<"Task"> | string | null
   dueDate?: Prisma.StringNullableFilter<"Task"> | string | null
   dueTime?: Prisma.StringNullableFilter<"Task"> | string | null
+  plannedDate?: Prisma.StringNullableFilter<"Task"> | string | null
+  estimateMinutes?: Prisma.IntNullableFilter<"Task"> | number | null
   completed?: Prisma.BoolFilter<"Task"> | boolean
   completedAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
   deletedAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
@@ -262,7 +354,14 @@ export type TaskWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   courseId?: Prisma.StringNullableFilter<"Task"> | string | null
+  connectionId?: Prisma.StringNullableFilter<"Task"> | string | null
+  googleTaskListId?: Prisma.StringNullableFilter<"Task"> | string | null
+  googleTaskId?: Prisma.StringNullableFilter<"Task"> | string | null
+  googleETag?: Prisma.StringNullableFilter<"Task"> | string | null
+  googleDeleted?: Prisma.BoolFilter<"Task"> | boolean
+  googlePushedAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
   course?: Prisma.XOR<Prisma.CourseNullableScalarRelationFilter, Prisma.CourseWhereInput> | null
+  connection?: Prisma.XOR<Prisma.GoogleConnectionNullableScalarRelationFilter, Prisma.GoogleConnectionWhereInput> | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   pomodoroSessions?: Prisma.PomodoroSessionListRelationFilter
 }
@@ -274,6 +373,8 @@ export type TaskOrderByWithRelationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   dueDate?: Prisma.SortOrderInput | Prisma.SortOrder
   dueTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  plannedDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  estimateMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   completed?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -283,7 +384,14 @@ export type TaskOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   courseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  connectionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleTaskListId?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleTaskId?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleETag?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleDeleted?: Prisma.SortOrder
+  googlePushedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   course?: Prisma.CourseOrderByWithRelationInput
+  connection?: Prisma.GoogleConnectionOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
   pomodoroSessions?: Prisma.PomodoroSessionOrderByRelationAggregateInput
 }
@@ -298,6 +406,8 @@ export type TaskWhereUniqueInput = Prisma.AtLeast<{
   notes?: Prisma.StringNullableFilter<"Task"> | string | null
   dueDate?: Prisma.StringNullableFilter<"Task"> | string | null
   dueTime?: Prisma.StringNullableFilter<"Task"> | string | null
+  plannedDate?: Prisma.StringNullableFilter<"Task"> | string | null
+  estimateMinutes?: Prisma.IntNullableFilter<"Task"> | number | null
   completed?: Prisma.BoolFilter<"Task"> | boolean
   completedAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
   deletedAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
@@ -307,7 +417,14 @@ export type TaskWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   courseId?: Prisma.StringNullableFilter<"Task"> | string | null
+  connectionId?: Prisma.StringNullableFilter<"Task"> | string | null
+  googleTaskListId?: Prisma.StringNullableFilter<"Task"> | string | null
+  googleTaskId?: Prisma.StringNullableFilter<"Task"> | string | null
+  googleETag?: Prisma.StringNullableFilter<"Task"> | string | null
+  googleDeleted?: Prisma.BoolFilter<"Task"> | boolean
+  googlePushedAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
   course?: Prisma.XOR<Prisma.CourseNullableScalarRelationFilter, Prisma.CourseWhereInput> | null
+  connection?: Prisma.XOR<Prisma.GoogleConnectionNullableScalarRelationFilter, Prisma.GoogleConnectionWhereInput> | null
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   pomodoroSessions?: Prisma.PomodoroSessionListRelationFilter
 }, "id">
@@ -319,6 +436,8 @@ export type TaskOrderByWithAggregationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   dueDate?: Prisma.SortOrderInput | Prisma.SortOrder
   dueTime?: Prisma.SortOrderInput | Prisma.SortOrder
+  plannedDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  estimateMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   completed?: Prisma.SortOrder
   completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   deletedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -328,9 +447,17 @@ export type TaskOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   courseId?: Prisma.SortOrderInput | Prisma.SortOrder
+  connectionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleTaskListId?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleTaskId?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleETag?: Prisma.SortOrderInput | Prisma.SortOrder
+  googleDeleted?: Prisma.SortOrder
+  googlePushedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.TaskCountOrderByAggregateInput
+  _avg?: Prisma.TaskAvgOrderByAggregateInput
   _max?: Prisma.TaskMaxOrderByAggregateInput
   _min?: Prisma.TaskMinOrderByAggregateInput
+  _sum?: Prisma.TaskSumOrderByAggregateInput
 }
 
 export type TaskScalarWhereWithAggregatesInput = {
@@ -343,6 +470,8 @@ export type TaskScalarWhereWithAggregatesInput = {
   notes?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
   dueDate?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
   dueTime?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
+  plannedDate?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
+  estimateMinutes?: Prisma.IntNullableWithAggregatesFilter<"Task"> | number | null
   completed?: Prisma.BoolWithAggregatesFilter<"Task"> | boolean
   completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
   deletedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
@@ -352,6 +481,12 @@ export type TaskScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Task"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Task"> | Date | string
   courseId?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
+  connectionId?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
+  googleTaskListId?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
+  googleTaskId?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
+  googleETag?: Prisma.StringNullableWithAggregatesFilter<"Task"> | string | null
+  googleDeleted?: Prisma.BoolWithAggregatesFilter<"Task"> | boolean
+  googlePushedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Task"> | Date | string | null
 }
 
 export type TaskCreateInput = {
@@ -360,6 +495,8 @@ export type TaskCreateInput = {
   notes?: string | null
   dueDate?: string | null
   dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
   completed?: boolean
   completedAt?: Date | string | null
   deletedAt?: Date | string | null
@@ -368,7 +505,13 @@ export type TaskCreateInput = {
   lastCompletedOccurrence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
   course?: Prisma.CourseCreateNestedOneWithoutTasksInput
+  connection?: Prisma.GoogleConnectionCreateNestedOneWithoutTasksInput
   user: Prisma.UserCreateNestedOneWithoutTasksInput
   pomodoroSessions?: Prisma.PomodoroSessionCreateNestedManyWithoutTaskInput
 }
@@ -380,6 +523,8 @@ export type TaskUncheckedCreateInput = {
   notes?: string | null
   dueDate?: string | null
   dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
   completed?: boolean
   completedAt?: Date | string | null
   deletedAt?: Date | string | null
@@ -389,6 +534,12 @@ export type TaskUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   courseId?: string | null
+  connectionId?: string | null
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedCreateNestedManyWithoutTaskInput
 }
 
@@ -398,6 +549,8 @@ export type TaskUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -406,7 +559,13 @@ export type TaskUpdateInput = {
   lastCompletedOccurrence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   course?: Prisma.CourseUpdateOneWithoutTasksNestedInput
+  connection?: Prisma.GoogleConnectionUpdateOneWithoutTasksNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutTasksNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUpdateManyWithoutTaskNestedInput
 }
@@ -418,6 +577,8 @@ export type TaskUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -427,6 +588,12 @@ export type TaskUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedUpdateManyWithoutTaskNestedInput
 }
 
@@ -437,6 +604,8 @@ export type TaskCreateManyInput = {
   notes?: string | null
   dueDate?: string | null
   dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
   completed?: boolean
   completedAt?: Date | string | null
   deletedAt?: Date | string | null
@@ -446,6 +615,12 @@ export type TaskCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   courseId?: string | null
+  connectionId?: string | null
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
 }
 
 export type TaskUpdateManyMutationInput = {
@@ -454,6 +629,8 @@ export type TaskUpdateManyMutationInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -462,6 +639,11 @@ export type TaskUpdateManyMutationInput = {
   lastCompletedOccurrence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type TaskUncheckedUpdateManyInput = {
@@ -471,6 +653,8 @@ export type TaskUncheckedUpdateManyInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -480,6 +664,12 @@ export type TaskUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type TaskListRelationFilter = {
@@ -499,6 +689,8 @@ export type TaskCountOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
   dueTime?: Prisma.SortOrder
+  plannedDate?: Prisma.SortOrder
+  estimateMinutes?: Prisma.SortOrder
   completed?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -508,6 +700,16 @@ export type TaskCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  connectionId?: Prisma.SortOrder
+  googleTaskListId?: Prisma.SortOrder
+  googleTaskId?: Prisma.SortOrder
+  googleETag?: Prisma.SortOrder
+  googleDeleted?: Prisma.SortOrder
+  googlePushedAt?: Prisma.SortOrder
+}
+
+export type TaskAvgOrderByAggregateInput = {
+  estimateMinutes?: Prisma.SortOrder
 }
 
 export type TaskMaxOrderByAggregateInput = {
@@ -517,6 +719,8 @@ export type TaskMaxOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
   dueTime?: Prisma.SortOrder
+  plannedDate?: Prisma.SortOrder
+  estimateMinutes?: Prisma.SortOrder
   completed?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -526,6 +730,12 @@ export type TaskMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  connectionId?: Prisma.SortOrder
+  googleTaskListId?: Prisma.SortOrder
+  googleTaskId?: Prisma.SortOrder
+  googleETag?: Prisma.SortOrder
+  googleDeleted?: Prisma.SortOrder
+  googlePushedAt?: Prisma.SortOrder
 }
 
 export type TaskMinOrderByAggregateInput = {
@@ -535,6 +745,8 @@ export type TaskMinOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   dueDate?: Prisma.SortOrder
   dueTime?: Prisma.SortOrder
+  plannedDate?: Prisma.SortOrder
+  estimateMinutes?: Prisma.SortOrder
   completed?: Prisma.SortOrder
   completedAt?: Prisma.SortOrder
   deletedAt?: Prisma.SortOrder
@@ -544,6 +756,16 @@ export type TaskMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   courseId?: Prisma.SortOrder
+  connectionId?: Prisma.SortOrder
+  googleTaskListId?: Prisma.SortOrder
+  googleTaskId?: Prisma.SortOrder
+  googleETag?: Prisma.SortOrder
+  googleDeleted?: Prisma.SortOrder
+  googlePushedAt?: Prisma.SortOrder
+}
+
+export type TaskSumOrderByAggregateInput = {
+  estimateMinutes?: Prisma.SortOrder
 }
 
 export type TaskNullableScalarRelationFilter = {
@@ -639,6 +861,48 @@ export type TaskUncheckedUpdateManyWithoutCourseNestedInput = {
   deleteMany?: Prisma.TaskScalarWhereInput | Prisma.TaskScalarWhereInput[]
 }
 
+export type TaskCreateNestedManyWithoutConnectionInput = {
+  create?: Prisma.XOR<Prisma.TaskCreateWithoutConnectionInput, Prisma.TaskUncheckedCreateWithoutConnectionInput> | Prisma.TaskCreateWithoutConnectionInput[] | Prisma.TaskUncheckedCreateWithoutConnectionInput[]
+  connectOrCreate?: Prisma.TaskCreateOrConnectWithoutConnectionInput | Prisma.TaskCreateOrConnectWithoutConnectionInput[]
+  createMany?: Prisma.TaskCreateManyConnectionInputEnvelope
+  connect?: Prisma.TaskWhereUniqueInput | Prisma.TaskWhereUniqueInput[]
+}
+
+export type TaskUncheckedCreateNestedManyWithoutConnectionInput = {
+  create?: Prisma.XOR<Prisma.TaskCreateWithoutConnectionInput, Prisma.TaskUncheckedCreateWithoutConnectionInput> | Prisma.TaskCreateWithoutConnectionInput[] | Prisma.TaskUncheckedCreateWithoutConnectionInput[]
+  connectOrCreate?: Prisma.TaskCreateOrConnectWithoutConnectionInput | Prisma.TaskCreateOrConnectWithoutConnectionInput[]
+  createMany?: Prisma.TaskCreateManyConnectionInputEnvelope
+  connect?: Prisma.TaskWhereUniqueInput | Prisma.TaskWhereUniqueInput[]
+}
+
+export type TaskUpdateManyWithoutConnectionNestedInput = {
+  create?: Prisma.XOR<Prisma.TaskCreateWithoutConnectionInput, Prisma.TaskUncheckedCreateWithoutConnectionInput> | Prisma.TaskCreateWithoutConnectionInput[] | Prisma.TaskUncheckedCreateWithoutConnectionInput[]
+  connectOrCreate?: Prisma.TaskCreateOrConnectWithoutConnectionInput | Prisma.TaskCreateOrConnectWithoutConnectionInput[]
+  upsert?: Prisma.TaskUpsertWithWhereUniqueWithoutConnectionInput | Prisma.TaskUpsertWithWhereUniqueWithoutConnectionInput[]
+  createMany?: Prisma.TaskCreateManyConnectionInputEnvelope
+  set?: Prisma.TaskWhereUniqueInput | Prisma.TaskWhereUniqueInput[]
+  disconnect?: Prisma.TaskWhereUniqueInput | Prisma.TaskWhereUniqueInput[]
+  delete?: Prisma.TaskWhereUniqueInput | Prisma.TaskWhereUniqueInput[]
+  connect?: Prisma.TaskWhereUniqueInput | Prisma.TaskWhereUniqueInput[]
+  update?: Prisma.TaskUpdateWithWhereUniqueWithoutConnectionInput | Prisma.TaskUpdateWithWhereUniqueWithoutConnectionInput[]
+  updateMany?: Prisma.TaskUpdateManyWithWhereWithoutConnectionInput | Prisma.TaskUpdateManyWithWhereWithoutConnectionInput[]
+  deleteMany?: Prisma.TaskScalarWhereInput | Prisma.TaskScalarWhereInput[]
+}
+
+export type TaskUncheckedUpdateManyWithoutConnectionNestedInput = {
+  create?: Prisma.XOR<Prisma.TaskCreateWithoutConnectionInput, Prisma.TaskUncheckedCreateWithoutConnectionInput> | Prisma.TaskCreateWithoutConnectionInput[] | Prisma.TaskUncheckedCreateWithoutConnectionInput[]
+  connectOrCreate?: Prisma.TaskCreateOrConnectWithoutConnectionInput | Prisma.TaskCreateOrConnectWithoutConnectionInput[]
+  upsert?: Prisma.TaskUpsertWithWhereUniqueWithoutConnectionInput | Prisma.TaskUpsertWithWhereUniqueWithoutConnectionInput[]
+  createMany?: Prisma.TaskCreateManyConnectionInputEnvelope
+  set?: Prisma.TaskWhereUniqueInput | Prisma.TaskWhereUniqueInput[]
+  disconnect?: Prisma.TaskWhereUniqueInput | Prisma.TaskWhereUniqueInput[]
+  delete?: Prisma.TaskWhereUniqueInput | Prisma.TaskWhereUniqueInput[]
+  connect?: Prisma.TaskWhereUniqueInput | Prisma.TaskWhereUniqueInput[]
+  update?: Prisma.TaskUpdateWithWhereUniqueWithoutConnectionInput | Prisma.TaskUpdateWithWhereUniqueWithoutConnectionInput[]
+  updateMany?: Prisma.TaskUpdateManyWithWhereWithoutConnectionInput | Prisma.TaskUpdateManyWithWhereWithoutConnectionInput[]
+  deleteMany?: Prisma.TaskScalarWhereInput | Prisma.TaskScalarWhereInput[]
+}
+
 export type TaskCreateNestedOneWithoutPomodoroSessionsInput = {
   create?: Prisma.XOR<Prisma.TaskCreateWithoutPomodoroSessionsInput, Prisma.TaskUncheckedCreateWithoutPomodoroSessionsInput>
   connectOrCreate?: Prisma.TaskCreateOrConnectWithoutPomodoroSessionsInput
@@ -661,6 +925,8 @@ export type TaskCreateWithoutUserInput = {
   notes?: string | null
   dueDate?: string | null
   dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
   completed?: boolean
   completedAt?: Date | string | null
   deletedAt?: Date | string | null
@@ -669,7 +935,13 @@ export type TaskCreateWithoutUserInput = {
   lastCompletedOccurrence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
   course?: Prisma.CourseCreateNestedOneWithoutTasksInput
+  connection?: Prisma.GoogleConnectionCreateNestedOneWithoutTasksInput
   pomodoroSessions?: Prisma.PomodoroSessionCreateNestedManyWithoutTaskInput
 }
 
@@ -679,6 +951,8 @@ export type TaskUncheckedCreateWithoutUserInput = {
   notes?: string | null
   dueDate?: string | null
   dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
   completed?: boolean
   completedAt?: Date | string | null
   deletedAt?: Date | string | null
@@ -688,6 +962,12 @@ export type TaskUncheckedCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   courseId?: string | null
+  connectionId?: string | null
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedCreateNestedManyWithoutTaskInput
 }
 
@@ -727,6 +1007,8 @@ export type TaskScalarWhereInput = {
   notes?: Prisma.StringNullableFilter<"Task"> | string | null
   dueDate?: Prisma.StringNullableFilter<"Task"> | string | null
   dueTime?: Prisma.StringNullableFilter<"Task"> | string | null
+  plannedDate?: Prisma.StringNullableFilter<"Task"> | string | null
+  estimateMinutes?: Prisma.IntNullableFilter<"Task"> | number | null
   completed?: Prisma.BoolFilter<"Task"> | boolean
   completedAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
   deletedAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
@@ -736,6 +1018,12 @@ export type TaskScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Task"> | Date | string
   courseId?: Prisma.StringNullableFilter<"Task"> | string | null
+  connectionId?: Prisma.StringNullableFilter<"Task"> | string | null
+  googleTaskListId?: Prisma.StringNullableFilter<"Task"> | string | null
+  googleTaskId?: Prisma.StringNullableFilter<"Task"> | string | null
+  googleETag?: Prisma.StringNullableFilter<"Task"> | string | null
+  googleDeleted?: Prisma.BoolFilter<"Task"> | boolean
+  googlePushedAt?: Prisma.DateTimeNullableFilter<"Task"> | Date | string | null
 }
 
 export type TaskCreateWithoutCourseInput = {
@@ -744,6 +1032,8 @@ export type TaskCreateWithoutCourseInput = {
   notes?: string | null
   dueDate?: string | null
   dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
   completed?: boolean
   completedAt?: Date | string | null
   deletedAt?: Date | string | null
@@ -752,6 +1042,12 @@ export type TaskCreateWithoutCourseInput = {
   lastCompletedOccurrence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
+  connection?: Prisma.GoogleConnectionCreateNestedOneWithoutTasksInput
   user: Prisma.UserCreateNestedOneWithoutTasksInput
   pomodoroSessions?: Prisma.PomodoroSessionCreateNestedManyWithoutTaskInput
 }
@@ -763,6 +1059,8 @@ export type TaskUncheckedCreateWithoutCourseInput = {
   notes?: string | null
   dueDate?: string | null
   dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
   completed?: boolean
   completedAt?: Date | string | null
   deletedAt?: Date | string | null
@@ -771,6 +1069,12 @@ export type TaskUncheckedCreateWithoutCourseInput = {
   lastCompletedOccurrence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  connectionId?: string | null
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedCreateNestedManyWithoutTaskInput
 }
 
@@ -800,12 +1104,14 @@ export type TaskUpdateManyWithWhereWithoutCourseInput = {
   data: Prisma.XOR<Prisma.TaskUpdateManyMutationInput, Prisma.TaskUncheckedUpdateManyWithoutCourseInput>
 }
 
-export type TaskCreateWithoutPomodoroSessionsInput = {
+export type TaskCreateWithoutConnectionInput = {
   id?: string
   title: string
   notes?: string | null
   dueDate?: string | null
   dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
   completed?: boolean
   completedAt?: Date | string | null
   deletedAt?: Date | string | null
@@ -814,7 +1120,91 @@ export type TaskCreateWithoutPomodoroSessionsInput = {
   lastCompletedOccurrence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
   course?: Prisma.CourseCreateNestedOneWithoutTasksInput
+  user: Prisma.UserCreateNestedOneWithoutTasksInput
+  pomodoroSessions?: Prisma.PomodoroSessionCreateNestedManyWithoutTaskInput
+}
+
+export type TaskUncheckedCreateWithoutConnectionInput = {
+  id?: string
+  userId: string
+  title: string
+  notes?: string | null
+  dueDate?: string | null
+  dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
+  completed?: boolean
+  completedAt?: Date | string | null
+  deletedAt?: Date | string | null
+  priority?: $Enums.TaskPriority
+  recurrenceRule?: string | null
+  lastCompletedOccurrence?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  courseId?: string | null
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
+  pomodoroSessions?: Prisma.PomodoroSessionUncheckedCreateNestedManyWithoutTaskInput
+}
+
+export type TaskCreateOrConnectWithoutConnectionInput = {
+  where: Prisma.TaskWhereUniqueInput
+  create: Prisma.XOR<Prisma.TaskCreateWithoutConnectionInput, Prisma.TaskUncheckedCreateWithoutConnectionInput>
+}
+
+export type TaskCreateManyConnectionInputEnvelope = {
+  data: Prisma.TaskCreateManyConnectionInput | Prisma.TaskCreateManyConnectionInput[]
+  skipDuplicates?: boolean
+}
+
+export type TaskUpsertWithWhereUniqueWithoutConnectionInput = {
+  where: Prisma.TaskWhereUniqueInput
+  update: Prisma.XOR<Prisma.TaskUpdateWithoutConnectionInput, Prisma.TaskUncheckedUpdateWithoutConnectionInput>
+  create: Prisma.XOR<Prisma.TaskCreateWithoutConnectionInput, Prisma.TaskUncheckedCreateWithoutConnectionInput>
+}
+
+export type TaskUpdateWithWhereUniqueWithoutConnectionInput = {
+  where: Prisma.TaskWhereUniqueInput
+  data: Prisma.XOR<Prisma.TaskUpdateWithoutConnectionInput, Prisma.TaskUncheckedUpdateWithoutConnectionInput>
+}
+
+export type TaskUpdateManyWithWhereWithoutConnectionInput = {
+  where: Prisma.TaskScalarWhereInput
+  data: Prisma.XOR<Prisma.TaskUpdateManyMutationInput, Prisma.TaskUncheckedUpdateManyWithoutConnectionInput>
+}
+
+export type TaskCreateWithoutPomodoroSessionsInput = {
+  id?: string
+  title: string
+  notes?: string | null
+  dueDate?: string | null
+  dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
+  completed?: boolean
+  completedAt?: Date | string | null
+  deletedAt?: Date | string | null
+  priority?: $Enums.TaskPriority
+  recurrenceRule?: string | null
+  lastCompletedOccurrence?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
+  course?: Prisma.CourseCreateNestedOneWithoutTasksInput
+  connection?: Prisma.GoogleConnectionCreateNestedOneWithoutTasksInput
   user: Prisma.UserCreateNestedOneWithoutTasksInput
 }
 
@@ -825,6 +1215,8 @@ export type TaskUncheckedCreateWithoutPomodoroSessionsInput = {
   notes?: string | null
   dueDate?: string | null
   dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
   completed?: boolean
   completedAt?: Date | string | null
   deletedAt?: Date | string | null
@@ -834,6 +1226,12 @@ export type TaskUncheckedCreateWithoutPomodoroSessionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   courseId?: string | null
+  connectionId?: string | null
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
 }
 
 export type TaskCreateOrConnectWithoutPomodoroSessionsInput = {
@@ -858,6 +1256,8 @@ export type TaskUpdateWithoutPomodoroSessionsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -866,7 +1266,13 @@ export type TaskUpdateWithoutPomodoroSessionsInput = {
   lastCompletedOccurrence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   course?: Prisma.CourseUpdateOneWithoutTasksNestedInput
+  connection?: Prisma.GoogleConnectionUpdateOneWithoutTasksNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutTasksNestedInput
 }
 
@@ -877,6 +1283,8 @@ export type TaskUncheckedUpdateWithoutPomodoroSessionsInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -886,6 +1294,12 @@ export type TaskUncheckedUpdateWithoutPomodoroSessionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type TaskCreateManyUserInput = {
@@ -894,6 +1308,8 @@ export type TaskCreateManyUserInput = {
   notes?: string | null
   dueDate?: string | null
   dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
   completed?: boolean
   completedAt?: Date | string | null
   deletedAt?: Date | string | null
@@ -903,6 +1319,12 @@ export type TaskCreateManyUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   courseId?: string | null
+  connectionId?: string | null
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
 }
 
 export type TaskUpdateWithoutUserInput = {
@@ -911,6 +1333,8 @@ export type TaskUpdateWithoutUserInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -919,7 +1343,13 @@ export type TaskUpdateWithoutUserInput = {
   lastCompletedOccurrence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   course?: Prisma.CourseUpdateOneWithoutTasksNestedInput
+  connection?: Prisma.GoogleConnectionUpdateOneWithoutTasksNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUpdateManyWithoutTaskNestedInput
 }
 
@@ -929,6 +1359,8 @@ export type TaskUncheckedUpdateWithoutUserInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -938,6 +1370,12 @@ export type TaskUncheckedUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedUpdateManyWithoutTaskNestedInput
 }
 
@@ -947,6 +1385,8 @@ export type TaskUncheckedUpdateManyWithoutUserInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -956,6 +1396,12 @@ export type TaskUncheckedUpdateManyWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type TaskCreateManyCourseInput = {
@@ -965,6 +1411,8 @@ export type TaskCreateManyCourseInput = {
   notes?: string | null
   dueDate?: string | null
   dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
   completed?: boolean
   completedAt?: Date | string | null
   deletedAt?: Date | string | null
@@ -973,6 +1421,12 @@ export type TaskCreateManyCourseInput = {
   lastCompletedOccurrence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  connectionId?: string | null
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
 }
 
 export type TaskUpdateWithoutCourseInput = {
@@ -981,6 +1435,8 @@ export type TaskUpdateWithoutCourseInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -989,6 +1445,12 @@ export type TaskUpdateWithoutCourseInput = {
   lastCompletedOccurrence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  connection?: Prisma.GoogleConnectionUpdateOneWithoutTasksNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutTasksNestedInput
   pomodoroSessions?: Prisma.PomodoroSessionUpdateManyWithoutTaskNestedInput
 }
@@ -1000,6 +1462,8 @@ export type TaskUncheckedUpdateWithoutCourseInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1008,6 +1472,12 @@ export type TaskUncheckedUpdateWithoutCourseInput = {
   lastCompletedOccurrence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedUpdateManyWithoutTaskNestedInput
 }
 
@@ -1018,6 +1488,8 @@ export type TaskUncheckedUpdateManyWithoutCourseInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
   completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1026,6 +1498,114 @@ export type TaskUncheckedUpdateManyWithoutCourseInput = {
   lastCompletedOccurrence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type TaskCreateManyConnectionInput = {
+  id?: string
+  userId: string
+  title: string
+  notes?: string | null
+  dueDate?: string | null
+  dueTime?: string | null
+  plannedDate?: string | null
+  estimateMinutes?: number | null
+  completed?: boolean
+  completedAt?: Date | string | null
+  deletedAt?: Date | string | null
+  priority?: $Enums.TaskPriority
+  recurrenceRule?: string | null
+  lastCompletedOccurrence?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  courseId?: string | null
+  googleTaskListId?: string | null
+  googleTaskId?: string | null
+  googleETag?: string | null
+  googleDeleted?: boolean
+  googlePushedAt?: Date | string | null
+}
+
+export type TaskUpdateWithoutConnectionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priority?: Prisma.EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
+  recurrenceRule?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCompletedOccurrence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  course?: Prisma.CourseUpdateOneWithoutTasksNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutTasksNestedInput
+  pomodoroSessions?: Prisma.PomodoroSessionUpdateManyWithoutTaskNestedInput
+}
+
+export type TaskUncheckedUpdateWithoutConnectionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priority?: Prisma.EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
+  recurrenceRule?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCompletedOccurrence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  pomodoroSessions?: Prisma.PomodoroSessionUncheckedUpdateManyWithoutTaskNestedInput
+}
+
+export type TaskUncheckedUpdateManyWithoutConnectionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dueTime?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plannedDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  estimateMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  deletedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  priority?: Prisma.EnumTaskPriorityFieldUpdateOperationsInput | $Enums.TaskPriority
+  recurrenceRule?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lastCompletedOccurrence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskListId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTaskId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleETag?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googlePushedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -1066,6 +1646,8 @@ export type TaskSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   notes?: boolean
   dueDate?: boolean
   dueTime?: boolean
+  plannedDate?: boolean
+  estimateMinutes?: boolean
   completed?: boolean
   completedAt?: boolean
   deletedAt?: boolean
@@ -1075,7 +1657,14 @@ export type TaskSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   createdAt?: boolean
   updatedAt?: boolean
   courseId?: boolean
+  connectionId?: boolean
+  googleTaskListId?: boolean
+  googleTaskId?: boolean
+  googleETag?: boolean
+  googleDeleted?: boolean
+  googlePushedAt?: boolean
   course?: boolean | Prisma.Task$courseArgs<ExtArgs>
+  connection?: boolean | Prisma.Task$connectionArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   pomodoroSessions?: boolean | Prisma.Task$pomodoroSessionsArgs<ExtArgs>
   _count?: boolean | Prisma.TaskCountOutputTypeDefaultArgs<ExtArgs>
@@ -1088,6 +1677,8 @@ export type TaskSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   notes?: boolean
   dueDate?: boolean
   dueTime?: boolean
+  plannedDate?: boolean
+  estimateMinutes?: boolean
   completed?: boolean
   completedAt?: boolean
   deletedAt?: boolean
@@ -1097,7 +1688,14 @@ export type TaskSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   createdAt?: boolean
   updatedAt?: boolean
   courseId?: boolean
+  connectionId?: boolean
+  googleTaskListId?: boolean
+  googleTaskId?: boolean
+  googleETag?: boolean
+  googleDeleted?: boolean
+  googlePushedAt?: boolean
   course?: boolean | Prisma.Task$courseArgs<ExtArgs>
+  connection?: boolean | Prisma.Task$connectionArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["task"]>
 
@@ -1108,6 +1706,8 @@ export type TaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   notes?: boolean
   dueDate?: boolean
   dueTime?: boolean
+  plannedDate?: boolean
+  estimateMinutes?: boolean
   completed?: boolean
   completedAt?: boolean
   deletedAt?: boolean
@@ -1117,7 +1717,14 @@ export type TaskSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   createdAt?: boolean
   updatedAt?: boolean
   courseId?: boolean
+  connectionId?: boolean
+  googleTaskListId?: boolean
+  googleTaskId?: boolean
+  googleETag?: boolean
+  googleDeleted?: boolean
+  googlePushedAt?: boolean
   course?: boolean | Prisma.Task$courseArgs<ExtArgs>
+  connection?: boolean | Prisma.Task$connectionArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["task"]>
 
@@ -1128,6 +1735,8 @@ export type TaskSelectScalar = {
   notes?: boolean
   dueDate?: boolean
   dueTime?: boolean
+  plannedDate?: boolean
+  estimateMinutes?: boolean
   completed?: boolean
   completedAt?: boolean
   deletedAt?: boolean
@@ -1137,21 +1746,30 @@ export type TaskSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   courseId?: boolean
+  connectionId?: boolean
+  googleTaskListId?: boolean
+  googleTaskId?: boolean
+  googleETag?: boolean
+  googleDeleted?: boolean
+  googlePushedAt?: boolean
 }
 
-export type TaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "notes" | "dueDate" | "dueTime" | "completed" | "completedAt" | "deletedAt" | "priority" | "recurrenceRule" | "lastCompletedOccurrence" | "createdAt" | "updatedAt" | "courseId", ExtArgs["result"]["task"]>
+export type TaskOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "title" | "notes" | "dueDate" | "dueTime" | "plannedDate" | "estimateMinutes" | "completed" | "completedAt" | "deletedAt" | "priority" | "recurrenceRule" | "lastCompletedOccurrence" | "createdAt" | "updatedAt" | "courseId" | "connectionId" | "googleTaskListId" | "googleTaskId" | "googleETag" | "googleDeleted" | "googlePushedAt", ExtArgs["result"]["task"]>
 export type TaskInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   course?: boolean | Prisma.Task$courseArgs<ExtArgs>
+  connection?: boolean | Prisma.Task$connectionArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   pomodoroSessions?: boolean | Prisma.Task$pomodoroSessionsArgs<ExtArgs>
   _count?: boolean | Prisma.TaskCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TaskIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   course?: boolean | Prisma.Task$courseArgs<ExtArgs>
+  connection?: boolean | Prisma.Task$connectionArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type TaskIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   course?: boolean | Prisma.Task$courseArgs<ExtArgs>
+  connection?: boolean | Prisma.Task$connectionArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
@@ -1159,6 +1777,7 @@ export type $TaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   name: "Task"
   objects: {
     course: Prisma.$CoursePayload<ExtArgs> | null
+    connection: Prisma.$GoogleConnectionPayload<ExtArgs> | null
     user: Prisma.$UserPayload<ExtArgs>
     pomodoroSessions: Prisma.$PomodoroSessionPayload<ExtArgs>[]
   }
@@ -1169,6 +1788,8 @@ export type $TaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     notes: string | null
     dueDate: string | null
     dueTime: string | null
+    plannedDate: string | null
+    estimateMinutes: number | null
     completed: boolean
     completedAt: Date | null
     deletedAt: Date | null
@@ -1178,6 +1799,23 @@ export type $TaskPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     createdAt: Date
     updatedAt: Date
     courseId: string | null
+    connectionId: string | null
+    googleTaskListId: string | null
+    googleTaskId: string | null
+    /**
+     * Google's optimistic-concurrency token. A write returning 412 lost the
+     * race, and the safe move is to re-read rather than overwrite.
+     */
+    googleETag: string | null
+    /**
+     * A task deleted in Google. Kept as a tombstone so a later sync does not
+     * resurrect it from a stale local copy.
+     */
+    googleDeleted: boolean
+    /**
+     * When this row was last pushed successfully to Google.
+     */
+    googlePushedAt: Date | null
   }, ExtArgs["result"]["task"]>
   composites: {}
 }
@@ -1573,6 +2211,7 @@ readonly fields: TaskFieldRefs;
 export interface Prisma__TaskClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   course<T extends Prisma.Task$courseArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$courseArgs<ExtArgs>>): Prisma.Prisma__CourseClient<runtime.Types.Result.GetResult<Prisma.$CoursePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  connection<T extends Prisma.Task$connectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$connectionArgs<ExtArgs>>): Prisma.Prisma__GoogleConnectionClient<runtime.Types.Result.GetResult<Prisma.$GoogleConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   pomodoroSessions<T extends Prisma.Task$pomodoroSessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Task$pomodoroSessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PomodoroSessionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1610,6 +2249,8 @@ export interface TaskFieldRefs {
   readonly notes: Prisma.FieldRef<"Task", 'String'>
   readonly dueDate: Prisma.FieldRef<"Task", 'String'>
   readonly dueTime: Prisma.FieldRef<"Task", 'String'>
+  readonly plannedDate: Prisma.FieldRef<"Task", 'String'>
+  readonly estimateMinutes: Prisma.FieldRef<"Task", 'Int'>
   readonly completed: Prisma.FieldRef<"Task", 'Boolean'>
   readonly completedAt: Prisma.FieldRef<"Task", 'DateTime'>
   readonly deletedAt: Prisma.FieldRef<"Task", 'DateTime'>
@@ -1619,6 +2260,12 @@ export interface TaskFieldRefs {
   readonly createdAt: Prisma.FieldRef<"Task", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Task", 'DateTime'>
   readonly courseId: Prisma.FieldRef<"Task", 'String'>
+  readonly connectionId: Prisma.FieldRef<"Task", 'String'>
+  readonly googleTaskListId: Prisma.FieldRef<"Task", 'String'>
+  readonly googleTaskId: Prisma.FieldRef<"Task", 'String'>
+  readonly googleETag: Prisma.FieldRef<"Task", 'String'>
+  readonly googleDeleted: Prisma.FieldRef<"Task", 'Boolean'>
+  readonly googlePushedAt: Prisma.FieldRef<"Task", 'DateTime'>
 }
     
 
@@ -2036,6 +2683,25 @@ export type Task$courseArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   include?: Prisma.CourseInclude<ExtArgs> | null
   where?: Prisma.CourseWhereInput
+}
+
+/**
+ * Task.connection
+ */
+export type Task$connectionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GoogleConnection
+   */
+  select?: Prisma.GoogleConnectionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GoogleConnection
+   */
+  omit?: Prisma.GoogleConnectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GoogleConnectionInclude<ExtArgs> | null
+  where?: Prisma.GoogleConnectionWhereInput
 }
 
 /**

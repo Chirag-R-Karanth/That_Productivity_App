@@ -33,6 +33,11 @@ export type Task = Prisma.TaskModel
  */
 export type Course = Prisma.CourseModel
 /**
+ * Model TimetableEntry
+ * 
+ */
+export type TimetableEntry = Prisma.TimetableEntryModel
+/**
  * Model AttendanceRecord
  * 
  */
@@ -42,6 +47,15 @@ export type AttendanceRecord = Prisma.AttendanceRecordModel
  * 
  */
 export type CalendarEvent = Prisma.CalendarEventModel
+/**
+ * Model GoogleConnection
+ * A Google account linked to one of our users.
+ * 
+ * Tokens live here rather than on User because a user can link more than one
+ * Google account: each is a separate OAuth identity with its own calendars and
+ * task lists. Seven Google accounts feeding one user is seven of these rows.
+ */
+export type GoogleConnection = Prisma.GoogleConnectionModel
 /**
  * Model LinkedGoogleCalendar
  * 

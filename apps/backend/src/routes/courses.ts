@@ -5,7 +5,8 @@ import { prisma } from "../lib/prisma.js";
 import { requireAuth } from "../middleware/auth.js";
 import { idempotency } from "../middleware/idempotency.js";
 import { ApiError } from "../lib/errors.js";
-import type { Course } from "@prodapp/shared-types";
+import { COURSE_SLOT_TYPES } from "../lib/timetableKinds.js";
+import type { Course, CourseSlotType } from "@prodapp/shared-types";
 import { recordEvent } from "../services/events.js";
 import { EventType } from "../generated/prisma/enums.js";
 
@@ -13,11 +14,25 @@ const router: RouterType = Router();
 router.use(requireAuth);
 router.use(idempotency);
 
+/**
+ * A weekly slot.
+ *
+ * `type`, `weekNumber` and `location` are optional and additive. zod strips
+ * unknown keys, so leaving them out of this schema would silently discard a
+ * lab label or a week-8-only restriction on every save — which is exactly the
+ * kind of quiet data loss that makes a timetable untrustworthy.
+ */
 const scheduleSlotSchema = z.object({
   dayOfWeek: z.number().int().min(0).max(6),
   startTime: z.string().regex(/^\d{2}:\d{2}$/),
   endTime: z.string().regex(/^\d{2}:\d{2}$/),
-});
+  type: z.enum(COURSE_SLOT_TYPES).optional(),
+  weekNumber: z.number().int().min(1).max(60).nullable().optional(),
+  location: z.string().max(200).nullable().optional(),
+}).refine(
+  (s) => s.endTime > s.startTime,
+  { message: 'endTime must be after startTime', path: ['endTime'] },
+);
 
 const createCourseSchema = z.object({
   name: z.string().min(1).max(200),

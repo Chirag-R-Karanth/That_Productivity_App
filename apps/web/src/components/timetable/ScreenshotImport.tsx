@@ -27,7 +27,6 @@ export function ScreenshotImport({ onConfirm, onCancel }: ScreenshotImportProps)
   const [phase, setPhase] = useState<Phase>("pick");
   const [preview, setPreview] = useState<string | null>(null);
   const [entries, setEntries] = useState<ReviewedEntry[]>([]);
-  const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
@@ -169,7 +168,6 @@ export function ScreenshotImport({ onConfirm, onCancel }: ScreenshotImportProps)
 
   return (
     <div className="rounded-2xl border border-dashed border-border bg-surface/50 p-6">
-      {message && <p className="mb-2 text-xs text-text-muted">{message}</p>}
       {error && <p className="mb-2 text-sm text-danger">{error}</p>}
       <label className="flex cursor-pointer flex-col items-center justify-center gap-3 py-2 text-center">
         <UploadIcon className="h-8 w-8 text-text-muted" />

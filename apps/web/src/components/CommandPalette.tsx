@@ -49,11 +49,22 @@ export function CommandPalette() {
   const inputRef = useRef<HTMLInputElement>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
+  // Each opening is a new session, so the query, selection and fetch state are
+  // reset as the open flag changes. React documents adjusting state like this
+  // during render (it re-renders immediately, before committing) and it avoids
+  // painting one frame of the previous session's query and results.
+  const [wasOpen, setWasOpen] = useState(paletteOpen);
+  if (wasOpen !== paletteOpen) {
+    setWasOpen(paletteOpen);
+    if (paletteOpen) {
+      setQuery("");
+      setIndex(0);
+      setLoaded(false);
+    }
+  }
+
   useEffect(() => {
     if (!paletteOpen) return;
-    setQuery("");
-    setIndex(0);
-    setLoaded(false);
     const t = setTimeout(() => inputRef.current?.focus(), 10);
     return () => clearTimeout(t);
   }, [paletteOpen]);
@@ -113,9 +124,15 @@ export function CommandPalette() {
     return scored.map((x) => x.r);
   }, [paletteOpen, query, tasks, courses, events]);
 
-  useEffect(() => {
+  // Same reasoning for the selection: a new query or a changed result count
+  // means the highlighted row is meaningless, so it goes back to the top.
+  const [lastQuery, setLastQuery] = useState(query);
+  const [lastCount, setLastCount] = useState(results.length);
+  if (lastQuery !== query || lastCount !== results.length) {
+    setLastQuery(query);
+    setLastCount(results.length);
     setIndex(0);
-  }, [query, results.length]);
+  }
 
   useEffect(() => {
     const el = listRef.current?.children[index] as HTMLElement | undefined;
@@ -125,7 +142,6 @@ export function CommandPalette() {
   useEffect(() => {
     if (!paletteOpen) return;
     const onKey = (e: KeyboardEvent) => {
-      const list = listRef.current;
       if (e.key === "ArrowDown") {
         e.preventDefault();
         setIndex((i) => Math.min(i + 1, results.length - 1));

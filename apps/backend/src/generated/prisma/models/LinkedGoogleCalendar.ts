@@ -27,28 +27,34 @@ export type AggregateLinkedGoogleCalendar = {
 export type LinkedGoogleCalendarMinAggregateOutputType = {
   id: string | null
   userId: string | null
+  connectionId: string | null
   summary: string | null
   backgroundColor: string | null
   accessRole: string | null
   isLinked: boolean | null
+  includeInDay: boolean | null
 }
 
 export type LinkedGoogleCalendarMaxAggregateOutputType = {
   id: string | null
   userId: string | null
+  connectionId: string | null
   summary: string | null
   backgroundColor: string | null
   accessRole: string | null
   isLinked: boolean | null
+  includeInDay: boolean | null
 }
 
 export type LinkedGoogleCalendarCountAggregateOutputType = {
   id: number
   userId: number
+  connectionId: number
   summary: number
   backgroundColor: number
   accessRole: number
   isLinked: number
+  includeInDay: number
   _all: number
 }
 
@@ -56,28 +62,34 @@ export type LinkedGoogleCalendarCountAggregateOutputType = {
 export type LinkedGoogleCalendarMinAggregateInputType = {
   id?: true
   userId?: true
+  connectionId?: true
   summary?: true
   backgroundColor?: true
   accessRole?: true
   isLinked?: true
+  includeInDay?: true
 }
 
 export type LinkedGoogleCalendarMaxAggregateInputType = {
   id?: true
   userId?: true
+  connectionId?: true
   summary?: true
   backgroundColor?: true
   accessRole?: true
   isLinked?: true
+  includeInDay?: true
 }
 
 export type LinkedGoogleCalendarCountAggregateInputType = {
   id?: true
   userId?: true
+  connectionId?: true
   summary?: true
   backgroundColor?: true
   accessRole?: true
   isLinked?: true
+  includeInDay?: true
   _all?: true
 }
 
@@ -156,10 +168,12 @@ export type LinkedGoogleCalendarGroupByArgs<ExtArgs extends runtime.Types.Extens
 export type LinkedGoogleCalendarGroupByOutputType = {
   id: string
   userId: string
+  connectionId: string
   summary: string
   backgroundColor: string | null
   accessRole: string | null
   isLinked: boolean
+  includeInDay: boolean
   _count: LinkedGoogleCalendarCountAggregateOutputType | null
   _min: LinkedGoogleCalendarMinAggregateOutputType | null
   _max: LinkedGoogleCalendarMaxAggregateOutputType | null
@@ -186,44 +200,55 @@ export type LinkedGoogleCalendarWhereInput = {
   NOT?: Prisma.LinkedGoogleCalendarWhereInput | Prisma.LinkedGoogleCalendarWhereInput[]
   id?: Prisma.StringFilter<"LinkedGoogleCalendar"> | string
   userId?: Prisma.StringFilter<"LinkedGoogleCalendar"> | string
+  connectionId?: Prisma.StringFilter<"LinkedGoogleCalendar"> | string
   summary?: Prisma.StringFilter<"LinkedGoogleCalendar"> | string
   backgroundColor?: Prisma.StringNullableFilter<"LinkedGoogleCalendar"> | string | null
   accessRole?: Prisma.StringNullableFilter<"LinkedGoogleCalendar"> | string | null
   isLinked?: Prisma.BoolFilter<"LinkedGoogleCalendar"> | boolean
+  includeInDay?: Prisma.BoolFilter<"LinkedGoogleCalendar"> | boolean
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  connection?: Prisma.XOR<Prisma.GoogleConnectionScalarRelationFilter, Prisma.GoogleConnectionWhereInput>
 }
 
 export type LinkedGoogleCalendarOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  connectionId?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   backgroundColor?: Prisma.SortOrderInput | Prisma.SortOrder
   accessRole?: Prisma.SortOrderInput | Prisma.SortOrder
   isLinked?: Prisma.SortOrder
+  includeInDay?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  connection?: Prisma.GoogleConnectionOrderByWithRelationInput
 }
 
 export type LinkedGoogleCalendarWhereUniqueInput = Prisma.AtLeast<{
-  id?: string
-  userId_id?: Prisma.LinkedGoogleCalendarUserIdIdCompoundUniqueInput
+  connectionId_id?: Prisma.LinkedGoogleCalendarConnectionIdIdCompoundUniqueInput
   AND?: Prisma.LinkedGoogleCalendarWhereInput | Prisma.LinkedGoogleCalendarWhereInput[]
   OR?: Prisma.LinkedGoogleCalendarWhereInput[]
   NOT?: Prisma.LinkedGoogleCalendarWhereInput | Prisma.LinkedGoogleCalendarWhereInput[]
+  id?: Prisma.StringFilter<"LinkedGoogleCalendar"> | string
   userId?: Prisma.StringFilter<"LinkedGoogleCalendar"> | string
+  connectionId?: Prisma.StringFilter<"LinkedGoogleCalendar"> | string
   summary?: Prisma.StringFilter<"LinkedGoogleCalendar"> | string
   backgroundColor?: Prisma.StringNullableFilter<"LinkedGoogleCalendar"> | string | null
   accessRole?: Prisma.StringNullableFilter<"LinkedGoogleCalendar"> | string | null
   isLinked?: Prisma.BoolFilter<"LinkedGoogleCalendar"> | boolean
+  includeInDay?: Prisma.BoolFilter<"LinkedGoogleCalendar"> | boolean
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id" | "userId_id">
+  connection?: Prisma.XOR<Prisma.GoogleConnectionScalarRelationFilter, Prisma.GoogleConnectionWhereInput>
+}, "connectionId_id">
 
 export type LinkedGoogleCalendarOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  connectionId?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   backgroundColor?: Prisma.SortOrderInput | Prisma.SortOrder
   accessRole?: Prisma.SortOrderInput | Prisma.SortOrder
   isLinked?: Prisma.SortOrder
+  includeInDay?: Prisma.SortOrder
   _count?: Prisma.LinkedGoogleCalendarCountOrderByAggregateInput
   _max?: Prisma.LinkedGoogleCalendarMaxOrderByAggregateInput
   _min?: Prisma.LinkedGoogleCalendarMinOrderByAggregateInput
@@ -235,10 +260,12 @@ export type LinkedGoogleCalendarScalarWhereWithAggregatesInput = {
   NOT?: Prisma.LinkedGoogleCalendarScalarWhereWithAggregatesInput | Prisma.LinkedGoogleCalendarScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"LinkedGoogleCalendar"> | string
   userId?: Prisma.StringWithAggregatesFilter<"LinkedGoogleCalendar"> | string
+  connectionId?: Prisma.StringWithAggregatesFilter<"LinkedGoogleCalendar"> | string
   summary?: Prisma.StringWithAggregatesFilter<"LinkedGoogleCalendar"> | string
   backgroundColor?: Prisma.StringNullableWithAggregatesFilter<"LinkedGoogleCalendar"> | string | null
   accessRole?: Prisma.StringNullableWithAggregatesFilter<"LinkedGoogleCalendar"> | string | null
   isLinked?: Prisma.BoolWithAggregatesFilter<"LinkedGoogleCalendar"> | boolean
+  includeInDay?: Prisma.BoolWithAggregatesFilter<"LinkedGoogleCalendar"> | boolean
 }
 
 export type LinkedGoogleCalendarCreateInput = {
@@ -247,16 +274,20 @@ export type LinkedGoogleCalendarCreateInput = {
   backgroundColor?: string | null
   accessRole?: string | null
   isLinked?: boolean
+  includeInDay?: boolean
   user: Prisma.UserCreateNestedOneWithoutGoogleCalendarsInput
+  connection: Prisma.GoogleConnectionCreateNestedOneWithoutCalendarsInput
 }
 
 export type LinkedGoogleCalendarUncheckedCreateInput = {
   id: string
   userId: string
+  connectionId: string
   summary: string
   backgroundColor?: string | null
   accessRole?: string | null
   isLinked?: boolean
+  includeInDay?: boolean
 }
 
 export type LinkedGoogleCalendarUpdateInput = {
@@ -265,25 +296,31 @@ export type LinkedGoogleCalendarUpdateInput = {
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isLinked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  includeInDay?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneRequiredWithoutGoogleCalendarsNestedInput
+  connection?: Prisma.GoogleConnectionUpdateOneRequiredWithoutCalendarsNestedInput
 }
 
 export type LinkedGoogleCalendarUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  connectionId?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isLinked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  includeInDay?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type LinkedGoogleCalendarCreateManyInput = {
   id: string
   userId: string
+  connectionId: string
   summary: string
   backgroundColor?: string | null
   accessRole?: string | null
   isLinked?: boolean
+  includeInDay?: boolean
 }
 
 export type LinkedGoogleCalendarUpdateManyMutationInput = {
@@ -292,15 +329,18 @@ export type LinkedGoogleCalendarUpdateManyMutationInput = {
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isLinked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  includeInDay?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type LinkedGoogleCalendarUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
+  connectionId?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isLinked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  includeInDay?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type LinkedGoogleCalendarListRelationFilter = {
@@ -313,36 +353,42 @@ export type LinkedGoogleCalendarOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type LinkedGoogleCalendarUserIdIdCompoundUniqueInput = {
-  userId: string
+export type LinkedGoogleCalendarConnectionIdIdCompoundUniqueInput = {
+  connectionId: string
   id: string
 }
 
 export type LinkedGoogleCalendarCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  connectionId?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   backgroundColor?: Prisma.SortOrder
   accessRole?: Prisma.SortOrder
   isLinked?: Prisma.SortOrder
+  includeInDay?: Prisma.SortOrder
 }
 
 export type LinkedGoogleCalendarMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  connectionId?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   backgroundColor?: Prisma.SortOrder
   accessRole?: Prisma.SortOrder
   isLinked?: Prisma.SortOrder
+  includeInDay?: Prisma.SortOrder
 }
 
 export type LinkedGoogleCalendarMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  connectionId?: Prisma.SortOrder
   summary?: Prisma.SortOrder
   backgroundColor?: Prisma.SortOrder
   accessRole?: Prisma.SortOrder
   isLinked?: Prisma.SortOrder
+  includeInDay?: Prisma.SortOrder
 }
 
 export type LinkedGoogleCalendarCreateNestedManyWithoutUserInput = {
@@ -387,20 +433,66 @@ export type LinkedGoogleCalendarUncheckedUpdateManyWithoutUserNestedInput = {
   deleteMany?: Prisma.LinkedGoogleCalendarScalarWhereInput | Prisma.LinkedGoogleCalendarScalarWhereInput[]
 }
 
+export type LinkedGoogleCalendarCreateNestedManyWithoutConnectionInput = {
+  create?: Prisma.XOR<Prisma.LinkedGoogleCalendarCreateWithoutConnectionInput, Prisma.LinkedGoogleCalendarUncheckedCreateWithoutConnectionInput> | Prisma.LinkedGoogleCalendarCreateWithoutConnectionInput[] | Prisma.LinkedGoogleCalendarUncheckedCreateWithoutConnectionInput[]
+  connectOrCreate?: Prisma.LinkedGoogleCalendarCreateOrConnectWithoutConnectionInput | Prisma.LinkedGoogleCalendarCreateOrConnectWithoutConnectionInput[]
+  createMany?: Prisma.LinkedGoogleCalendarCreateManyConnectionInputEnvelope
+  connect?: Prisma.LinkedGoogleCalendarWhereUniqueInput | Prisma.LinkedGoogleCalendarWhereUniqueInput[]
+}
+
+export type LinkedGoogleCalendarUncheckedCreateNestedManyWithoutConnectionInput = {
+  create?: Prisma.XOR<Prisma.LinkedGoogleCalendarCreateWithoutConnectionInput, Prisma.LinkedGoogleCalendarUncheckedCreateWithoutConnectionInput> | Prisma.LinkedGoogleCalendarCreateWithoutConnectionInput[] | Prisma.LinkedGoogleCalendarUncheckedCreateWithoutConnectionInput[]
+  connectOrCreate?: Prisma.LinkedGoogleCalendarCreateOrConnectWithoutConnectionInput | Prisma.LinkedGoogleCalendarCreateOrConnectWithoutConnectionInput[]
+  createMany?: Prisma.LinkedGoogleCalendarCreateManyConnectionInputEnvelope
+  connect?: Prisma.LinkedGoogleCalendarWhereUniqueInput | Prisma.LinkedGoogleCalendarWhereUniqueInput[]
+}
+
+export type LinkedGoogleCalendarUpdateManyWithoutConnectionNestedInput = {
+  create?: Prisma.XOR<Prisma.LinkedGoogleCalendarCreateWithoutConnectionInput, Prisma.LinkedGoogleCalendarUncheckedCreateWithoutConnectionInput> | Prisma.LinkedGoogleCalendarCreateWithoutConnectionInput[] | Prisma.LinkedGoogleCalendarUncheckedCreateWithoutConnectionInput[]
+  connectOrCreate?: Prisma.LinkedGoogleCalendarCreateOrConnectWithoutConnectionInput | Prisma.LinkedGoogleCalendarCreateOrConnectWithoutConnectionInput[]
+  upsert?: Prisma.LinkedGoogleCalendarUpsertWithWhereUniqueWithoutConnectionInput | Prisma.LinkedGoogleCalendarUpsertWithWhereUniqueWithoutConnectionInput[]
+  createMany?: Prisma.LinkedGoogleCalendarCreateManyConnectionInputEnvelope
+  set?: Prisma.LinkedGoogleCalendarWhereUniqueInput | Prisma.LinkedGoogleCalendarWhereUniqueInput[]
+  disconnect?: Prisma.LinkedGoogleCalendarWhereUniqueInput | Prisma.LinkedGoogleCalendarWhereUniqueInput[]
+  delete?: Prisma.LinkedGoogleCalendarWhereUniqueInput | Prisma.LinkedGoogleCalendarWhereUniqueInput[]
+  connect?: Prisma.LinkedGoogleCalendarWhereUniqueInput | Prisma.LinkedGoogleCalendarWhereUniqueInput[]
+  update?: Prisma.LinkedGoogleCalendarUpdateWithWhereUniqueWithoutConnectionInput | Prisma.LinkedGoogleCalendarUpdateWithWhereUniqueWithoutConnectionInput[]
+  updateMany?: Prisma.LinkedGoogleCalendarUpdateManyWithWhereWithoutConnectionInput | Prisma.LinkedGoogleCalendarUpdateManyWithWhereWithoutConnectionInput[]
+  deleteMany?: Prisma.LinkedGoogleCalendarScalarWhereInput | Prisma.LinkedGoogleCalendarScalarWhereInput[]
+}
+
+export type LinkedGoogleCalendarUncheckedUpdateManyWithoutConnectionNestedInput = {
+  create?: Prisma.XOR<Prisma.LinkedGoogleCalendarCreateWithoutConnectionInput, Prisma.LinkedGoogleCalendarUncheckedCreateWithoutConnectionInput> | Prisma.LinkedGoogleCalendarCreateWithoutConnectionInput[] | Prisma.LinkedGoogleCalendarUncheckedCreateWithoutConnectionInput[]
+  connectOrCreate?: Prisma.LinkedGoogleCalendarCreateOrConnectWithoutConnectionInput | Prisma.LinkedGoogleCalendarCreateOrConnectWithoutConnectionInput[]
+  upsert?: Prisma.LinkedGoogleCalendarUpsertWithWhereUniqueWithoutConnectionInput | Prisma.LinkedGoogleCalendarUpsertWithWhereUniqueWithoutConnectionInput[]
+  createMany?: Prisma.LinkedGoogleCalendarCreateManyConnectionInputEnvelope
+  set?: Prisma.LinkedGoogleCalendarWhereUniqueInput | Prisma.LinkedGoogleCalendarWhereUniqueInput[]
+  disconnect?: Prisma.LinkedGoogleCalendarWhereUniqueInput | Prisma.LinkedGoogleCalendarWhereUniqueInput[]
+  delete?: Prisma.LinkedGoogleCalendarWhereUniqueInput | Prisma.LinkedGoogleCalendarWhereUniqueInput[]
+  connect?: Prisma.LinkedGoogleCalendarWhereUniqueInput | Prisma.LinkedGoogleCalendarWhereUniqueInput[]
+  update?: Prisma.LinkedGoogleCalendarUpdateWithWhereUniqueWithoutConnectionInput | Prisma.LinkedGoogleCalendarUpdateWithWhereUniqueWithoutConnectionInput[]
+  updateMany?: Prisma.LinkedGoogleCalendarUpdateManyWithWhereWithoutConnectionInput | Prisma.LinkedGoogleCalendarUpdateManyWithWhereWithoutConnectionInput[]
+  deleteMany?: Prisma.LinkedGoogleCalendarScalarWhereInput | Prisma.LinkedGoogleCalendarScalarWhereInput[]
+}
+
 export type LinkedGoogleCalendarCreateWithoutUserInput = {
   id: string
   summary: string
   backgroundColor?: string | null
   accessRole?: string | null
   isLinked?: boolean
+  includeInDay?: boolean
+  connection: Prisma.GoogleConnectionCreateNestedOneWithoutCalendarsInput
 }
 
 export type LinkedGoogleCalendarUncheckedCreateWithoutUserInput = {
   id: string
+  connectionId: string
   summary: string
   backgroundColor?: string | null
   accessRole?: string | null
   isLinked?: boolean
+  includeInDay?: boolean
 }
 
 export type LinkedGoogleCalendarCreateOrConnectWithoutUserInput = {
@@ -435,18 +527,68 @@ export type LinkedGoogleCalendarScalarWhereInput = {
   NOT?: Prisma.LinkedGoogleCalendarScalarWhereInput | Prisma.LinkedGoogleCalendarScalarWhereInput[]
   id?: Prisma.StringFilter<"LinkedGoogleCalendar"> | string
   userId?: Prisma.StringFilter<"LinkedGoogleCalendar"> | string
+  connectionId?: Prisma.StringFilter<"LinkedGoogleCalendar"> | string
   summary?: Prisma.StringFilter<"LinkedGoogleCalendar"> | string
   backgroundColor?: Prisma.StringNullableFilter<"LinkedGoogleCalendar"> | string | null
   accessRole?: Prisma.StringNullableFilter<"LinkedGoogleCalendar"> | string | null
   isLinked?: Prisma.BoolFilter<"LinkedGoogleCalendar"> | boolean
+  includeInDay?: Prisma.BoolFilter<"LinkedGoogleCalendar"> | boolean
 }
 
-export type LinkedGoogleCalendarCreateManyUserInput = {
+export type LinkedGoogleCalendarCreateWithoutConnectionInput = {
   id: string
   summary: string
   backgroundColor?: string | null
   accessRole?: string | null
   isLinked?: boolean
+  includeInDay?: boolean
+  user: Prisma.UserCreateNestedOneWithoutGoogleCalendarsInput
+}
+
+export type LinkedGoogleCalendarUncheckedCreateWithoutConnectionInput = {
+  id: string
+  userId: string
+  summary: string
+  backgroundColor?: string | null
+  accessRole?: string | null
+  isLinked?: boolean
+  includeInDay?: boolean
+}
+
+export type LinkedGoogleCalendarCreateOrConnectWithoutConnectionInput = {
+  where: Prisma.LinkedGoogleCalendarWhereUniqueInput
+  create: Prisma.XOR<Prisma.LinkedGoogleCalendarCreateWithoutConnectionInput, Prisma.LinkedGoogleCalendarUncheckedCreateWithoutConnectionInput>
+}
+
+export type LinkedGoogleCalendarCreateManyConnectionInputEnvelope = {
+  data: Prisma.LinkedGoogleCalendarCreateManyConnectionInput | Prisma.LinkedGoogleCalendarCreateManyConnectionInput[]
+  skipDuplicates?: boolean
+}
+
+export type LinkedGoogleCalendarUpsertWithWhereUniqueWithoutConnectionInput = {
+  where: Prisma.LinkedGoogleCalendarWhereUniqueInput
+  update: Prisma.XOR<Prisma.LinkedGoogleCalendarUpdateWithoutConnectionInput, Prisma.LinkedGoogleCalendarUncheckedUpdateWithoutConnectionInput>
+  create: Prisma.XOR<Prisma.LinkedGoogleCalendarCreateWithoutConnectionInput, Prisma.LinkedGoogleCalendarUncheckedCreateWithoutConnectionInput>
+}
+
+export type LinkedGoogleCalendarUpdateWithWhereUniqueWithoutConnectionInput = {
+  where: Prisma.LinkedGoogleCalendarWhereUniqueInput
+  data: Prisma.XOR<Prisma.LinkedGoogleCalendarUpdateWithoutConnectionInput, Prisma.LinkedGoogleCalendarUncheckedUpdateWithoutConnectionInput>
+}
+
+export type LinkedGoogleCalendarUpdateManyWithWhereWithoutConnectionInput = {
+  where: Prisma.LinkedGoogleCalendarScalarWhereInput
+  data: Prisma.XOR<Prisma.LinkedGoogleCalendarUpdateManyMutationInput, Prisma.LinkedGoogleCalendarUncheckedUpdateManyWithoutConnectionInput>
+}
+
+export type LinkedGoogleCalendarCreateManyUserInput = {
+  id: string
+  connectionId: string
+  summary: string
+  backgroundColor?: string | null
+  accessRole?: string | null
+  isLinked?: boolean
+  includeInDay?: boolean
 }
 
 export type LinkedGoogleCalendarUpdateWithoutUserInput = {
@@ -455,22 +597,68 @@ export type LinkedGoogleCalendarUpdateWithoutUserInput = {
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isLinked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  includeInDay?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  connection?: Prisma.GoogleConnectionUpdateOneRequiredWithoutCalendarsNestedInput
 }
 
 export type LinkedGoogleCalendarUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  connectionId?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isLinked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  includeInDay?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type LinkedGoogleCalendarUncheckedUpdateManyWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  connectionId?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.StringFieldUpdateOperationsInput | string
+  backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isLinked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  includeInDay?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
+export type LinkedGoogleCalendarCreateManyConnectionInput = {
+  id: string
+  userId: string
+  summary: string
+  backgroundColor?: string | null
+  accessRole?: string | null
+  isLinked?: boolean
+  includeInDay?: boolean
+}
+
+export type LinkedGoogleCalendarUpdateWithoutConnectionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   summary?: Prisma.StringFieldUpdateOperationsInput | string
   backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   accessRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isLinked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  includeInDay?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneRequiredWithoutGoogleCalendarsNestedInput
+}
+
+export type LinkedGoogleCalendarUncheckedUpdateWithoutConnectionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.StringFieldUpdateOperationsInput | string
+  backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isLinked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  includeInDay?: Prisma.BoolFieldUpdateOperationsInput | boolean
+}
+
+export type LinkedGoogleCalendarUncheckedUpdateManyWithoutConnectionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  summary?: Prisma.StringFieldUpdateOperationsInput | string
+  backgroundColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  accessRole?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isLinked?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  includeInDay?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -478,65 +666,91 @@ export type LinkedGoogleCalendarUncheckedUpdateManyWithoutUserInput = {
 export type LinkedGoogleCalendarSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  connectionId?: boolean
   summary?: boolean
   backgroundColor?: boolean
   accessRole?: boolean
   isLinked?: boolean
+  includeInDay?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  connection?: boolean | Prisma.GoogleConnectionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["linkedGoogleCalendar"]>
 
 export type LinkedGoogleCalendarSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  connectionId?: boolean
   summary?: boolean
   backgroundColor?: boolean
   accessRole?: boolean
   isLinked?: boolean
+  includeInDay?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  connection?: boolean | Prisma.GoogleConnectionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["linkedGoogleCalendar"]>
 
 export type LinkedGoogleCalendarSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  connectionId?: boolean
   summary?: boolean
   backgroundColor?: boolean
   accessRole?: boolean
   isLinked?: boolean
+  includeInDay?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  connection?: boolean | Prisma.GoogleConnectionDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["linkedGoogleCalendar"]>
 
 export type LinkedGoogleCalendarSelectScalar = {
   id?: boolean
   userId?: boolean
+  connectionId?: boolean
   summary?: boolean
   backgroundColor?: boolean
   accessRole?: boolean
   isLinked?: boolean
+  includeInDay?: boolean
 }
 
-export type LinkedGoogleCalendarOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "summary" | "backgroundColor" | "accessRole" | "isLinked", ExtArgs["result"]["linkedGoogleCalendar"]>
+export type LinkedGoogleCalendarOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "connectionId" | "summary" | "backgroundColor" | "accessRole" | "isLinked" | "includeInDay", ExtArgs["result"]["linkedGoogleCalendar"]>
 export type LinkedGoogleCalendarInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  connection?: boolean | Prisma.GoogleConnectionDefaultArgs<ExtArgs>
 }
 export type LinkedGoogleCalendarIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  connection?: boolean | Prisma.GoogleConnectionDefaultArgs<ExtArgs>
 }
 export type LinkedGoogleCalendarIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  connection?: boolean | Prisma.GoogleConnectionDefaultArgs<ExtArgs>
 }
 
 export type $LinkedGoogleCalendarPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "LinkedGoogleCalendar"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    connection: Prisma.$GoogleConnectionPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
+    /**
+     * The Google calendar id. Not a key on its own: every Google account has a
+     * calendar called `primary`, so this value legitimately repeats -- once per
+     * linked account -- and the row is identified by the pair below.
+     */
     id: string
     userId: string
+    /**
+     * Which Google account this calendar came from. A calendar id is only
+     * unique within its account, so `primary` can legitimately exist 7 times.
+     */
+    connectionId: string
     summary: string
     backgroundColor: string | null
     accessRole: string | null
     isLinked: boolean
+    includeInDay: boolean
   }, ExtArgs["result"]["linkedGoogleCalendar"]>
   composites: {}
 }
@@ -932,6 +1146,7 @@ readonly fields: LinkedGoogleCalendarFieldRefs;
 export interface Prisma__LinkedGoogleCalendarClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  connection<T extends Prisma.GoogleConnectionDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.GoogleConnectionDefaultArgs<ExtArgs>>): Prisma.Prisma__GoogleConnectionClient<runtime.Types.Result.GetResult<Prisma.$GoogleConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -963,10 +1178,12 @@ export interface Prisma__LinkedGoogleCalendarClient<T, Null = never, ExtArgs ext
 export interface LinkedGoogleCalendarFieldRefs {
   readonly id: Prisma.FieldRef<"LinkedGoogleCalendar", 'String'>
   readonly userId: Prisma.FieldRef<"LinkedGoogleCalendar", 'String'>
+  readonly connectionId: Prisma.FieldRef<"LinkedGoogleCalendar", 'String'>
   readonly summary: Prisma.FieldRef<"LinkedGoogleCalendar", 'String'>
   readonly backgroundColor: Prisma.FieldRef<"LinkedGoogleCalendar", 'String'>
   readonly accessRole: Prisma.FieldRef<"LinkedGoogleCalendar", 'String'>
   readonly isLinked: Prisma.FieldRef<"LinkedGoogleCalendar", 'Boolean'>
+  readonly includeInDay: Prisma.FieldRef<"LinkedGoogleCalendar", 'Boolean'>
 }
     
 

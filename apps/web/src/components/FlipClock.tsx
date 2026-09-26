@@ -1,47 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { wantsReducedMotion } from "@/lib/motion";
-
-// One clock digit. The static card shows the CURRENT value; when the value
-// changes, two "leaf" halves carrying the OLD glyph fold away (top flaps
-// down, then bottom flaps up) to reveal the new face — a real odometer flip.
-// Leaves stay mounted ~920ms so the CSS animation plays fully (they must
-// NOT unmount on the next repaint tick). Each card renders exactly ONE
-// character — the tens/ones pairing lives in DigitGroup, not here.
+// One clock digit card. Renders the current value with split top and bottom halves.
 function FlipDigit({ value }: { value: number }) {
-  const lastRef = useRef<number>(value);
-  const timerRef = useRef<number | null>(null);
-  const [leafOld, setLeafOld] = useState<string | null>(null);
   const cur = String(value % 10);
-
-  useEffect(() => {
-    if (value === lastRef.current) return;
-    const old = String(lastRef.current % 10);
-    lastRef.current = value;
-    setLeafOld(old);
-    if (timerRef.current) window.clearTimeout(timerRef.current);
-    timerRef.current = window.setTimeout(() => setLeafOld(null), 920);
-  }, [value]);
-
-  useEffect(() => () => {
-    if (timerRef.current) window.clearTimeout(timerRef.current);
-  }, []);
-
-  const motion = !wantsReducedMotion();
-  const flipping = leafOld !== null;
 
   return (
     <div className="flip-digit">
       <span className="flip-card-top"><span className="flip-glyph">{cur}</span></span>
       <span className="flip-card-bottom"><span className="flip-glyph">{cur}</span></span>
-      {flipping && motion && (
-        <>
-          <span className="flip-leaf-bottom-cover"><span className="flip-glyph">{leafOld}</span></span>
-          <span key={`t${value}`} className="flip-leaf-top"><span className="flip-glyph">{leafOld}</span></span>
-          <span key={`b${value}`} className="flip-leaf-bottom"><span className="flip-glyph">{cur}</span></span>
-        </>
-      )}
     </div>
   );
 }

@@ -3,10 +3,12 @@ import type { Router as RouterType } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma.js";
 import { requireAuth } from "../middleware/auth.js";
+import { resolveUserTimezone } from "../middleware/timezone.js";
 import { idempotency } from "../middleware/idempotency.js";
 import { ApiError } from "../lib/errors.js";
 import { recurrence } from "../services/recurrence.js";
 import { recordEvent } from "../services/events.js";
+import { pushTaskCreate, pushTaskDelete, pushTaskUpdate, syncGoogleTasks } from "../services/googleTasks.js";
 import { EventType } from "../generated/prisma/enums.js";
 
 const router: RouterType = Router();
@@ -22,6 +24,11 @@ const createTaskSchema = z
     notes: z.string().nullable().optional(),
     dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
     dueTime: z.string().regex(/^\d{2}:\d{2}$/).nullable().optional(),
+    // The day this work is reserved for, as opposed to when it is due.
+    plannedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+    // Effort in minutes. A single integer, because a T-shirt size cannot be
+    // compared against minutes of real capacity.
+    estimateMinutes: z.number().int().min(0).max(24 * 60).nullable().optional(),
     courseId: z.string().nullable().optional(),
     recurrenceRule: z.string().nullable().optional(),
     priority: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
@@ -34,6 +41,8 @@ const updateTaskSchema = z
     notes: z.string().nullable().optional(),
     dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
     dueTime: z.string().regex(/^\d{2}:\d{2}$/).nullable().optional(),
+    plannedDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional(),
+    estimateMinutes: z.number().int().min(0).max(24 * 60).nullable().optional(),
     courseId: z.string().nullable().optional(),
     recurrenceRule: z.string().nullable().optional(),
     priority: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
@@ -54,6 +63,8 @@ function enrich(task: {
   notes: string | null;
   dueDate: string | null;
   dueTime: string | null;
+  plannedDate: string | null;
+  estimateMinutes: number | null;
   completed: boolean;
   completedAt: Date | null;
   createdAt: Date;
@@ -135,15 +146,21 @@ router.get("/", async (req, res, next) => {
 
     let filtered = tasks.map(enrich);
 
-    // Post-query filter for date-dependent logic (recurring tasks)
-    const today = recurrence.todayYMD();
+    // Post-query filter for date-dependent logic (recurring tasks).
+    // Resolved in the user's own zone, or a task reserved for "today" would be
+    // filed under the wrong day for anyone east of Greenwich in the early hours.
+    const today = recurrence.todayYMD(await resolveUserTimezone(req));
 
     if (filter === "today") {
       filtered = filtered.filter((t) => {
         if (t.isRecurring) {
-          return t.displayDate === today;
+          if (t.displayDate === today) return true;
+        } else if (t.dueDate === today) {
+          return true;
         }
-        return t.dueDate === today;
+        // Time reserved for today counts as today's work even without a
+        // deadline — that reservation is what the capacity math reads.
+        return t.plannedDate === today;
       });
     } else if (filter === "overdue") {
       filtered = filtered.filter((t) => {
@@ -222,6 +239,22 @@ router.get("/occurrences", async (req, res, next) => {
 });
 
 // Create task (with optional client id for idempotency)
+/**
+ * Pull Google tasks from every linked account.
+ *
+ * Separate from the calendar sync because the two have different failure shapes:
+ * a task is the thing a user is about to do, so a partial pull has to say which
+ * accounts it missed instead of quietly showing a short list.
+ */
+router.post("/google/sync", async (req, res, next) => {
+  try {
+    const result = await syncGoogleTasks(req.user.id);
+    res.json({ ok: true, data: result });
+  } catch (err) {
+    next(err);
+  }
+});
+
 router.post("/", async (req, res, next) => {
   try {
     const body = createTaskSchema.parse(req.body);
@@ -236,6 +269,8 @@ router.post("/", async (req, res, next) => {
           notes: body.notes ?? null,
           dueDate: body.dueDate ?? null,
           dueTime: body.dueTime ?? null,
+          plannedDate: body.plannedDate ?? null,
+          estimateMinutes: body.estimateMinutes ?? null,
           courseId: body.courseId ?? null,
           recurrenceRule: body.recurrenceRule ?? null,
           priority: body.priority ?? "MEDIUM",
@@ -261,6 +296,12 @@ router.post("/", async (req, res, next) => {
         throw e;
       }
     }
+
+    // Tasks are read-write in Google, so a task made here is pushed straight
+    // away rather than waiting for the next sync. The helper records its own
+    // failures -- a Google outage must not fail the create -- and it no-ops on
+    // the idempotent replay path, where the task is already linked.
+    await pushTaskCreate(req.user.id, task.id);
 
     res.status(201).json({ ok: true, data: enrich(task) });
     recordEvent(req.user.id, EventType.TASK_CREATED, {
@@ -302,12 +343,25 @@ router.patch("/:id", async (req, res, next) => {
         notes: body.notes,
         dueDate: body.dueDate,
         dueTime: body.dueTime,
+        plannedDate: body.plannedDate,
+        estimateMinutes: body.estimateMinutes,
         courseId: body.courseId,
         recurrenceRule: body.recurrenceRule,
         priority: body.priority,
       } as Record<string, unknown>,
       include: { course: { select: { name: true } } },
     });
+    // Only a field Google also stores is worth an API call. Re-planning a task
+    // (plannedDate, estimate, priority) is local-only, and with several accounts
+    // linked every needless write is a needless round trip.
+    const googleVisible =
+      (body.title !== undefined && body.title !== existing.title) ||
+      (body.notes !== undefined && body.notes !== existing.notes) ||
+      (body.dueDate !== undefined && body.dueDate !== existing.dueDate) ||
+      (body.dueTime !== undefined && body.dueTime !== existing.dueTime);
+    if (googleVisible) {
+      await pushTaskUpdate(req.user.id, task.id);
+    }
 
     res.json({ ok: true, data: enrich(task) });
     recordEvent(req.user.id, EventType.TASK_UPDATED, {
@@ -398,6 +452,13 @@ router.post("/:id/complete", async (req, res, next) => {
       include: { course: { select: { name: true } } },
     });
 
+    // Google Tasks has no notion of a single occurrence of a recurring task, so
+    // only a whole-task completion is pushed; the occurrence path above just
+    // moves `lastCompletedOccurrence` locally.
+    if (!isRecurring || !body.occurrenceDate) {
+      await pushTaskUpdate(req.user.id, task.id);
+    }
+
     res.json({ ok: true, data: enrich(task) });
     recordEvent(
       req.user.id,
@@ -423,6 +484,7 @@ router.delete("/:id", async (req, res, next) => {
       where: { id },
       data: { deletedAt: new Date() },
     });
+    await pushTaskDelete(req.user.id, existing.id);
 
     res.json({ ok: true, data: { deleted: true } });
     recordEvent(req.user.id, EventType.TASK_DELETED, {

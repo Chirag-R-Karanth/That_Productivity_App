@@ -1,17 +1,63 @@
-// Google Calendar sync helpers. Zero-dependency: uses global fetch against
-// Google's OAuth2 + Calendar REST APIs (Node 22+).
+// Google Calendar and Tasks sync helpers. Zero-dependency: uses global fetch
+// against Google's OAuth2 + Calendar + Tasks REST APIs (Node 22+).
 
 import { env } from "../lib/env.js";
 
 const TOKEN_URL = "https://oauth2.googleapis.com/token";
+const USERINFO_URL = "https://openidconnect.googleapis.com/v1/userinfo";
+const CAL_BASE = "https://www.googleapis.com/calendar/v3";
+const TASKS_BASE = "https://tasks.googleapis.com/tasks/v1";
 
-// Read-only access is all the app needs — Google writes stay user-side.
-export const GOOGLE_SCOPES = "https://www.googleapis.com/auth/calendar.readonly";
+/**
+ * Requested scopes.
+ *
+ * Calendar stays read-only: the app never writes to Google Calendar.
+ * Tasks is the full `tasks` scope because the user chose two-way sync, and that
+ * makes it a *sensitive* scope. A sensitive scope has consequences outside this
+ * codebase: publishing the consent screen to "In production" requires Google's
+ * verification review, and leaving it in "Testing" caps refresh-token lifetime
+ * at 7 days. See `googleConnectionNeedsRelink` for how an expiry is handled.
+ */
+export const GOOGLE_SCOPES = [
+  // The account's own identity, so a connection row can be keyed on Google's
+  // stable account id and the settings screen can name the account. The userinfo
+  // endpoint is the OpenID Connect one, which rejects a token that carries
+  // neither `openid` nor an email scope -- so these are not optional extras, the
+  // link fails without them. All three are non-sensitive.
+  "openid",
+  "profile",
+  "https://www.googleapis.com/auth/userinfo.email",
+  "https://www.googleapis.com/auth/calendar.readonly",
+  "https://www.googleapis.com/auth/tasks",
+].join(" ");
 
 interface TokenResponse {
   access_token: string;
   refresh_token?: string;
   expires_in: number;
+  scope?: string;
+  error?: string;
+  error_description?: string;
+}
+
+/**
+ * A Google call failed in a way that matters to the caller.
+ *
+ * `tokenInvalid` is separated out because it is the one failure a retry cannot
+ * fix: the grant was revoked or has expired, and a human has to reconnect. It is
+ * flagged on the connection so every screen can offer a reconnect button rather
+ * than silently retrying and failing.
+ */
+export class GoogleApiError extends Error {
+  readonly status: number;
+  readonly tokenInvalid: boolean;
+
+  constructor(message: string, status: number, tokenInvalid: boolean) {
+    super(message);
+    this.name = "GoogleApiError";
+    this.status = status;
+    this.tokenInvalid = tokenInvalid;
+  }
 }
 
 export function buildAuthUrl(state: string): string {
@@ -20,6 +66,9 @@ export function buildAuthUrl(state: string): string {
     redirect_uri: env.googleRedirectUri,
     response_type: "code",
     scope: GOOGLE_SCOPES,
+    // offline so a refresh token comes back, and consent so a second account can
+    // be authorised: without it Google silently re-authorises the last one and
+    // the "link another account" button appears to do nothing.
     access_type: "offline",
     prompt: "consent",
     include_granted_scopes: "true",
@@ -43,8 +92,9 @@ export function decodeState<T>(state: string): T {
 
 export async function exchangeCode(code: string): Promise<{
   accessToken: string;
-  refreshToken: string;
-  expiresAt: number;
+  refreshToken: string | null;
+  expiresAt: Date;
+  scopes: string | null;
 }> {
   const body = new URLSearchParams({
     client_id: env.googleClientId,
@@ -58,18 +108,48 @@ export async function exchangeCode(code: string): Promise<{
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
   });
-  if (!res.ok) {
-    throw new Error(`Google token exchange failed (${res.status})`);
-  }
-  const data = (await res.json()) as TokenResponse;
-  if (!data.refresh_token) {
-    throw new Error("Google returned no refresh token (prompt=consent should have forced it)");
+  const t = (await res.json()) as TokenResponse;
+  if (!res.ok || !t.access_token) {
+    throw new GoogleApiError(
+      `Google token exchange failed: ${t.error_description ?? t.error ?? res.status}`,
+      res.status,
+      // A reused or expired authorization code lands here, and it is fixed by
+      // sending the user through the consent screen again.
+      t.error === "invalid_grant",
+    );
   }
   return {
-    accessToken: data.access_token,
-    refreshToken: data.refresh_token,
-    expiresAt: Date.now() + data.expires_in * 1000,
+    accessToken: t.access_token,
+    // Absent when the grant was incremental: Google only issues a refresh token
+    // the first time. Keeping the old one is correct in that case.
+    refreshToken: t.refresh_token ?? null,
+    expiresAt: new Date(Date.now() + t.expires_in * 1000),
+    scopes: t.scope ?? null,
   };
+}
+
+/** Google's identity for an access token: the stable per-account id and email. */
+export interface GoogleIdentity {
+  /** The `sub` claim. Stable for the life of the account; the email is not. */
+  sub: string;
+  email: string;
+  name: string | null;
+}
+
+export async function fetchGoogleIdentity(accessToken: string): Promise<GoogleIdentity> {
+  const res = await fetch(USERINFO_URL, { headers: { Authorization: `Bearer ${accessToken}` } });
+  if (!res.ok) {
+    throw new GoogleApiError(
+      `Google userinfo failed: ${await res.text()}`,
+      res.status,
+      res.status === 401,
+    );
+  }
+  const body = (await res.json()) as { sub?: string; email?: string; name?: string };
+  if (!body.sub || !body.email) {
+    throw new GoogleApiError("Google returned no account identity", 502, false);
+  }
+  return { sub: body.sub, email: body.email, name: body.name ?? null };
 }
 
 async function refreshAccessToken(refreshToken: string): Promise<TokenResponse> {
@@ -84,48 +164,97 @@ async function refreshAccessToken(refreshToken: string): Promise<TokenResponse> 
     headers: { "Content-Type": "application/x-www-form-urlencoded" },
     body,
   });
-  if (!res.ok) {
-    throw new Error(`Google token refresh failed (${res.status})`);
+  const t = (await res.json()) as TokenResponse;
+  if (!res.ok || !t.access_token) {
+    throw new GoogleApiError(
+      `Google token refresh failed: ${t.error_description ?? t.error ?? res.status}`,
+      res.status,
+      // invalid_grant here means the grant is gone for good: revoked, or the
+      // 7-day Testing-mode expiry. No retry can recover it.
+      t.error === "invalid_grant",
+    );
   }
-  return (await res.json()) as TokenResponse;
+  return t;
 }
 
-interface GoogleUserRow {
+/** The parts of a connection row that token handling needs. */
+export interface GoogleConnectionRow {
   id: string;
-  googleAccessToken: string | null;
-  googleRefreshToken: string | null;
-  googleTokenExpiresAt: Date | null;
+  accessToken: string;
+  refreshToken: string | null;
+  tokenExpiresAt: Date | null;
 }
 
-// Return a valid access token, refreshing and persisting when expired or absent.
-export async function ensureAccessToken(
-  user: GoogleUserRow,
-  updateStored: (data: { googleAccessToken: string; googleTokenExpiresAt: Date }) => Promise<unknown>,
+/**
+ * A valid access token for this connection, refreshing and persisting when it is
+ * expired or absent.
+ *
+ * A token that Google refuses is not thrown at the caller as a generic failure:
+ * `markNeedsRelink` is given the chance to record it, so the next sync skips
+ * this account instead of hammering a dead grant, and the UI can offer a
+ * reconnect. The error is still raised so the current sync reports the truth.
+ */
+export async function ensureConnectionAccessToken(
+  connection: GoogleConnectionRow,
+  persist: (data: { accessToken: string; tokenExpiresAt: Date }) => Promise<unknown>,
+  markNeedsRelink: (reason: string) => Promise<unknown>,
 ): Promise<string> {
   const now = Date.now();
   if (
-    user.googleAccessToken &&
-    user.googleTokenExpiresAt &&
-    new Date(user.googleTokenExpiresAt).getTime() > now + 60_000
+    connection.accessToken &&
+    connection.tokenExpiresAt &&
+    new Date(connection.tokenExpiresAt).getTime() > now + 60_000
   ) {
-    return user.googleAccessToken;
+    return connection.accessToken;
   }
-  if (!user.googleRefreshToken) {
-    throw new Error("No Google refresh token stored");
+  if (!connection.refreshToken) {
+    await markNeedsRelink("No refresh token stored");
+    throw new GoogleApiError("No Google refresh token stored", 401, true);
   }
-  const t = await refreshAccessToken(user.googleRefreshToken);
+  let t: TokenResponse;
+  try {
+    t = await refreshAccessToken(connection.refreshToken);
+  } catch (e) {
+    if (e instanceof GoogleApiError && e.tokenInvalid) await markNeedsRelink(e.message);
+    throw e;
+  }
   const expiresAt = new Date(now + t.expires_in * 1000);
-  await updateStored({ googleAccessToken: t.access_token, googleTokenExpiresAt: expiresAt });
+  await persist({ accessToken: t.access_token, tokenExpiresAt: expiresAt });
   return t.access_token;
 }
 
-async function gcal<T>(accessToken: string, url: string): Promise<T> {
-  const res = await fetch(url, { headers: { Authorization: `Bearer ${accessToken}` } });
+/** A Google REST call. `url` is always the URL and never the token. */
+async function googleFetch<T>(
+  accessToken: string,
+  url: string,
+  init?: { method?: string; body?: unknown; headers?: Record<string, string> },
+): Promise<T> {
+  const res = await fetch(url, {
+    method: init?.method ?? "GET",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      ...(init?.body === undefined ? {} : { "Content-Type": "application/json" }),
+      ...init?.headers,
+    },
+    body: init?.body === undefined ? undefined : JSON.stringify(init.body),
+  });
   if (!res.ok) {
-    throw new Error(`Google Calendar API error ${res.status}: ${await res.text()}`);
+    const text = await res.text();
+    throw new GoogleApiError(
+      `Google API error ${res.status} for ${url}: ${text}`,
+      res.status,
+      res.status === 401,
+    );
   }
-  return (await res.json()) as T;
+  // 204 and some deletes have no body to parse.
+  if (res.status === 204) return undefined as T;
+  const text = await res.text();
+  return (text ? JSON.parse(text) : undefined) as T;
 }
+
+// ---------------------------------------------------------------------------
+// Calendar
+// ---------------------------------------------------------------------------
 
 export interface GoogleCalendarListItem {
   id: string;
@@ -134,8 +263,8 @@ export interface GoogleCalendarListItem {
   accessRole?: string | null;
 }
 
-export function listCalendars(accessToken: string): Promise<{ items: GoogleCalendarListItem[] }> {
-  return gcal("https://www.googleapis.com/calendar/v3/users/me/calendarList?maxResults=100", accessToken);
+export function listCalendars(accessToken: string): Promise<{ items?: GoogleCalendarListItem[] }> {
+  return googleFetch(accessToken, `${CAL_BASE}/users/me/calendarList?maxResults=100`);
 }
 
 export interface GoogleCalendarEventItem {
@@ -147,6 +276,7 @@ export interface GoogleCalendarEventItem {
   start?: { date?: string; dateTime?: string };
   end?: { date?: string; dateTime?: string };
   colorId?: string;
+  updated?: string;
 }
 
 export function getEvents(
@@ -154,7 +284,7 @@ export function getEvents(
   calendarId: string,
   timeMin: string,
   timeMax: string,
-): Promise<{ items: GoogleCalendarEventItem[] }> {
+): Promise<{ items?: GoogleCalendarEventItem[] }> {
   const params = new URLSearchParams({
     timeMin,
     timeMax,
@@ -162,8 +292,8 @@ export function getEvents(
     singleEvents: "true",
     orderBy: "startTime",
   });
-  const url = `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendarId)}/events?${params}`;
-  return gcal(url, accessToken);
+  const url = `${CAL_BASE}/calendars/${encodeURIComponent(calendarId)}/events?${params}`;
+  return googleFetch(accessToken, url);
 }
 
 /** Google's default per-calendar color palette (index → hex). */
@@ -175,4 +305,132 @@ const GCAL_COLORS: Record<string, string> = {
 
 export function gcalColor(colorId?: string): string {
   return colorId ? GCAL_COLORS[colorId] ?? "#8fb0ff" : "#8fb0ff";
+}
+
+// ---------------------------------------------------------------------------
+// Tasks
+// ---------------------------------------------------------------------------
+
+export interface GoogleTaskList {
+  id: string;
+  title: string;
+  updated?: string;
+}
+
+export interface GoogleTask {
+  id: string;
+  title: string;
+  notes?: string | null;
+  status?: "needsAction" | "completed";
+  /** RFC3339, or a bare date for an all-day due date. */
+  due?: string;
+  completed?: string;
+  deleted?: boolean;
+  hidden?: boolean;
+  parent?: string | null;
+  position?: string;
+  etag?: string;
+  selfLink?: string;
+  updated?: string;
+}
+
+export function listTaskLists(accessToken: string): Promise<{ items?: GoogleTaskList[] }> {
+  return googleFetch(accessToken, `${TASKS_BASE}/users/@me/lists`);
+}
+
+/**
+ * Tasks in a list, including completed and hidden ones.
+ *
+ * `showCompleted` and `showHidden` matter for a two-way sync: without them a task
+ * completed in Google stays "pending" in the app forever, and a task the user
+ * completed and then undid disappears from the sync entirely.
+ */
+export function listTasks(
+  accessToken: string,
+  taskListId: string,
+  opts: { maxResults?: number; showCompleted?: boolean; showHidden?: boolean } = {},
+): Promise<{ items?: GoogleTask[]; nextPageToken?: string }> {
+  const params = new URLSearchParams({
+    maxResults: String(opts.maxResults ?? 2500),
+    showCompleted: String(opts.showCompleted ?? true),
+    showHidden: String(opts.showHidden ?? true),
+  });
+  return googleFetch(
+    accessToken,
+    `${TASKS_BASE}/lists/${encodeURIComponent(taskListId)}/tasks?${params}`,
+  );
+}
+
+export function getTask(
+  accessToken: string,
+  taskListId: string,
+  taskId: string,
+): Promise<GoogleTask> {
+  return googleFetch(
+    accessToken,
+    `${TASKS_BASE}/lists/${encodeURIComponent(taskListId)}/tasks/${encodeURIComponent(taskId)}`,
+  );
+}
+
+/**
+ * Create a task in a list. `previous` is the id of the task to insert after,
+ * which is how a new task is ordered rather than appended.
+ */
+export function insertTask(
+  accessToken: string,
+  taskListId: string,
+  task: { title: string; notes?: string | null; due?: string; status?: string; previous?: string },
+): Promise<GoogleTask> {
+  return googleFetch(
+    accessToken,
+    `${TASKS_BASE}/lists/${encodeURIComponent(taskListId)}/tasks`,
+    {
+      method: "POST",
+      body: {
+        title: task.title,
+        notes: task.notes ?? undefined,
+        due: task.due,
+        status: task.status,
+        ...(task.previous ? { previous: task.previous } : {}),
+      },
+    },
+  );
+}
+
+/**
+ * Patch a task in place.
+ *
+ * `etag` is passed as `If-Match`. Google answers 412 if the task changed since
+ * it was read, and overwriting a change the user made in the Google Tasks app
+ * would silently destroy it, so the caller is expected to re-read and retry
+ * rather than force.
+ */
+export function patchTask(
+  accessToken: string,
+  taskListId: string,
+  taskId: string,
+  patch: { title?: string; notes?: string | null; due?: string; status?: string; deleted?: boolean },
+  etag?: string | null,
+): Promise<GoogleTask> {
+  return googleFetch(
+    accessToken,
+    `${TASKS_BASE}/lists/${encodeURIComponent(taskListId)}/tasks/${encodeURIComponent(taskId)}`,
+    {
+      method: "PATCH",
+      body: patch,
+      ...(etag ? { headers: { "If-Match": etag } } : {}),
+    },
+  );
+}
+
+export function deleteTask(
+  accessToken: string,
+  taskListId: string,
+  taskId: string,
+): Promise<void> {
+  return googleFetch(
+    accessToken,
+    `${TASKS_BASE}/lists/${encodeURIComponent(taskListId)}/tasks/${encodeURIComponent(taskId)}`,
+    { method: "DELETE" },
+  );
 }

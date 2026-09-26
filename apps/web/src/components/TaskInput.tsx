@@ -29,6 +29,21 @@ function weekdayOf(dateStr: string): string {
   return DAY_CODES[new Date(y, m - 1, d).getDay()];
 }
 
+/** Local YYYY-MM-DD. `toISOString()` is UTC and lands on the wrong day near midnight. */
+function localDay(offsetDays = 0): string {
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
+/** Quick-pick efforts. The common cases only — precision is a trap at capture time. */
+const EFFORT_CHIPS = [
+  { minutes: 15, label: "15m" },
+  { minutes: 30, label: "30m" },
+  { minutes: 60, label: "1h" },
+  { minutes: 120, label: "2h" },
+];
+
 export function TaskInput({ onAdd, autoFocus }: TaskInputProps) {
   const [courses, setCourses] = useState<Course[]>([]);
   const [open, setOpen] = useState(autoFocus ?? false);
@@ -39,6 +54,8 @@ export function TaskInput({ onAdd, autoFocus }: TaskInputProps) {
   const [priority, setPriority] = useState<TaskPriority>("MEDIUM");
   const [courseId, setCourseId] = useState("");
   const [recurrence, setRecurrence] = useState<RecurrencePreset>("none");
+  const [estimateMinutes, setEstimateMinutes] = useState<number | null>(null);
+  const [plannedDate, setPlannedDate] = useState("");
   const [formRef, setFormRef] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -68,11 +85,9 @@ export function TaskInput({ onAdd, autoFocus }: TaskInputProps) {
     e.preventDefault();
     if (!title.trim()) return;
 
-    const todayStr = new Date().toISOString().slice(0, 10);
-    const date = dueDate || todayStr;
-
-    let recurrenceRule: string | null = null;
+    const date = dueDate || localDay();
     const day = weekdayOf(date);
+    let recurrenceRule: string | null = null;
     switch (recurrence) {
       case "daily": recurrenceRule = "FREQ=DAILY"; break;
       case "weekdays": recurrenceRule = "FREQ=WEEKLY;BYDAY=MO,TU,WE,TH,FR"; break;
@@ -87,6 +102,8 @@ export function TaskInput({ onAdd, autoFocus }: TaskInputProps) {
       notes: notes.trim() || null,
       dueDate: dueDate || null,
       dueTime: dueTime || null,
+      plannedDate: plannedDate || null,
+      estimateMinutes,
       priority,
       courseId: courseId || null,
       recurrenceRule,
@@ -94,6 +111,8 @@ export function TaskInput({ onAdd, autoFocus }: TaskInputProps) {
 
     setTitle("");
     setNotes("");
+    setEstimateMinutes(null);
+    setPlannedDate("");
     setOpen(false);
   };
 
@@ -192,6 +211,72 @@ export function TaskInput({ onAdd, autoFocus }: TaskInputProps) {
                 </select>
               </label>
             )}
+
+            {/*
+              Effort and reserved day are what make the capacity arithmetic on
+              Today possible at all, so they are one tap rather than a form
+              field — but they stay optional. A task with no estimate is a
+              legitimate state, and the app says so rather than guessing.
+            */}
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3 rounded-lg border border-border/60 bg-surface-elevated/40 px-3 py-2.5">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-text-muted">
+                  Effort
+                </span>
+                <div className="flex gap-1">
+                  {EFFORT_CHIPS.map((c) => (
+                    <button
+                      key={c.minutes}
+                      type="button"
+                      onClick={() =>
+                        setEstimateMinutes((v) => (v === c.minutes ? null : c.minutes))
+                      }
+                      className={`focus-ring rounded-md border px-2 py-0.5 text-[11.5px] tabular-nums transition-colors ${
+                        estimateMinutes === c.minutes
+                          ? "border-accent bg-accent-soft text-accent"
+                          : "border-border text-text-muted hover:border-accent/50 hover:text-text"
+                      }`}
+                    >
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-medium uppercase tracking-wider text-text-muted">
+                  Reserve for
+                </span>
+                <div className="flex gap-1">
+                  {[
+                    { label: "Today", value: localDay(0) },
+                    { label: "Tomorrow", value: localDay(1) },
+                  ].map((d) => (
+                    <button
+                      key={d.label}
+                      type="button"
+                      onClick={() =>
+                        setPlannedDate((v) => (v === d.value ? "" : d.value))
+                      }
+                      className={`focus-ring rounded-md border px-2 py-0.5 text-[11.5px] transition-colors ${
+                        plannedDate === d.value
+                          ? "border-accent bg-accent-soft text-accent"
+                          : "border-border text-text-muted hover:border-accent/50 hover:text-text"
+                      }`}
+                    >
+                      {d.label}
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="date"
+                  value={plannedDate}
+                  onChange={(e) => setPlannedDate(e.target.value)}
+                  aria-label="Reserve for a specific day"
+                  className="rounded-md border border-border bg-surface-elevated px-2 py-0.5 text-[11.5px] text-text outline-none focus:border-accent"
+                />
+              </div>
+            </div>
 
             <div className="flex justify-end gap-2 pt-1">
               <button

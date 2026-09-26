@@ -30,6 +30,7 @@ export type CalendarEventMinAggregateOutputType = {
   source: $Enums.CalendarEventSource | null
   googleEventId: string | null
   sourceCalendarId: string | null
+  connectionId: string | null
   title: string | null
   description: string | null
   startTime: Date | null
@@ -50,6 +51,7 @@ export type CalendarEventMaxAggregateOutputType = {
   source: $Enums.CalendarEventSource | null
   googleEventId: string | null
   sourceCalendarId: string | null
+  connectionId: string | null
   title: string | null
   description: string | null
   startTime: Date | null
@@ -70,6 +72,7 @@ export type CalendarEventCountAggregateOutputType = {
   source: number
   googleEventId: number
   sourceCalendarId: number
+  connectionId: number
   title: number
   description: number
   startTime: number
@@ -92,6 +95,7 @@ export type CalendarEventMinAggregateInputType = {
   source?: true
   googleEventId?: true
   sourceCalendarId?: true
+  connectionId?: true
   title?: true
   description?: true
   startTime?: true
@@ -112,6 +116,7 @@ export type CalendarEventMaxAggregateInputType = {
   source?: true
   googleEventId?: true
   sourceCalendarId?: true
+  connectionId?: true
   title?: true
   description?: true
   startTime?: true
@@ -132,6 +137,7 @@ export type CalendarEventCountAggregateInputType = {
   source?: true
   googleEventId?: true
   sourceCalendarId?: true
+  connectionId?: true
   title?: true
   description?: true
   startTime?: true
@@ -225,6 +231,7 @@ export type CalendarEventGroupByOutputType = {
   source: $Enums.CalendarEventSource
   googleEventId: string | null
   sourceCalendarId: string | null
+  connectionId: string | null
   title: string
   description: string | null
   startTime: Date
@@ -266,6 +273,7 @@ export type CalendarEventWhereInput = {
   source?: Prisma.EnumCalendarEventSourceFilter<"CalendarEvent"> | $Enums.CalendarEventSource
   googleEventId?: Prisma.StringNullableFilter<"CalendarEvent"> | string | null
   sourceCalendarId?: Prisma.StringNullableFilter<"CalendarEvent"> | string | null
+  connectionId?: Prisma.StringNullableFilter<"CalendarEvent"> | string | null
   title?: Prisma.StringFilter<"CalendarEvent"> | string
   description?: Prisma.StringNullableFilter<"CalendarEvent"> | string | null
   startTime?: Prisma.DateTimeFilter<"CalendarEvent"> | Date | string
@@ -279,6 +287,7 @@ export type CalendarEventWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"CalendarEvent"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CalendarEvent"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
+  connection?: Prisma.XOR<Prisma.GoogleConnectionNullableScalarRelationFilter, Prisma.GoogleConnectionWhereInput> | null
 }
 
 export type CalendarEventOrderByWithRelationInput = {
@@ -287,6 +296,7 @@ export type CalendarEventOrderByWithRelationInput = {
   source?: Prisma.SortOrder
   googleEventId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceCalendarId?: Prisma.SortOrderInput | Prisma.SortOrder
+  connectionId?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   startTime?: Prisma.SortOrder
@@ -300,11 +310,11 @@ export type CalendarEventOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
+  connection?: Prisma.GoogleConnectionOrderByWithRelationInput
 }
 
 export type CalendarEventWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  userId_googleEventId_sourceCalendarId?: Prisma.CalendarEventUserIdGoogleEventIdSourceCalendarIdCompoundUniqueInput
   AND?: Prisma.CalendarEventWhereInput | Prisma.CalendarEventWhereInput[]
   OR?: Prisma.CalendarEventWhereInput[]
   NOT?: Prisma.CalendarEventWhereInput | Prisma.CalendarEventWhereInput[]
@@ -312,6 +322,7 @@ export type CalendarEventWhereUniqueInput = Prisma.AtLeast<{
   source?: Prisma.EnumCalendarEventSourceFilter<"CalendarEvent"> | $Enums.CalendarEventSource
   googleEventId?: Prisma.StringNullableFilter<"CalendarEvent"> | string | null
   sourceCalendarId?: Prisma.StringNullableFilter<"CalendarEvent"> | string | null
+  connectionId?: Prisma.StringNullableFilter<"CalendarEvent"> | string | null
   title?: Prisma.StringFilter<"CalendarEvent"> | string
   description?: Prisma.StringNullableFilter<"CalendarEvent"> | string | null
   startTime?: Prisma.DateTimeFilter<"CalendarEvent"> | Date | string
@@ -325,7 +336,8 @@ export type CalendarEventWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"CalendarEvent"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CalendarEvent"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-}, "id" | "userId_googleEventId_sourceCalendarId">
+  connection?: Prisma.XOR<Prisma.GoogleConnectionNullableScalarRelationFilter, Prisma.GoogleConnectionWhereInput> | null
+}, "id">
 
 export type CalendarEventOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -333,6 +345,7 @@ export type CalendarEventOrderByWithAggregationInput = {
   source?: Prisma.SortOrder
   googleEventId?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceCalendarId?: Prisma.SortOrderInput | Prisma.SortOrder
+  connectionId?: Prisma.SortOrderInput | Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   startTime?: Prisma.SortOrder
@@ -359,6 +372,7 @@ export type CalendarEventScalarWhereWithAggregatesInput = {
   source?: Prisma.EnumCalendarEventSourceWithAggregatesFilter<"CalendarEvent"> | $Enums.CalendarEventSource
   googleEventId?: Prisma.StringNullableWithAggregatesFilter<"CalendarEvent"> | string | null
   sourceCalendarId?: Prisma.StringNullableWithAggregatesFilter<"CalendarEvent"> | string | null
+  connectionId?: Prisma.StringNullableWithAggregatesFilter<"CalendarEvent"> | string | null
   title?: Prisma.StringWithAggregatesFilter<"CalendarEvent"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"CalendarEvent"> | string | null
   startTime?: Prisma.DateTimeWithAggregatesFilter<"CalendarEvent"> | Date | string
@@ -391,6 +405,7 @@ export type CalendarEventCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutCalendarEventsInput
+  connection?: Prisma.GoogleConnectionCreateNestedOneWithoutEventsInput
 }
 
 export type CalendarEventUncheckedCreateInput = {
@@ -399,6 +414,7 @@ export type CalendarEventUncheckedCreateInput = {
   source?: $Enums.CalendarEventSource
   googleEventId?: string | null
   sourceCalendarId?: string | null
+  connectionId?: string | null
   title: string
   description?: string | null
   startTime: Date | string
@@ -431,6 +447,7 @@ export type CalendarEventUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutCalendarEventsNestedInput
+  connection?: Prisma.GoogleConnectionUpdateOneWithoutEventsNestedInput
 }
 
 export type CalendarEventUncheckedUpdateInput = {
@@ -439,6 +456,7 @@ export type CalendarEventUncheckedUpdateInput = {
   source?: Prisma.EnumCalendarEventSourceFieldUpdateOperationsInput | $Enums.CalendarEventSource
   googleEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceCalendarId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -459,6 +477,7 @@ export type CalendarEventCreateManyInput = {
   source?: $Enums.CalendarEventSource
   googleEventId?: string | null
   sourceCalendarId?: string | null
+  connectionId?: string | null
   title: string
   description?: string | null
   startTime: Date | string
@@ -498,6 +517,7 @@ export type CalendarEventUncheckedUpdateManyInput = {
   source?: Prisma.EnumCalendarEventSourceFieldUpdateOperationsInput | $Enums.CalendarEventSource
   googleEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceCalendarId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   title?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -522,18 +542,13 @@ export type CalendarEventOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type CalendarEventUserIdGoogleEventIdSourceCalendarIdCompoundUniqueInput = {
-  userId: string
-  googleEventId: string
-  sourceCalendarId: string
-}
-
 export type CalendarEventCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   source?: Prisma.SortOrder
   googleEventId?: Prisma.SortOrder
   sourceCalendarId?: Prisma.SortOrder
+  connectionId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
@@ -554,6 +569,7 @@ export type CalendarEventMaxOrderByAggregateInput = {
   source?: Prisma.SortOrder
   googleEventId?: Prisma.SortOrder
   sourceCalendarId?: Prisma.SortOrder
+  connectionId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
@@ -574,6 +590,7 @@ export type CalendarEventMinOrderByAggregateInput = {
   source?: Prisma.SortOrder
   googleEventId?: Prisma.SortOrder
   sourceCalendarId?: Prisma.SortOrder
+  connectionId?: Prisma.SortOrder
   title?: Prisma.SortOrder
   description?: Prisma.SortOrder
   startTime?: Prisma.SortOrder
@@ -634,6 +651,48 @@ export type EnumCalendarEventSourceFieldUpdateOperationsInput = {
   set?: $Enums.CalendarEventSource
 }
 
+export type CalendarEventCreateNestedManyWithoutConnectionInput = {
+  create?: Prisma.XOR<Prisma.CalendarEventCreateWithoutConnectionInput, Prisma.CalendarEventUncheckedCreateWithoutConnectionInput> | Prisma.CalendarEventCreateWithoutConnectionInput[] | Prisma.CalendarEventUncheckedCreateWithoutConnectionInput[]
+  connectOrCreate?: Prisma.CalendarEventCreateOrConnectWithoutConnectionInput | Prisma.CalendarEventCreateOrConnectWithoutConnectionInput[]
+  createMany?: Prisma.CalendarEventCreateManyConnectionInputEnvelope
+  connect?: Prisma.CalendarEventWhereUniqueInput | Prisma.CalendarEventWhereUniqueInput[]
+}
+
+export type CalendarEventUncheckedCreateNestedManyWithoutConnectionInput = {
+  create?: Prisma.XOR<Prisma.CalendarEventCreateWithoutConnectionInput, Prisma.CalendarEventUncheckedCreateWithoutConnectionInput> | Prisma.CalendarEventCreateWithoutConnectionInput[] | Prisma.CalendarEventUncheckedCreateWithoutConnectionInput[]
+  connectOrCreate?: Prisma.CalendarEventCreateOrConnectWithoutConnectionInput | Prisma.CalendarEventCreateOrConnectWithoutConnectionInput[]
+  createMany?: Prisma.CalendarEventCreateManyConnectionInputEnvelope
+  connect?: Prisma.CalendarEventWhereUniqueInput | Prisma.CalendarEventWhereUniqueInput[]
+}
+
+export type CalendarEventUpdateManyWithoutConnectionNestedInput = {
+  create?: Prisma.XOR<Prisma.CalendarEventCreateWithoutConnectionInput, Prisma.CalendarEventUncheckedCreateWithoutConnectionInput> | Prisma.CalendarEventCreateWithoutConnectionInput[] | Prisma.CalendarEventUncheckedCreateWithoutConnectionInput[]
+  connectOrCreate?: Prisma.CalendarEventCreateOrConnectWithoutConnectionInput | Prisma.CalendarEventCreateOrConnectWithoutConnectionInput[]
+  upsert?: Prisma.CalendarEventUpsertWithWhereUniqueWithoutConnectionInput | Prisma.CalendarEventUpsertWithWhereUniqueWithoutConnectionInput[]
+  createMany?: Prisma.CalendarEventCreateManyConnectionInputEnvelope
+  set?: Prisma.CalendarEventWhereUniqueInput | Prisma.CalendarEventWhereUniqueInput[]
+  disconnect?: Prisma.CalendarEventWhereUniqueInput | Prisma.CalendarEventWhereUniqueInput[]
+  delete?: Prisma.CalendarEventWhereUniqueInput | Prisma.CalendarEventWhereUniqueInput[]
+  connect?: Prisma.CalendarEventWhereUniqueInput | Prisma.CalendarEventWhereUniqueInput[]
+  update?: Prisma.CalendarEventUpdateWithWhereUniqueWithoutConnectionInput | Prisma.CalendarEventUpdateWithWhereUniqueWithoutConnectionInput[]
+  updateMany?: Prisma.CalendarEventUpdateManyWithWhereWithoutConnectionInput | Prisma.CalendarEventUpdateManyWithWhereWithoutConnectionInput[]
+  deleteMany?: Prisma.CalendarEventScalarWhereInput | Prisma.CalendarEventScalarWhereInput[]
+}
+
+export type CalendarEventUncheckedUpdateManyWithoutConnectionNestedInput = {
+  create?: Prisma.XOR<Prisma.CalendarEventCreateWithoutConnectionInput, Prisma.CalendarEventUncheckedCreateWithoutConnectionInput> | Prisma.CalendarEventCreateWithoutConnectionInput[] | Prisma.CalendarEventUncheckedCreateWithoutConnectionInput[]
+  connectOrCreate?: Prisma.CalendarEventCreateOrConnectWithoutConnectionInput | Prisma.CalendarEventCreateOrConnectWithoutConnectionInput[]
+  upsert?: Prisma.CalendarEventUpsertWithWhereUniqueWithoutConnectionInput | Prisma.CalendarEventUpsertWithWhereUniqueWithoutConnectionInput[]
+  createMany?: Prisma.CalendarEventCreateManyConnectionInputEnvelope
+  set?: Prisma.CalendarEventWhereUniqueInput | Prisma.CalendarEventWhereUniqueInput[]
+  disconnect?: Prisma.CalendarEventWhereUniqueInput | Prisma.CalendarEventWhereUniqueInput[]
+  delete?: Prisma.CalendarEventWhereUniqueInput | Prisma.CalendarEventWhereUniqueInput[]
+  connect?: Prisma.CalendarEventWhereUniqueInput | Prisma.CalendarEventWhereUniqueInput[]
+  update?: Prisma.CalendarEventUpdateWithWhereUniqueWithoutConnectionInput | Prisma.CalendarEventUpdateWithWhereUniqueWithoutConnectionInput[]
+  updateMany?: Prisma.CalendarEventUpdateManyWithWhereWithoutConnectionInput | Prisma.CalendarEventUpdateManyWithWhereWithoutConnectionInput[]
+  deleteMany?: Prisma.CalendarEventScalarWhereInput | Prisma.CalendarEventScalarWhereInput[]
+}
+
 export type CalendarEventCreateWithoutUserInput = {
   id?: string
   source?: $Enums.CalendarEventSource
@@ -651,6 +710,7 @@ export type CalendarEventCreateWithoutUserInput = {
   googleUpdatedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  connection?: Prisma.GoogleConnectionCreateNestedOneWithoutEventsInput
 }
 
 export type CalendarEventUncheckedCreateWithoutUserInput = {
@@ -658,6 +718,7 @@ export type CalendarEventUncheckedCreateWithoutUserInput = {
   source?: $Enums.CalendarEventSource
   googleEventId?: string | null
   sourceCalendarId?: string | null
+  connectionId?: string | null
   title: string
   description?: string | null
   startTime: Date | string
@@ -707,6 +768,7 @@ export type CalendarEventScalarWhereInput = {
   source?: Prisma.EnumCalendarEventSourceFilter<"CalendarEvent"> | $Enums.CalendarEventSource
   googleEventId?: Prisma.StringNullableFilter<"CalendarEvent"> | string | null
   sourceCalendarId?: Prisma.StringNullableFilter<"CalendarEvent"> | string | null
+  connectionId?: Prisma.StringNullableFilter<"CalendarEvent"> | string | null
   title?: Prisma.StringFilter<"CalendarEvent"> | string
   description?: Prisma.StringNullableFilter<"CalendarEvent"> | string | null
   startTime?: Prisma.DateTimeFilter<"CalendarEvent"> | Date | string
@@ -721,11 +783,78 @@ export type CalendarEventScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"CalendarEvent"> | Date | string
 }
 
+export type CalendarEventCreateWithoutConnectionInput = {
+  id?: string
+  source?: $Enums.CalendarEventSource
+  googleEventId?: string | null
+  sourceCalendarId?: string | null
+  title: string
+  description?: string | null
+  startTime: Date | string
+  endTime: Date | string
+  allDay?: boolean
+  location?: string | null
+  color?: string | null
+  isDedupedDuplicate?: boolean
+  isDeleted?: boolean
+  googleUpdatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutCalendarEventsInput
+}
+
+export type CalendarEventUncheckedCreateWithoutConnectionInput = {
+  id?: string
+  userId: string
+  source?: $Enums.CalendarEventSource
+  googleEventId?: string | null
+  sourceCalendarId?: string | null
+  title: string
+  description?: string | null
+  startTime: Date | string
+  endTime: Date | string
+  allDay?: boolean
+  location?: string | null
+  color?: string | null
+  isDedupedDuplicate?: boolean
+  isDeleted?: boolean
+  googleUpdatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CalendarEventCreateOrConnectWithoutConnectionInput = {
+  where: Prisma.CalendarEventWhereUniqueInput
+  create: Prisma.XOR<Prisma.CalendarEventCreateWithoutConnectionInput, Prisma.CalendarEventUncheckedCreateWithoutConnectionInput>
+}
+
+export type CalendarEventCreateManyConnectionInputEnvelope = {
+  data: Prisma.CalendarEventCreateManyConnectionInput | Prisma.CalendarEventCreateManyConnectionInput[]
+  skipDuplicates?: boolean
+}
+
+export type CalendarEventUpsertWithWhereUniqueWithoutConnectionInput = {
+  where: Prisma.CalendarEventWhereUniqueInput
+  update: Prisma.XOR<Prisma.CalendarEventUpdateWithoutConnectionInput, Prisma.CalendarEventUncheckedUpdateWithoutConnectionInput>
+  create: Prisma.XOR<Prisma.CalendarEventCreateWithoutConnectionInput, Prisma.CalendarEventUncheckedCreateWithoutConnectionInput>
+}
+
+export type CalendarEventUpdateWithWhereUniqueWithoutConnectionInput = {
+  where: Prisma.CalendarEventWhereUniqueInput
+  data: Prisma.XOR<Prisma.CalendarEventUpdateWithoutConnectionInput, Prisma.CalendarEventUncheckedUpdateWithoutConnectionInput>
+}
+
+export type CalendarEventUpdateManyWithWhereWithoutConnectionInput = {
+  where: Prisma.CalendarEventScalarWhereInput
+  data: Prisma.XOR<Prisma.CalendarEventUpdateManyMutationInput, Prisma.CalendarEventUncheckedUpdateManyWithoutConnectionInput>
+}
+
 export type CalendarEventCreateManyUserInput = {
   id?: string
   source?: $Enums.CalendarEventSource
   googleEventId?: string | null
   sourceCalendarId?: string | null
+  connectionId?: string | null
   title: string
   description?: string | null
   startTime: Date | string
@@ -757,10 +886,92 @@ export type CalendarEventUpdateWithoutUserInput = {
   googleUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  connection?: Prisma.GoogleConnectionUpdateOneWithoutEventsNestedInput
 }
 
 export type CalendarEventUncheckedUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumCalendarEventSourceFieldUpdateOperationsInput | $Enums.CalendarEventSource
+  googleEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCalendarId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  allDay?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDedupedDuplicate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CalendarEventUncheckedUpdateManyWithoutUserInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumCalendarEventSourceFieldUpdateOperationsInput | $Enums.CalendarEventSource
+  googleEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCalendarId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  connectionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  allDay?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDedupedDuplicate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CalendarEventCreateManyConnectionInput = {
+  id?: string
+  userId: string
+  source?: $Enums.CalendarEventSource
+  googleEventId?: string | null
+  sourceCalendarId?: string | null
+  title: string
+  description?: string | null
+  startTime: Date | string
+  endTime: Date | string
+  allDay?: boolean
+  location?: string | null
+  color?: string | null
+  isDedupedDuplicate?: boolean
+  isDeleted?: boolean
+  googleUpdatedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type CalendarEventUpdateWithoutConnectionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  source?: Prisma.EnumCalendarEventSourceFieldUpdateOperationsInput | $Enums.CalendarEventSource
+  googleEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCalendarId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endTime?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  allDay?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  location?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  color?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDedupedDuplicate?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isDeleted?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  googleUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutCalendarEventsNestedInput
+}
+
+export type CalendarEventUncheckedUpdateWithoutConnectionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumCalendarEventSourceFieldUpdateOperationsInput | $Enums.CalendarEventSource
   googleEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceCalendarId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -778,8 +989,9 @@ export type CalendarEventUncheckedUpdateWithoutUserInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type CalendarEventUncheckedUpdateManyWithoutUserInput = {
+export type CalendarEventUncheckedUpdateManyWithoutConnectionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   source?: Prisma.EnumCalendarEventSourceFieldUpdateOperationsInput | $Enums.CalendarEventSource
   googleEventId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceCalendarId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -805,6 +1017,7 @@ export type CalendarEventSelect<ExtArgs extends runtime.Types.Extensions.Interna
   source?: boolean
   googleEventId?: boolean
   sourceCalendarId?: boolean
+  connectionId?: boolean
   title?: boolean
   description?: boolean
   startTime?: boolean
@@ -818,6 +1031,7 @@ export type CalendarEventSelect<ExtArgs extends runtime.Types.Extensions.Interna
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  connection?: boolean | Prisma.CalendarEvent$connectionArgs<ExtArgs>
 }, ExtArgs["result"]["calendarEvent"]>
 
 export type CalendarEventSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -826,6 +1040,7 @@ export type CalendarEventSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   source?: boolean
   googleEventId?: boolean
   sourceCalendarId?: boolean
+  connectionId?: boolean
   title?: boolean
   description?: boolean
   startTime?: boolean
@@ -839,6 +1054,7 @@ export type CalendarEventSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  connection?: boolean | Prisma.CalendarEvent$connectionArgs<ExtArgs>
 }, ExtArgs["result"]["calendarEvent"]>
 
 export type CalendarEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -847,6 +1063,7 @@ export type CalendarEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   source?: boolean
   googleEventId?: boolean
   sourceCalendarId?: boolean
+  connectionId?: boolean
   title?: boolean
   description?: boolean
   startTime?: boolean
@@ -860,6 +1077,7 @@ export type CalendarEventSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   createdAt?: boolean
   updatedAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  connection?: boolean | Prisma.CalendarEvent$connectionArgs<ExtArgs>
 }, ExtArgs["result"]["calendarEvent"]>
 
 export type CalendarEventSelectScalar = {
@@ -868,6 +1086,7 @@ export type CalendarEventSelectScalar = {
   source?: boolean
   googleEventId?: boolean
   sourceCalendarId?: boolean
+  connectionId?: boolean
   title?: boolean
   description?: boolean
   startTime?: boolean
@@ -882,21 +1101,25 @@ export type CalendarEventSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CalendarEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "source" | "googleEventId" | "sourceCalendarId" | "title" | "description" | "startTime" | "endTime" | "allDay" | "location" | "color" | "isDedupedDuplicate" | "isDeleted" | "googleUpdatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["calendarEvent"]>
+export type CalendarEventOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "source" | "googleEventId" | "sourceCalendarId" | "connectionId" | "title" | "description" | "startTime" | "endTime" | "allDay" | "location" | "color" | "isDedupedDuplicate" | "isDeleted" | "googleUpdatedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["calendarEvent"]>
 export type CalendarEventInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  connection?: boolean | Prisma.CalendarEvent$connectionArgs<ExtArgs>
 }
 export type CalendarEventIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  connection?: boolean | Prisma.CalendarEvent$connectionArgs<ExtArgs>
 }
 export type CalendarEventIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
+  connection?: boolean | Prisma.CalendarEvent$connectionArgs<ExtArgs>
 }
 
 export type $CalendarEventPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "CalendarEvent"
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
+    connection: Prisma.$GoogleConnectionPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -904,6 +1127,13 @@ export type $CalendarEventPayload<ExtArgs extends runtime.Types.Extensions.Inter
     source: $Enums.CalendarEventSource
     googleEventId: string | null
     sourceCalendarId: string | null
+    /**
+     * Which linked Google account produced this row. A Google event id is only
+     * unique within one calendar of one account, so the previous key
+     * (userId, googleEventId, sourceCalendarId) collides the moment a second
+     * account is linked: both have a `primary` calendar and overlapping ids.
+     */
+    connectionId: string | null
     title: string
     description: string | null
     startTime: Date
@@ -1311,6 +1541,7 @@ readonly fields: CalendarEventFieldRefs;
 export interface Prisma__CalendarEventClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  connection<T extends Prisma.CalendarEvent$connectionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CalendarEvent$connectionArgs<ExtArgs>>): Prisma.Prisma__GoogleConnectionClient<runtime.Types.Result.GetResult<Prisma.$GoogleConnectionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1345,6 +1576,7 @@ export interface CalendarEventFieldRefs {
   readonly source: Prisma.FieldRef<"CalendarEvent", 'CalendarEventSource'>
   readonly googleEventId: Prisma.FieldRef<"CalendarEvent", 'String'>
   readonly sourceCalendarId: Prisma.FieldRef<"CalendarEvent", 'String'>
+  readonly connectionId: Prisma.FieldRef<"CalendarEvent", 'String'>
   readonly title: Prisma.FieldRef<"CalendarEvent", 'String'>
   readonly description: Prisma.FieldRef<"CalendarEvent", 'String'>
   readonly startTime: Prisma.FieldRef<"CalendarEvent", 'DateTime'>
@@ -1755,6 +1987,25 @@ export type CalendarEventDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many CalendarEvents to delete.
    */
   limit?: number
+}
+
+/**
+ * CalendarEvent.connection
+ */
+export type CalendarEvent$connectionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the GoogleConnection
+   */
+  select?: Prisma.GoogleConnectionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the GoogleConnection
+   */
+  omit?: Prisma.GoogleConnectionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.GoogleConnectionInclude<ExtArgs> | null
+  where?: Prisma.GoogleConnectionWhereInput
 }
 
 /**

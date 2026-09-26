@@ -20,6 +20,13 @@ const startSchema = z.object({
 
 const endSchema = z.object({
   completed: z.boolean(),
+  /**
+   * Minutes actually worked, measured by the client. This is the number that
+   * makes planned-vs-actual review possible — without it, every session looks
+   * exactly as long as the timer intended, and the app can never notice that a
+   * task is chronically underestimated.
+   */
+  actualMinutes: z.number().int().min(0).max(24 * 60).optional(),
 });
 
 function toPublicSession(s: {
@@ -30,6 +37,8 @@ function toPublicSession(s: {
   durationMinutes: number;
   completed: boolean;
   createdAt: Date;
+  endedAt?: Date | null;
+  actualMinutes?: number | null;
 }): PomodoroSession {
   return {
     id: s.id,
@@ -39,6 +48,8 @@ function toPublicSession(s: {
     durationMinutes: s.durationMinutes,
     completed: s.completed,
     createdAt: s.createdAt.toISOString(),
+    endedAt: (s.endedAt ?? null)?.toISOString() ?? null,
+    actualMinutes: s.actualMinutes ?? null,
   };
 }
 
@@ -88,9 +99,19 @@ router.patch("/:id/end", async (req, res, next) => {
     if (!session) throw ApiError.notFound("Session not found");
     if (session.completed) throw ApiError.badRequest("Session already ended");
 
+    const endedAt = new Date();
+    // Fall back to wall-clock elapsed when the client did not report, so rows
+    // written by older clients still carry a truthful "actual".
+    const actualMinutes =
+      body.actualMinutes ??
+      Math.max(
+        0,
+        Math.round((endedAt.getTime() - session.startedAt.getTime()) / 60_000),
+      );
+
     const updated = await prisma.pomodoroSession.update({
       where: { id },
-      data: { completed: body.completed },
+      data: { completed: body.completed, endedAt, actualMinutes },
     });
 
     res.json({ ok: true, data: toPublicSession(updated) });
@@ -101,6 +122,7 @@ router.patch("/:id/end", async (req, res, next) => {
         sessionId: updated.id,
         taskId: updated.taskId,
         plannedMinutes: updated.durationMinutes,
+        actualMinutes: updated.actualMinutes,
       },
     );
   } catch (err) {
@@ -127,7 +149,11 @@ router.get("/summary", async (req, res, next) => {
     });
 
     const completed = sessions.filter((s) => s.completed);
-    const totalMinutes = completed.reduce((acc, s) => acc + s.durationMinutes, 0);
+    // Measured time where we have it, intended time for rows predating the
+    // column. Review depends on this being the real number.
+    const measured = (s: (typeof sessions)[number]): number =>
+      s.actualMinutes ?? s.durationMinutes;
+    const totalMinutes = completed.reduce((acc, s) => acc + measured(s), 0);
     const sessionsCompleted = completed.length;
     const sessionsAbandoned = sessions.length - sessionsCompleted;
 
@@ -135,7 +161,7 @@ router.get("/summary", async (req, res, next) => {
     const tomorrow = new Date(todayStart.getTime() + 86_400_000);
     const todayMinutes = completed
       .filter((s) => s.startedAt >= todayStart && s.startedAt < tomorrow)
-      .reduce((acc, s) => acc + s.durationMinutes, 0);
+      .reduce((acc, s) => acc + measured(s), 0);
 
     // Streak: count back from today while each day has >=1 completed session.
     let streakDays = 0;

@@ -89,14 +89,20 @@ export default function TasksPage() {
         ))}
 
         {!loading && tasks.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-border py-16 text-center">
-            <p className="text-sm text-text-muted">
-              {filter === "today"
-                ? "Nothing due today. "
-                : filter === "overdue"
-                  ? "Nothing overdue. "
-                  : "No tasks yet. "}
-              Add one above to get started.
+          <div className="rounded-2xl border border-dashed border-border px-6 py-14 text-center">
+            <p className="text-[15px] font-medium text-text">
+              {filter === "overdue"
+                ? "Nothing is late."
+                : filter === "today"
+                  ? "Today is clear."
+                  : "No tasks yet."}
+            </p>
+            <p className="mx-auto mt-1.5 max-w-sm text-[12.5px] leading-relaxed text-text-muted">
+              {filter === "overdue"
+                ? "Everything with a deadline still has time. This is the good kind of screen to look at."
+                : filter === "today"
+                  ? "Nothing is due or reserved for today. Give a task an effort and reserve it for today, and Today will tell you whether it actually fits."
+                  : "Add the first one above. An effort estimate is what lets the app tell you whether the day can hold it."}
             </p>
           </div>
         )}

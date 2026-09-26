@@ -28,10 +28,12 @@ export type AggregatePomodoroSession = {
 
 export type PomodoroSessionAvgAggregateOutputType = {
   durationMinutes: number | null
+  actualMinutes: number | null
 }
 
 export type PomodoroSessionSumAggregateOutputType = {
   durationMinutes: number | null
+  actualMinutes: number | null
 }
 
 export type PomodoroSessionMinAggregateOutputType = {
@@ -41,6 +43,8 @@ export type PomodoroSessionMinAggregateOutputType = {
   startedAt: Date | null
   durationMinutes: number | null
   completed: boolean | null
+  endedAt: Date | null
+  actualMinutes: number | null
   createdAt: Date | null
 }
 
@@ -51,6 +55,8 @@ export type PomodoroSessionMaxAggregateOutputType = {
   startedAt: Date | null
   durationMinutes: number | null
   completed: boolean | null
+  endedAt: Date | null
+  actualMinutes: number | null
   createdAt: Date | null
 }
 
@@ -61,6 +67,8 @@ export type PomodoroSessionCountAggregateOutputType = {
   startedAt: number
   durationMinutes: number
   completed: number
+  endedAt: number
+  actualMinutes: number
   createdAt: number
   _all: number
 }
@@ -68,10 +76,12 @@ export type PomodoroSessionCountAggregateOutputType = {
 
 export type PomodoroSessionAvgAggregateInputType = {
   durationMinutes?: true
+  actualMinutes?: true
 }
 
 export type PomodoroSessionSumAggregateInputType = {
   durationMinutes?: true
+  actualMinutes?: true
 }
 
 export type PomodoroSessionMinAggregateInputType = {
@@ -81,6 +91,8 @@ export type PomodoroSessionMinAggregateInputType = {
   startedAt?: true
   durationMinutes?: true
   completed?: true
+  endedAt?: true
+  actualMinutes?: true
   createdAt?: true
 }
 
@@ -91,6 +103,8 @@ export type PomodoroSessionMaxAggregateInputType = {
   startedAt?: true
   durationMinutes?: true
   completed?: true
+  endedAt?: true
+  actualMinutes?: true
   createdAt?: true
 }
 
@@ -101,6 +115,8 @@ export type PomodoroSessionCountAggregateInputType = {
   startedAt?: true
   durationMinutes?: true
   completed?: true
+  endedAt?: true
+  actualMinutes?: true
   createdAt?: true
   _all?: true
 }
@@ -198,6 +214,8 @@ export type PomodoroSessionGroupByOutputType = {
   startedAt: Date
   durationMinutes: number
   completed: boolean
+  endedAt: Date | null
+  actualMinutes: number | null
   createdAt: Date
   _count: PomodoroSessionCountAggregateOutputType | null
   _avg: PomodoroSessionAvgAggregateOutputType | null
@@ -231,6 +249,8 @@ export type PomodoroSessionWhereInput = {
   startedAt?: Prisma.DateTimeFilter<"PomodoroSession"> | Date | string
   durationMinutes?: Prisma.IntFilter<"PomodoroSession"> | number
   completed?: Prisma.BoolFilter<"PomodoroSession"> | boolean
+  endedAt?: Prisma.DateTimeNullableFilter<"PomodoroSession"> | Date | string | null
+  actualMinutes?: Prisma.IntNullableFilter<"PomodoroSession"> | number | null
   createdAt?: Prisma.DateTimeFilter<"PomodoroSession"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   task?: Prisma.XOR<Prisma.TaskNullableScalarRelationFilter, Prisma.TaskWhereInput> | null
@@ -243,6 +263,8 @@ export type PomodoroSessionOrderByWithRelationInput = {
   startedAt?: Prisma.SortOrder
   durationMinutes?: Prisma.SortOrder
   completed?: Prisma.SortOrder
+  endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  actualMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   task?: Prisma.TaskOrderByWithRelationInput
@@ -258,6 +280,8 @@ export type PomodoroSessionWhereUniqueInput = Prisma.AtLeast<{
   startedAt?: Prisma.DateTimeFilter<"PomodoroSession"> | Date | string
   durationMinutes?: Prisma.IntFilter<"PomodoroSession"> | number
   completed?: Prisma.BoolFilter<"PomodoroSession"> | boolean
+  endedAt?: Prisma.DateTimeNullableFilter<"PomodoroSession"> | Date | string | null
+  actualMinutes?: Prisma.IntNullableFilter<"PomodoroSession"> | number | null
   createdAt?: Prisma.DateTimeFilter<"PomodoroSession"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   task?: Prisma.XOR<Prisma.TaskNullableScalarRelationFilter, Prisma.TaskWhereInput> | null
@@ -270,6 +294,8 @@ export type PomodoroSessionOrderByWithAggregationInput = {
   startedAt?: Prisma.SortOrder
   durationMinutes?: Prisma.SortOrder
   completed?: Prisma.SortOrder
+  endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  actualMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.PomodoroSessionCountOrderByAggregateInput
   _avg?: Prisma.PomodoroSessionAvgOrderByAggregateInput
@@ -288,6 +314,8 @@ export type PomodoroSessionScalarWhereWithAggregatesInput = {
   startedAt?: Prisma.DateTimeWithAggregatesFilter<"PomodoroSession"> | Date | string
   durationMinutes?: Prisma.IntWithAggregatesFilter<"PomodoroSession"> | number
   completed?: Prisma.BoolWithAggregatesFilter<"PomodoroSession"> | boolean
+  endedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PomodoroSession"> | Date | string | null
+  actualMinutes?: Prisma.IntNullableWithAggregatesFilter<"PomodoroSession"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PomodoroSession"> | Date | string
 }
 
@@ -296,6 +324,8 @@ export type PomodoroSessionCreateInput = {
   startedAt: Date | string
   durationMinutes: number
   completed?: boolean
+  endedAt?: Date | string | null
+  actualMinutes?: number | null
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPomodoroSessionsInput
   task?: Prisma.TaskCreateNestedOneWithoutPomodoroSessionsInput
@@ -308,6 +338,8 @@ export type PomodoroSessionUncheckedCreateInput = {
   startedAt: Date | string
   durationMinutes: number
   completed?: boolean
+  endedAt?: Date | string | null
+  actualMinutes?: number | null
   createdAt?: Date | string
 }
 
@@ -316,6 +348,8 @@ export type PomodoroSessionUpdateInput = {
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPomodoroSessionsNestedInput
   task?: Prisma.TaskUpdateOneWithoutPomodoroSessionsNestedInput
@@ -328,6 +362,8 @@ export type PomodoroSessionUncheckedUpdateInput = {
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -338,6 +374,8 @@ export type PomodoroSessionCreateManyInput = {
   startedAt: Date | string
   durationMinutes: number
   completed?: boolean
+  endedAt?: Date | string | null
+  actualMinutes?: number | null
   createdAt?: Date | string
 }
 
@@ -346,6 +384,8 @@ export type PomodoroSessionUpdateManyMutationInput = {
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -356,6 +396,8 @@ export type PomodoroSessionUncheckedUpdateManyInput = {
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -376,11 +418,14 @@ export type PomodoroSessionCountOrderByAggregateInput = {
   startedAt?: Prisma.SortOrder
   durationMinutes?: Prisma.SortOrder
   completed?: Prisma.SortOrder
+  endedAt?: Prisma.SortOrder
+  actualMinutes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type PomodoroSessionAvgOrderByAggregateInput = {
   durationMinutes?: Prisma.SortOrder
+  actualMinutes?: Prisma.SortOrder
 }
 
 export type PomodoroSessionMaxOrderByAggregateInput = {
@@ -390,6 +435,8 @@ export type PomodoroSessionMaxOrderByAggregateInput = {
   startedAt?: Prisma.SortOrder
   durationMinutes?: Prisma.SortOrder
   completed?: Prisma.SortOrder
+  endedAt?: Prisma.SortOrder
+  actualMinutes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -400,11 +447,14 @@ export type PomodoroSessionMinOrderByAggregateInput = {
   startedAt?: Prisma.SortOrder
   durationMinutes?: Prisma.SortOrder
   completed?: Prisma.SortOrder
+  endedAt?: Prisma.SortOrder
+  actualMinutes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
 export type PomodoroSessionSumOrderByAggregateInput = {
   durationMinutes?: Prisma.SortOrder
+  actualMinutes?: Prisma.SortOrder
 }
 
 export type PomodoroSessionCreateNestedManyWithoutUserInput = {
@@ -496,6 +546,8 @@ export type PomodoroSessionCreateWithoutUserInput = {
   startedAt: Date | string
   durationMinutes: number
   completed?: boolean
+  endedAt?: Date | string | null
+  actualMinutes?: number | null
   createdAt?: Date | string
   task?: Prisma.TaskCreateNestedOneWithoutPomodoroSessionsInput
 }
@@ -506,6 +558,8 @@ export type PomodoroSessionUncheckedCreateWithoutUserInput = {
   startedAt: Date | string
   durationMinutes: number
   completed?: boolean
+  endedAt?: Date | string | null
+  actualMinutes?: number | null
   createdAt?: Date | string
 }
 
@@ -545,6 +599,8 @@ export type PomodoroSessionScalarWhereInput = {
   startedAt?: Prisma.DateTimeFilter<"PomodoroSession"> | Date | string
   durationMinutes?: Prisma.IntFilter<"PomodoroSession"> | number
   completed?: Prisma.BoolFilter<"PomodoroSession"> | boolean
+  endedAt?: Prisma.DateTimeNullableFilter<"PomodoroSession"> | Date | string | null
+  actualMinutes?: Prisma.IntNullableFilter<"PomodoroSession"> | number | null
   createdAt?: Prisma.DateTimeFilter<"PomodoroSession"> | Date | string
 }
 
@@ -553,6 +609,8 @@ export type PomodoroSessionCreateWithoutTaskInput = {
   startedAt: Date | string
   durationMinutes: number
   completed?: boolean
+  endedAt?: Date | string | null
+  actualMinutes?: number | null
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutPomodoroSessionsInput
 }
@@ -563,6 +621,8 @@ export type PomodoroSessionUncheckedCreateWithoutTaskInput = {
   startedAt: Date | string
   durationMinutes: number
   completed?: boolean
+  endedAt?: Date | string | null
+  actualMinutes?: number | null
   createdAt?: Date | string
 }
 
@@ -598,6 +658,8 @@ export type PomodoroSessionCreateManyUserInput = {
   startedAt: Date | string
   durationMinutes: number
   completed?: boolean
+  endedAt?: Date | string | null
+  actualMinutes?: number | null
   createdAt?: Date | string
 }
 
@@ -606,6 +668,8 @@ export type PomodoroSessionUpdateWithoutUserInput = {
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   task?: Prisma.TaskUpdateOneWithoutPomodoroSessionsNestedInput
 }
@@ -616,6 +680,8 @@ export type PomodoroSessionUncheckedUpdateWithoutUserInput = {
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -625,6 +691,8 @@ export type PomodoroSessionUncheckedUpdateManyWithoutUserInput = {
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -634,6 +702,8 @@ export type PomodoroSessionCreateManyTaskInput = {
   startedAt: Date | string
   durationMinutes: number
   completed?: boolean
+  endedAt?: Date | string | null
+  actualMinutes?: number | null
   createdAt?: Date | string
 }
 
@@ -642,6 +712,8 @@ export type PomodoroSessionUpdateWithoutTaskInput = {
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutPomodoroSessionsNestedInput
 }
@@ -652,6 +724,8 @@ export type PomodoroSessionUncheckedUpdateWithoutTaskInput = {
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -661,6 +735,8 @@ export type PomodoroSessionUncheckedUpdateManyWithoutTaskInput = {
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   durationMinutes?: Prisma.IntFieldUpdateOperationsInput | number
   completed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -673,6 +749,8 @@ export type PomodoroSessionSelect<ExtArgs extends runtime.Types.Extensions.Inter
   startedAt?: boolean
   durationMinutes?: boolean
   completed?: boolean
+  endedAt?: boolean
+  actualMinutes?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   task?: boolean | Prisma.PomodoroSession$taskArgs<ExtArgs>
@@ -685,6 +763,8 @@ export type PomodoroSessionSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   startedAt?: boolean
   durationMinutes?: boolean
   completed?: boolean
+  endedAt?: boolean
+  actualMinutes?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   task?: boolean | Prisma.PomodoroSession$taskArgs<ExtArgs>
@@ -697,6 +777,8 @@ export type PomodoroSessionSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   startedAt?: boolean
   durationMinutes?: boolean
   completed?: boolean
+  endedAt?: boolean
+  actualMinutes?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   task?: boolean | Prisma.PomodoroSession$taskArgs<ExtArgs>
@@ -709,10 +791,12 @@ export type PomodoroSessionSelectScalar = {
   startedAt?: boolean
   durationMinutes?: boolean
   completed?: boolean
+  endedAt?: boolean
+  actualMinutes?: boolean
   createdAt?: boolean
 }
 
-export type PomodoroSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "taskId" | "startedAt" | "durationMinutes" | "completed" | "createdAt", ExtArgs["result"]["pomodoroSession"]>
+export type PomodoroSessionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "taskId" | "startedAt" | "durationMinutes" | "completed" | "endedAt" | "actualMinutes" | "createdAt", ExtArgs["result"]["pomodoroSession"]>
 export type PomodoroSessionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   task?: boolean | Prisma.PomodoroSession$taskArgs<ExtArgs>
@@ -739,6 +823,8 @@ export type $PomodoroSessionPayload<ExtArgs extends runtime.Types.Extensions.Int
     startedAt: Date
     durationMinutes: number
     completed: boolean
+    endedAt: Date | null
+    actualMinutes: number | null
     createdAt: Date
   }, ExtArgs["result"]["pomodoroSession"]>
   composites: {}
@@ -1171,6 +1257,8 @@ export interface PomodoroSessionFieldRefs {
   readonly startedAt: Prisma.FieldRef<"PomodoroSession", 'DateTime'>
   readonly durationMinutes: Prisma.FieldRef<"PomodoroSession", 'Int'>
   readonly completed: Prisma.FieldRef<"PomodoroSession", 'Boolean'>
+  readonly endedAt: Prisma.FieldRef<"PomodoroSession", 'DateTime'>
+  readonly actualMinutes: Prisma.FieldRef<"PomodoroSession", 'Int'>
   readonly createdAt: Prisma.FieldRef<"PomodoroSession", 'DateTime'>
 }
     

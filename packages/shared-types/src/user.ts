@@ -27,6 +27,9 @@ export interface UserCredentials {
   onboardingComplete: boolean;
   /** FCM registration token for Android push (attendance prompts). */
   fcmToken: string | null;
+  dayStartMinutes: number | null;
+  dayEndMinutes: number | null;
+  bufferMinutes: number | null;
 }
 
 export interface AuthResponse {
@@ -71,4 +74,37 @@ export interface PomodoroSettings {
 
 export interface ChimeSettings {
   chimeOnTheHour: boolean;
+}
+
+/**
+ * The awake window and transition buffer. These three numbers decide every
+ * capacity verdict the app gives, so they are a first-class setting rather
+ * than a hidden constant.
+ */
+export interface CapacitySettings {
+  /** Minutes from local midnight. null = unset, default applied server-side. */
+  dayStartMinutes: number | null;
+  dayEndMinutes: number | null;
+  bufferMinutes: number | null;
+}
+
+/**
+ * One linked Google account. A user can link several: each keeps its own
+ * calendars and task lists, and all of them feed the same day model.
+ */
+export interface GoogleConnectionInfo {
+  id: ID;
+  email: string;
+  displayName: string | null;
+  /**
+   * Set when the grant can no longer be refreshed and the account has to be
+   * linked again by hand. This happens routinely in Google OAuth "Testing"
+   * mode, where refresh tokens expire after seven days.
+   */
+  needsRelink: boolean;
+  lastSyncedAt: string | null;
+  /** Only reported while `needsRelink` is set, to keep the list calm. */
+  lastError: string | null;
+  calendarCount: number;
+  createdAt: string;
 }

@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { getPendingActions } from "@/lib/offlineQueue";
-import { getLastSyncAt, SYNC_QUEUE_EVENT, type SyncPhase } from "@/lib/syncStatus";
+import { setLastSyncAt } from "@/lib/syncStatus";
+import { SYNC_QUEUE_EVENT, useLastSyncAt, type SyncPhase } from "@/lib/syncStatus";
 
 export type SyncStatusKind = "saved" | "pending" | "saving" | "issue" | "offline";
 
@@ -20,7 +21,7 @@ export function useSyncStatus() {
   const [pending, setPending] = useState(0);
   const [saving, setSaving] = useState(false);
   const [lastIssue, setLastIssue] = useState(false);
-  const [lastSyncAt, setLastSyncAtState] = useState<string | null>(null);
+  const lastSyncAt = useLastSyncAt();
 
   useEffect(() => {
     let mounted = true;
@@ -37,7 +38,7 @@ export function useSyncStatus() {
       }
       setSaving(false);
       setLastIssue(phase === "issue");
-      if (phase === "saved") setLastSyncAtState(new Date().toISOString());
+      if (phase === "saved") setLastSyncAt();
       void refreshPending();
     };
     const onOnline = () => {
@@ -51,7 +52,6 @@ export function useSyncStatus() {
     window.addEventListener("online", onOnline);
     window.addEventListener("offline", onOffline);
     window.addEventListener("sync-refresh", onRefresh);
-    setLastSyncAtState(getLastSyncAt());
     void refreshPending();
     return () => {
       mounted = false;

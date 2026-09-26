@@ -176,8 +176,13 @@ export default function CoursesPage() {
         )}
 
         {!loading && courses.length === 0 && (
-          <div className="rounded-2xl border border-dashed border-border py-16 text-center">
-            <p className="text-sm text-text-muted">No courses yet. Add one to enable attendance tracking.</p>
+          <div className="rounded-2xl border border-dashed border-border px-6 py-14 text-center">
+            <p className="text-[15px] font-medium text-text">No courses yet.</p>
+            <p className="mx-auto mt-1.5 max-w-sm text-[12.5px] leading-relaxed text-text-muted">
+              A course carries both your weekly timetable slots and your attendance
+              history, so it is the thing everything else hangs off. Add one above,
+              or import a timetable if you already have the data.
+            </p>
           </div>
         )}
       </div>

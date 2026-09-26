@@ -12,27 +12,35 @@ function buildQuery(filter: TaskFilter): string {
   return filter === "all" ? "?filter=all" : filter === "today" ? "?filter=today" : "?filter=overdue";
 }
 
+const EMPTY: Task[] = [];
+
 export function useTasks() {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [tasks, setTasks] = useState<Task[]>(EMPTY);
   const [filter, setFilter] = useState<TaskFilter>("today");
   const [refetchKey, setRefetchKey] = useState(0);
 
   const refetch = useCallback(() => setRefetchKey((k) => k + 1), []);
 
+  // Which request produced the list on screen. `loading` is derived from it
+  // rather than set inside the effect, which avoids the cascading render and
+  // means a late response for a superseded filter can never be committed.
+  const [loadedKey, setLoadedKey] = useState<string | null>(null);
+  const loading = loadedKey !== `${filter}:${refetchKey}`;
+
   useEffect(() => {
     let cancelled = false;
-    setLoading(true);
+    const key = `${filter}:${refetchKey}`;
     const run = async () => {
+      let next: Task[] = EMPTY;
       try {
         const res = await api.get<Task[]>(`${TASKS_ENDPOINT}${buildQuery(filter)}`);
-        if (cancelled) return;
-        if ("ok" in res && res.ok) setTasks(res.data);
+        if ("ok" in res && res.ok) next = res.data;
       } catch {
-        setTasks([]);
-      } finally {
-        if (!cancelled) setLoading(false);
+        next = EMPTY;
       }
+      if (cancelled) return;
+      setTasks(next);
+      setLoadedKey(key);
     };
     void run();
     return () => {
@@ -61,6 +69,8 @@ export function useTasks() {
         notes: input.notes ?? null,
         dueDate: input.dueDate ?? null,
         dueTime: input.dueTime ?? null,
+        plannedDate: input.plannedDate ?? null,
+        estimateMinutes: input.estimateMinutes ?? null,
         completed: false,
         completedAt: null,
         createdAt: new Date().toISOString(),

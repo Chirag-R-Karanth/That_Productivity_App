@@ -9,6 +9,9 @@ import calendarRouter from "./routes/calendar.js";
 import pomodoroRouter from "./routes/pomodoro.js";
 import syncRouter from "./routes/sync.js";
 import eventsRouter from "./routes/events.js";
+import dayRouter from "./routes/day.js";
+import reviewRouter from "./routes/review.js";
+import timetableRouter from "./routes/timetable.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 import { startAttendanceCron, generateCatchUp } from "./services/attendanceCron.js";
 
@@ -31,6 +34,9 @@ app.use("/api/calendar", calendarRouter);
 app.use("/api/pomodoro", pomodoroRouter);
 app.use("/api/sync", syncRouter);
 app.use("/api/events", eventsRouter);
+app.use("/api/day", dayRouter);
+app.use("/api/review", reviewRouter);
+app.use("/api/timetable", timetableRouter);
 
 app.use(notFound);
 app.use(errorHandler);

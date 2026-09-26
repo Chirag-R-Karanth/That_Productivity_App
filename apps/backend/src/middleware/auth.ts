@@ -8,7 +8,9 @@ declare global {
   // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace Express {
     interface Request {
-      user: { id: string; email: string };
+      // `timezone` rides along so downstream day arithmetic can resolve the
+      // user's day without a second lookup of the user row.
+      user: { id: string; email: string; timezone: string | null };
     }
   }
 }
@@ -25,7 +27,7 @@ export async function requireAuth(req: Request, _res: Response, next: NextFuncti
     const user = await prisma.user.findUnique({ where: { id: payload.sub } });
     if (!user) throw ApiError.unauthorized("User no longer exists");
 
-    req.user = { id: user.id, email: user.email };
+    req.user = { id: user.id, email: user.email, timezone: user.timezone };
     next();
   } catch (err) {
     if (err instanceof ApiError) {

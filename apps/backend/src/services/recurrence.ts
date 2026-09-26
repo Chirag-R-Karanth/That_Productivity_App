@@ -1,5 +1,6 @@
 import { createRequire } from "node:module";
 import type { RRule as RRuleClass, RRuleStrOptions } from "rrule";
+import { dayKeyInTz } from "../lib/tz.js";
 
 // rrule's ESM wrapper is a CommonJS default interop quirk; type imports are
 // erased at runtime, and `require` resolves the CJS build whose named exports exist.
@@ -22,7 +23,15 @@ function toYMD(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
-function todayYMD(): string {
+/**
+ * Today, in the user's zone.
+ *
+ * Defaults to the server's own day so the many existing call sites keep their
+ * current behaviour, but any request that knows the user's zone should pass it:
+ * "due today" means today where the person is, not where the process runs.
+ */
+function todayYMD(tz?: string): string {
+  if (tz) return dayKeyInTz(new Date(), tz);
   return toYMD(new Date());
 }
 

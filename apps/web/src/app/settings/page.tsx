@@ -25,10 +25,32 @@ interface MeResponse {
   googleCalendarLinked: boolean;
 }
 
+/**
+ * A Google calendar belonging to one linked account. The id is only unique
+ * within that account, so every calendar action is addressed by the pair
+ * (connectionId, id) rather than the id alone.
+ */
 interface LinkedCalendar {
   id: string;
   summary: string;
   backgroundColor: string | null;
+  /** Whether this calendar's events count as planned time in the day model. */
+  includeInDay: boolean;
+  connectionId: string;
+  accountEmail: string | null;
+  accountName: string | null;
+}
+
+/** One linked Google account. */
+interface GoogleConnection {
+  id: string;
+  email: string;
+  displayName: string | null;
+  needsRelink: boolean;
+  lastSyncedAt: string | null;
+  lastError: string | null;
+  calendarCount: number;
+  createdAt: string;
 }
 
 type Tab = "appearance" | "notifications" | "integrations" | "data-sync" | "keyboard";
@@ -66,11 +88,13 @@ export default function SettingsPage() {
 
   const [me, setMe] = useState<MeResponse | null>(null);
   const [calendars, setCalendars] = useState<LinkedCalendar[]>([]);
+  const [connections, setConnections] = useState<GoogleConnection[]>([]);
   const [googleConfigured, setGoogleConfigured] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [status, setStatus] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [syncResult, setSyncResult] = useState<string | null>(null);
+  const [taskSyncResult, setTaskSyncResult] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [lastSyncAt, setLastSyncAt] = useState<string | null>(null);
 
@@ -87,10 +111,11 @@ export default function SettingsPage() {
     new URLSearchParams(window.location.search).get("google") === "linked";
 
   const load = useCallback(async () => {
-    const [meRes, calRes, statusRes] = await Promise.all([
+    const [meRes, calRes, statusRes, connRes] = await Promise.all([
       api.get<MeResponse>("/api/auth/me"),
       api.get<LinkedCalendar[]>("/api/calendar/google/calendars"),
       api.get<{ configured: boolean }>("/api/auth/google/status"),
+      api.get<GoogleConnection[]>("/api/auth/google/connections"),
     ]);
     if ("ok" in meRes && meRes.ok) {
       setMe(meRes.data);
@@ -104,6 +129,7 @@ export default function SettingsPage() {
     }
     if ("ok" in calRes && calRes.ok) setCalendars(calRes.data);
     if ("ok" in statusRes && statusRes.ok) setGoogleConfigured(statusRes.data.configured);
+    if ("ok" in connRes && connRes.ok) setConnections(connRes.data);
     const pend = await getPendingActions().catch(() => []);
     setPendingCount(pend.length);
     setLastSyncAt(getLastSyncAt());
@@ -156,14 +182,40 @@ export default function SettingsPage() {
   };
 
   const connectGoogle = () => {
+    // Resolved against the current origin so the destination is always absolute:
+    // API_BASE is empty in the same-origin Docker deployment and a full URL when
+    // the API is hosted separately, and `location.assign` wants one or the other,
+    // not an ambiguous "/api/..." string.
     const token = getAuthToken() ?? "";
-    window.location.href = `${API_BASE}/api/auth/google?token=${encodeURIComponent(token)}`;
+    const url = new URL(`${API_BASE}/api/auth/google`, window.location.origin);
+    url.searchParams.set("token", token);
+    window.location.assign(url.toString());
   };
 
-  const unlinkCalendar = async (id: string) => {
-    if (!confirm("Stop syncing this calendar?")) return;
-    await api.delete(`/api/calendar/google/calendars/${id}`);
-    setCalendars((prev) => prev.filter((c) => c.id !== id));
+  // Addressed by (connectionId, id): every linked account has a `primary`
+  // calendar, so the id on its own does not identify one.
+  const calendarKey = (c: { connectionId: string; id: string }) => `${c.connectionId}:${c.id}`;
+
+  const setCalendarIncluded = async (cal: LinkedCalendar, includeInDay: boolean) => {
+    // Applied optimistically: the checkbox is the feedback, and the day model is
+    // rebuilt on the next fetch either way.
+    const key = calendarKey(cal);
+    setCalendars((prev) => prev.map((c) => (calendarKey(c) === key ? { ...c, includeInDay } : c)));
+    const res = await api.patch<LinkedCalendar>(
+      `/api/calendar/google/connections/${cal.connectionId}/calendars/${cal.id}`,
+      { includeInDay },
+    );
+    if (!("ok" in res && res.ok)) {
+      setCalendars((prev) =>
+        prev.map((c) => (calendarKey(c) === key ? { ...c, includeInDay: !includeInDay } : c)),
+      );
+    }
+  };
+
+  const unlinkCalendar = async (cal: LinkedCalendar) => {
+    if (!confirm(`Stop syncing "${cal.summary}"?`)) return;
+    await api.delete(`/api/calendar/google/connections/${cal.connectionId}/calendars/${cal.id}`);
+    setCalendars((prev) => prev.filter((c) => calendarKey(c) !== calendarKey(cal)));
     setStatus("Calendar unlinked.");
   };
 
@@ -172,19 +224,96 @@ export default function SettingsPage() {
     setError(null);
     setSyncResult(null);
     try {
-      const res = await api.post<{ eventsAdded: number; eventsUpdated: number; eventsDeleted: number; mergedDuplicates: number }>(
+      const res = await api.post<{
+        eventsAdded: number;
+        eventsUpdated: number;
+        eventsDeleted: number;
+        mergedDuplicates: number;
+        accountsSynced: number;
+        accountsFailed: number;
+        failures: { connectionId: string; error: string }[];
+      }>(
         "/api/calendar/google/sync",
         {},
       );
       if ("ok" in res && res.ok && !("queued" in (res.data as object))) {
         setSyncResult(
-          `Synced: +${res.data.eventsAdded} new, ${res.data.eventsUpdated} updated, ${res.data.eventsDeleted} removed, ${res.data.mergedDuplicates} duplicates merged.`,
+          `Synced ${res.data.accountsSynced} account(s): +${res.data.eventsAdded} new, ` +
+            `${res.data.eventsUpdated} updated, ${res.data.eventsDeleted} removed, ` +
+            `${res.data.mergedDuplicates} duplicates merged.`,
         );
+        // A failed account is reported by name, so "synced, nothing found" is
+        // never mistaken for a working but empty calendar.
+        if (res.data.accountsFailed > 0) {
+          const names = res.data.failures
+            .map((f) => connections.find((c) => c.id === f.connectionId)?.email ?? f.connectionId)
+            .join(", ");
+          setError(`${res.data.accountsFailed} account(s) couldn't be synced: ${names}.`);
+        }
       } else {
         setError("The sync was queued — it will run once you're back online.");
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : "Sync failed — is your Google account still linked?");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const disconnectAccount = async (conn: GoogleConnection) => {
+    if (
+      !confirm(
+        `Disconnect ${conn.email}? Its calendars and tasks are removed from this app. ` +
+          `Any other linked Google account is left alone.`,
+      )
+    )
+      return;
+    setSaving(true);
+    setError(null);
+    try {
+      const res = await api.delete(`/api/auth/google/connections/${conn.id}`);
+      if (!("ok" in res && res.ok)) {
+        setError("Couldn't disconnect that account.");
+        return;
+      }
+      await load();
+      setStatus(`Disconnected ${conn.email}.`);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't disconnect that account.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const syncTasks = async () => {
+    setSaving(true);
+    setError(null);
+    setTaskSyncResult(null);
+    try {
+      const res = await api.post<{
+        tasksPulled: number;
+        tasksCompletedRemotely: number;
+        accountsSynced: number;
+        accountsFailed: number;
+        failures: { connectionId: string; error: string }[];
+      }>("/api/tasks/google/sync", {});
+      if ("ok" in res && res.ok && !("queued" in (res.data as object))) {
+        setTaskSyncResult(
+          `Tasks synced from ${res.data.accountsSynced} account(s): ` +
+            `${res.data.tasksPulled} new, ${res.data.tasksCompletedRemotely} completed in Google.`,
+        );
+        if (res.data.accountsFailed > 0) {
+          const names = res.data.failures
+            .map((f) => connections.find((c) => c.id === f.connectionId)?.email ?? f.connectionId)
+            .join(", ");
+          setError(`${res.data.accountsFailed} account(s) couldn't be read: ${names}.`);
+        }
+        await load();
+      } else {
+        setError("The task sync was queued — it will run once you're back online.");
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Task sync failed.");
     } finally {
       setSaving(false);
     }
@@ -338,8 +467,9 @@ export default function SettingsPage() {
             <section className="rounded-2xl border border-border bg-surface p-5">
               <h2 className="mb-1 text-sm font-medium uppercase tracking-wider text-text-muted">Google Calendar</h2>
               <p className="mb-4 text-xs text-text-muted">
-                Connect your Google account so all your calendars show up in the unified Calendar view (events are
-                read-only — nothing is written back).
+                Link every Google account you use. Their calendars and task lists all feed the same
+                Calendar and Tasks views, and a meeting that more than one account received is shown
+                once. Calendar events are read-only; tasks sync both ways.
               </p>
 
               {!googleConfigured && (
@@ -350,43 +480,129 @@ export default function SettingsPage() {
                 </div>
               )}
 
-              {googleConfigured && me?.googleCalendarLinked && (
-                <div className="mb-4 flex items-center gap-2">
-                  <span className="inline-flex h-2.5 w-2.5 rounded-full bg-[#5ce09e]" />
-                  <span className="text-sm text-text-muted">Connected. Your calendars are synced from Google.</span>
-                </div>
-              )}
-
-              {calendars.length > 0 && (
+              {googleConfigured && connections.length > 0 && (
                 <div className="mb-4 space-y-1.5">
-                  {calendars.map((c) => (
-                    <div key={c.id} className="flex items-center justify-between rounded-lg bg-surface-elevated px-3 py-2">
-                      <span className="flex items-center gap-2 text-sm text-text">
-                        <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ backgroundColor: c.backgroundColor ?? "#8fb0ff" }} />
-                        {c.summary}
-                      </span>
-                      <button onClick={() => void unlinkCalendar(c.id)}
-                        className="rounded px-2 py-1 text-xs text-text-muted transition-colors hover:bg-surface hover:text-danger">
-                        Unlink
+                  <p className="px-1 pb-1 text-xs text-text-muted">
+                    {connections.length === 1
+                      ? "Your Google account. Link another to bring in a second calendar and task list."
+                      : `${connections.length} Google accounts linked. All of them feed the same Calendar and Tasks.`}
+                  </p>
+                  {connections.map((conn) => (
+                    <div
+                      key={conn.id}
+                      className="flex items-center justify-between gap-3 rounded-lg bg-surface-elevated px-3 py-2"
+                    >
+                      <div className="flex min-w-0 flex-1 items-center gap-2">
+                        <span
+                          className={`h-2.5 w-2.5 shrink-0 rounded-full ${
+                            conn.needsRelink ? "bg-[#ffb454]" : "bg-[#5ce09e]"
+                          }`}
+                        />
+                        <div className="min-w-0">
+                          <p className="truncate text-sm text-text">
+                            {conn.displayName ?? conn.email}
+                          </p>
+                          <p className="truncate text-[11px] text-text-muted">
+                            {conn.email}
+                            {conn.needsRelink
+                              ? " \u00b7 needs reconnecting"
+                              : conn.lastSyncedAt
+                                ? ` \u00b7 synced ${new Date(conn.lastSyncedAt).toLocaleString()}`
+                                : " \u00b7 not synced yet"}
+                          </p>
+                          {conn.needsRelink && conn.lastError && (
+                            <p className="mt-0.5 text-[11px] text-[#ffb454]">{conn.lastError}</p>
+                          )}
+                        </div>
+                      </div>
+                      {conn.needsRelink && (
+                        <button onClick={connectGoogle}
+                          className="shrink-0 rounded px-2 py-1 text-xs text-[#ffb454] transition-colors hover:bg-surface">
+                          Reconnect
+                        </button>
+                      )}
+                      <button
+                        onClick={() => void disconnectAccount(conn)}
+                        disabled={saving}
+                        className="shrink-0 rounded px-2 py-1 text-xs text-text-muted transition-colors hover:bg-surface hover:text-danger disabled:opacity-50"
+                      >
+                        Disconnect
                       </button>
                     </div>
                   ))}
                 </div>
               )}
 
+              {calendars.length > 0 && (
+                <div className="mb-4 space-y-3">
+                  <p className="px-1 pb-1 text-xs text-text-muted">
+                    A calendar can stay linked and keep syncing without counting
+                    as planned time, if it is not really your day. A meeting that
+                    several of your accounts both received is shown once.
+                  </p>
+                  {/* Grouped by account: the same calendar name can appear under
+                      more than one linked account, and unlinking one must not
+                      look like it removed the other. */}
+                  {connections.map((conn) => {
+                    const own = calendars.filter((c) => c.connectionId === conn.id);
+                    if (own.length === 0) return null;
+                    return (
+                      <div key={conn.id} className="space-y-1.5">
+                        <p className="px-1 text-[11px] uppercase tracking-wider text-text-muted">
+                          {conn.displayName ?? conn.email}
+                        </p>
+                        {own.map((c) => (
+                          <div
+                            key={calendarKey(c)}
+                            className="flex items-center justify-between gap-3 rounded-lg bg-surface-elevated px-3 py-2"
+                          >
+                            <label className="flex min-w-0 flex-1 cursor-pointer items-center gap-2 text-sm text-text">
+                              <input
+                                type="checkbox"
+                                checked={c.includeInDay}
+                                onChange={(e) => void setCalendarIncluded(c, e.target.checked)}
+                                className="h-3.5 w-3.5 shrink-0 accent-accent"
+                              />
+                              <span className="truncate">{c.summary}</span>
+                            </label>
+                            <span className="shrink-0 text-[11px] text-text-muted">
+                              {c.includeInDay ? "counts" : "ignored"}
+                            </span>
+                            <button onClick={() => void unlinkCalendar(c)}
+                              className="shrink-0 rounded px-2 py-1 text-xs text-text-muted transition-colors hover:bg-surface hover:text-danger">
+                              Unlink
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
               <div className="flex flex-wrap gap-2">
+                {googleConfigured && connections.length > 0 && (
+                  <button onClick={() => void syncNow()} disabled={saving}
+                    className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50">
+                    {saving ? "Syncing…" : "Sync all accounts"}
+                  </button>
+                )}
                 {googleConfigured && (
-                  me?.googleCalendarLinked ? (
-                    <button onClick={() => void syncNow()} disabled={saving}
-                      className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50">
-                      {saving ? "Syncing…" : "Sync now"}
-                    </button>
-                  ) : (
-                    <button onClick={connectGoogle}
-                      className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover">
-                      Connect Google Calendar
-                    </button>
-                  )
+                  <button onClick={connectGoogle}
+                    className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover">
+                    {connections.length === 0
+                      ? "Connect Google Calendar"
+                      : "Link another Google account"}
+                  </button>
+                )}
+                {/* Tasks and calendars are synced separately: one can be failing
+                    while the other is fine, and a combined button would hide
+                    which. */}
+                {googleConfigured && connections.length > 0 && (
+                  <button onClick={() => void syncTasks()} disabled={saving}
+                    className="rounded-lg border border-border px-4 py-2 text-sm text-text-muted transition-colors hover:border-[#333a48] hover:text-text disabled:opacity-50">
+                    {saving ? "Syncing…" : "Sync tasks"}
+                  </button>
                 )}
                 <button onClick={() => void load()}
                   className="rounded-lg border border-border px-4 py-2 text-sm text-text-muted transition-colors hover:border-[#333a48] hover:text-text">
@@ -395,6 +611,7 @@ export default function SettingsPage() {
               </div>
 
               {syncResult && <p className="mt-3 text-xs text-[#5ce09e]">{syncResult}</p>}
+              {taskSyncResult && <p className="mt-1 text-xs text-[#5ce09e]">{taskSyncResult}</p>}
             </section>
           </Reveal>
         )}

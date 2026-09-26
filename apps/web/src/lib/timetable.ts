@@ -1,6 +1,9 @@
-import type { CourseScheduleSlot } from "@prodapp/shared-types";
+import type { CourseScheduleSlot, CourseSlotType, TimetableEntryKind } from "@prodapp/shared-types";
 
 export const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+/** Academic weeks read Monday-first, so the grid and the week nav agree. */
+export const WEEK_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 export const COURSE_PALETTE = ["#8fb0ff", "#5ce09e", "#f0a6a6", "#b3a6ff", "#ffd08f", "#82d8e6", "#ff9f7a", "#9be08f"];
 
@@ -159,3 +162,69 @@ export function mergeEntriesToCourses(entries: ParsedSlot[]): {
   }
   return [...byName.entries()].map(([courseName, schedule]) => ({ courseName, schedule }));
 }
+// ---------------------------------------------------------------------------
+// Week layout
+// ---------------------------------------------------------------------------
+
+/** Monday of the week containing `date` (YYYY-MM-DD). */
+export function weekStartOf(date: string): string {
+  const dow = new Date(`${date}T12:00:00Z`).getUTCDay();
+  return addDays(date, -((dow + 6) % 7));
+}
+
+/** The 7 date keys of the week beginning `weekStart`. */
+export function weekDates(weekStart: string): string[] {
+  return Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+}
+
+/** Shift a YYYY-MM-DD key by whole days, on the calendar so DST cannot skip one. */
+export function addDays(date: string, days: number): string {
+  const [y, m, d] = date.split("-").map(Number);
+  const shifted = new Date(Date.UTC(y, m - 1, d + days));
+  return `${shifted.getUTCFullYear()}-${pad2(shifted.getUTCMonth() + 1)}-${pad2(shifted.getUTCDate())}`;
+}
+
+const pad2 = (n: number) => String(n).padStart(2, "0");
+
+export function todayKey(now: Date = new Date()): string {
+  return `${now.getFullYear()}-${pad2(now.getMonth() + 1)}-${pad2(now.getDate())}`;
+}
+
+/** "Mon 21 Sep" — enough to locate a week without a date library. */
+export function formatDayLabel(date: string): string {
+  const [y, m, d] = date.split("-").map(Number);
+  const dt = new Date(Date.UTC(y, m - 1, d));
+  return dt.toLocaleDateString(undefined, { weekday: "short", day: "numeric", month: "short", timeZone: "UTC" });
+}
+
+// ---------------------------------------------------------------------------
+// Slot and entry kinds
+// ---------------------------------------------------------------------------
+
+export interface KindMeta {
+  label: string;
+  /** Tailwind classes for the badge chip. */
+  badge: string;
+  /** Short glyph shown on a grid block that is too small for a label. */
+  mark: string;
+}
+
+export const SLOT_KIND_META: Record<CourseSlotType, KindMeta> = {
+  CLASS: { label: "Class", badge: "bg-surface-elevated text-text-muted", mark: "" },
+  LAB: { label: "Lab", badge: "bg-[#1b2a3a] text-[#8fd0f0]", mark: "L" },
+  EXAM: { label: "Exam", badge: "bg-[#3a2410] text-[#ffc98f]", mark: "X" },
+  INTERNAL: { label: "Internal", badge: "bg-[#241a33] text-[#c3a6ff]", mark: "I" },
+  HOLIDAY: { label: "Holiday", badge: "bg-[#12301f] text-[#7fe0a8]", mark: "H" },
+  EVENT: { label: "Event", badge: "bg-[#101f33] text-[#8fb0ff]", mark: "E" },
+};
+
+export const ENTRY_KIND_META: Record<TimetableEntryKind, KindMeta & { blurb: string }> = {
+  EXAM: { ...SLOT_KIND_META.EXAM, blurb: "Added to its date. Counts as planned time." },
+  HOLIDAY: { ...SLOT_KIND_META.HOLIDAY, blurb: "Clears every class that day and frees the whole day." },
+  EXCEPTION: { ...SLOT_KIND_META.INTERNAL, blurb: "Cancels one specific class on that date." },
+  RESCHEDULED: { ...SLOT_KIND_META.CLASS, blurb: "Moves a weekly class to a new date or time." },
+  EVENT: { ...SLOT_KIND_META.EVENT, blurb: "Anything else worth seeing on the grid." },
+};
+
+/** Slots that reserve capacity in the day, and so appear as commitments. */
+export const isCommitment = (type: CourseSlotType): boolean => type === "CLASS" || type === "LAB";

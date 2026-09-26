@@ -103,6 +103,52 @@ Status: `done`
 - [x] Keep the 60s auto-refresh and offline grace.
       <!-- done: 60s interval kept; loads are caught (no unhandled rejections), a "can't reach the server" notice surfaces, a 30s ticker keeps the clock/up-next counts fresh; last good state is preserved between ticks. -->
 
+## Phase 3b — Capacity engine, adaptive planning, and the day model
+
+Status: `done`
+
+The original brief's centre of gravity: a day is not a list, it is a budget. This phase
+adds the arithmetic that makes "you have planned more than the day holds" a fact the app
+can state, and a day model that Today and Review both read from.
+
+- [x] Additive schema for the capacity engine.
+      <!-- done: migration 20260925183242_capacity_engine adds Task.plannedDate,
+           Task.estimateMinutes, PomodoroSession.endedAt, PomodoroSession.actualMinutes,
+           User.dayStartMinutes/dayEndMinutes/bufferMinutes, and a tasks(userId, plannedDate)
+           index. All nullable, so existing rows are untouched. -->
+- [x] One day model: merged timeline, capacity, and progress in a single response.
+      <!-- done: services/dayModel.ts buildDayModel(). Merges timetable slots, local + Google
+           events, focus sessions, planned work and deadlines into one ordered timeline;
+           computes usable time as the awake window minus fixed commitments minus
+           transition buffers, then planned/delta, and a verdict of open | light | tight |
+           over. Today makes exactly one call, so the client never reconciles five
+           endpoints and guesses whether they agree about what time it is. -->
+- [x] Adaptive planning that names the consequence but never acts on it.
+      <!-- done: services/dayModel.ts findDisplacements() reports what no longer fits and
+           where it could go, ranked by how safe it is to move (no deadline first, then
+           furthest deadline, then priority). Overdue work is reported as blocked rather
+           than ranked movable. Nothing is ever rescheduled server-side — the user decides
+           what slips. Verified: suggestions cover the whole overflow, nothing moves. -->
+- [x] Expose the capacity window as first-class settings.
+      <!-- done: GET /api/day, GET /api/day/:date/displacement, PATCH /api/day/capacity.
+           These three numbers decide every verdict the app gives, so they are exposed
+           directly instead of being buried in a generic settings form. -->
+- [x] Let a task carry an estimate and a reserved day.
+      <!-- done: POST/PATCH /api/tasks accept plannedDate and estimateMinutes; the tasks
+           "today" filter now includes work reserved for today even without a deadline,
+           since that reservation is exactly what the capacity math reads. The capture UI
+           adds one tap for effort (15m/30m/1h/2h) and one for reserving today/tomorrow/
+           a date, so capture stays fast. -->
+- [x] Resolve "today" in the user's timezone, not the server's.
+      <!-- done: migration 20260926003500_user_timezone adds User.timezone. All day
+           boundaries resolve through an explicit IANA zone (src/lib/tz.ts), the browser
+           reports its own zone on every request, and the reported zone is persisted for
+           background work. This was a live bug, not a hypothetical: the server runs in UTC
+           and the user is on IST, so between 00:00 and 05:30 local the app was serving
+           yesterday's day and filing tasks reserved for "today" under the wrong date.
+           Verified with 29 checks across Kolkata/Tokyo/New York/Sydney/Honolulu/Berlin,
+           including 23h and 25h days on daylight-saving transitions. -->
+
 ## Phase 4 — Zen
 
 Status: `done`
@@ -122,25 +168,80 @@ Status: `done`
 
 ## Phase 5 — Google Tasks + Calendar selection/dedup
 
-Status: `pending`
+Status: `done`
 
-- [ ] Real Google Tasks sync (OAuth `tasks.readonly`, stable external IDs, external/native
-      boundary, idempotent).
-- [ ] Per-linked-calendar include/exclude choice (UI + backend flags).
-- [ ] Presentation-layer calendar dedup (merge same-title/time overlaps; preserve
-      `googleEventId`/`sourceCalendarId`/source; never touch source events).
-- [ ] Onboarding "Connect Google Tasks" step.
+- [x] Real Google Tasks sync (OAuth `tasks` scope for read/write, stable external IDs,
+      external/native boundary, idempotent).
+      <!-- done: per-account `GoogleConnection` (sub/email/name/relink/errors/sync stamps/default
+           list), so several Google accounts merge under one app user. Pulls every list incl.
+           completed and hidden, pages through, keeps ETags and tombstones. Pushes create, edit,
+           completion and delete, re-reading and retrying once on 412 so a change made in the
+           Google Tasks app is not overwritten. A failed push is recorded on the account and the
+           local write still succeeds. A list 404 is a permanent per-account "Tasks unavailable"
+           note rather than a retry loop. Note Google has no time of day on a deadline, so a due
+           is pushed as a date at noon UTC and read back as the UTC date. -->
+- [x] Per-linked-calendar include/exclude choice (UI + backend flags) — `includeInDay`
+      on `linked_google_calendars`, `PATCH /api/calendar/google/connections/:connectionId/calendars/:calendarId`,
+      a checkbox in Settings → Integrations. A calendar can stay linked and keep syncing
+      without reserving capacity.
+- [x] Presentation-layer calendar dedup (merge same-title/time overlaps; preserve
+      `googleEventId`/`sourceCalendarId`/source; never touch source events) —
+      `apps/backend/src/services/calendarDedup.ts`, run when the day model is built.
+      Folding never writes: a local copy wins over a synced one, an added qualifier
+      like "(Room 4)" does not block a match, and two different qualifiers are left
+      alone. Verified by `verify-calendar-dedup` (30) and `verify-calendar-inclusion` (18).
+- [x] Onboarding "Connect Google Tasks" step.
+      <!-- done: Onboarding.tsx is a two-step first-run card — name, then an optional
+           offer to link Google that states plainly what is read-only (calendars) and what
+           writes back (tasks). The step only appears when OAuth is configured *and* nothing is
+           linked yet, so it never asks a question whose answer is already known. Choosing
+           "Connect" completes onboarding before the redirect to Google's consent screen, so the
+           card does not greet the user with the same question on the way back. Step change is a
+           CSS keyframe, collapsed by both the prefers-reduced-motion query and the
+           html.reduce-motion toggle. Both branches verified against the live API: a new user
+           reports configured=true with 0 connections and gets two steps; a user with 5
+           connections gets one. -->
 
 ## Phase 6 — Timetable expansion (additive, data preserved)
 
-Status: `pending`
+Status: `complete`
 
-- [ ] Optional slot fields: `type` (CLASS/LAB/EXAM/INTERNAL/HOLIDAY/EVENT), `weekNumber`,
+- [x] Optional slot fields: `type` (CLASS/LAB/EXAM/INTERNAL/HOLIDAY/EVENT), `weekNumber`,
       `location` — existing contract untouched.
-- [ ] New `TimetableEntry` model for date-based one-offs (exam, holiday, exception,
+- [x] New `TimetableEntry` model for date-based one-offs (exam, holiday, exception,
       rescheduled class).
-- [ ] Timetable UI: kind badges/colors, exception & one-off editor, keep OCR import + grid.
-- [ ] Calendar renders new kinds; attendance cron keeps generating only from CLASS slots.
+- [x] Timetable UI: kind badges/colors, exception & one-off editor, keep OCR import + grid.
+- [x] Calendar renders new kinds; attendance cron keeps generating only from CLASS slots.
+- [x] Resolved timetable range, term origins, adjacent-week reschedules, holiday titles and
+      course-less entries. `verify-timetable-entries` (60) and `verify-attendance-cron` (24).
+
+### Multi-Google (folded in here, live-verified)
+
+One app user now merges 5 linked Google accounts: calendars read-only, tasks read/write.
+
+- [x] `GoogleConnection` per account (tokens, `sub`, email/name, relink, errors, sync stamps,
+      default task list). `LinkedGoogleCalendar` keyed `(connectionId, id)`, so every account
+      can own a calendar called `primary`.
+- [x] Calendar sync fans out per account, isolates failures, and scopes unlink and remote
+      deletion to one account/calendar. PATCH/DELETE address a calendar through its account.
+- [x] Cross-account dedup: same normalised title within five minutes collapses to one entry in
+      the day view, while each copy is still stored. Live: 18 calendars, 2,830 events, 1,273
+      duplicate rows, and exactly one Holi / Diwali / Dussehra in the day view.
+- [x] Tasks read/write: pull every list incl. completed and hidden, page through, keep ETags and
+      tombstones; push create, edit, completion and delete with a 412 re-read-and-retry.
+- [x] A Google task deadline is a **date**, not an instant. The API rejects a `due` with no
+      offset and then discards the time of day regardless of what is sent, so the date is pushed
+      at noon UTC and read back as the UTC date. A local time of day is kept locally and is never
+      overwritten by a sync.
+- [x] Settings lists every account with status, errors, last sync, reconnect, disconnect and its
+      grouped calendars.
+- [x] Verified live: 5/5 accounts sync calendars and tasks, 0 failures. `chiragrkaranth.ec24@rvce.edu.in`
+      returns 404 for Tasks and is reported as a permanent per-account capability note, Calendar
+      unaffected. `verify-google-multi-account` (31), `verify-calendar-inclusion` (18),
+      `verify-calendar-dedup` (30), `verify-tz` (29).
+
+Known limits: Tasks refresh tokens in unverified OAuth Testing mode expire after seven days
+(reconnect from Settings); each further account needs interactive browser consent.
 
 ## Phase 7 — Notifications
 
@@ -155,11 +256,27 @@ Status: `pending`
 
 ## Phase 8 — Analytics
 
-Status: `pending`
+Status: `partial`
 
-- [ ] Analytics page: focus minutes/sessions/streak, planned-vs-completed tasks, focus time by
-      course, attendance trends, daily/weekly/monthly activity.
-- [ ] Custom SVG charts animated with anime.js (no new dependency).
+- [x] Analytics page: focus minutes/sessions, planned-vs-completed, focus time by course.
+      <!-- done: renamed to Review and rebuilt as intent-vs-reality rather than a tally. Reads
+           GET /api/review?period=day|week. Shows planned / completed / focused on one scale,
+           focus-by-hour rhythm, each day planned against what it could hold, estimate accuracy
+           centred on "as estimated", and patterns carrying their own sample size. The /analytics
+           route is kept so existing links keep working. -->
+- [x] Custom SVG charts animated with anime.js (no new dependency).
+      <!-- done: RhythmChart, PlannedVsAvailable and AccuracyChart are hand-rolled SVG in
+           apps/web/src/components/review/Charts.tsx. Bars grow from the baseline via the Web
+           Animations API, skipped under prefers-reduced-motion. No charting library added. -->
+- [x] Patterns engine that refuses to over-claim.
+      <!-- done: apps/backend/src/services/review.ts. Six pattern families (underestimate,
+           best hour, postponement, abandonment, overload, steady), each gated on a sample-size
+           floor, with confidence derived from sample size rather than asserted. Accuracy is
+           rolled up per task before per course, so a three-session task cannot triple-count
+           its estimate. "Completed" is measured in estimates so it is comparable to "planned". -->
+- [ ] Attendance trends and daily/monthly activity.
+      <!-- not done: the existing attendance screen already covers per-course rates; the Review
+           screen was scoped to intent vs reality. Monthly rollups are a natural next slice. -->
 - [ ] R analytics engine: optional Docker `analytics` service (r-base) analyzing exported
       snapshots (time-series, distributions, anomalies) — clean boundary, R never touches the DB.
 
@@ -169,8 +286,27 @@ Status: `pending`
 
 - [ ] Page/sidebar/modal/chart entrance animations (subtle, hierarchy-supporting); reduced-motion
       respected everywhere.
+      <!-- partial: Today and Review respect prefers-reduced-motion and animate on entry. The
+           remaining pages still use the older entrance transitions. -->
+- [x] Purposeful empty states on Today and Review.
+      <!-- done: each empty state says what is missing and what would fill it, rather than
+           apologising for having no data. Review's "nothing conclusive yet" explains that
+           patterns need repeated evidence. -->
 - [ ] Designer pass across all pages against the PLAN → FOCUS → UNDERSTAND composition.
-- [ ] Full verification sweep (build/typecheck/lint, migration count checks, manual checklist).
+- [x] Full verification sweep (build, typecheck, migration checks, live smoke tests).
+      <!-- done: pnpm build green; backend + web typecheck green; all 5 backend verification
+           scripts green (timezone arithmetic 29 checks incl. DST, capacity against the real
+           timetable, over-capacity + displacement, full planning loop against the live prod
+           API, endpoint smoke). Prod data proven unchanged against a pre-migration backup by
+           projecting the live tables onto the backup's own column set: 84 rows byte-identical,
+           timetable included. -->
+- [x] `pnpm lint`.
+      <!-- done: web lint is `eslint .` on a flat config (apps/web/eslint.config.mjs) with
+           eslint + eslint-config-next installed, so the Next 16 breakage no longer applies.
+           Whole-repo `pnpm lint` is green: 0 errors, 11 warnings, all pre-existing and
+           unrelated (one `react-hooks/set-state-in-effect` in apps/web/src/lib/auth.tsx for
+           the hydration flag, the rest hook-dependency and unused-var notes). Left as
+           warnings rather than suppressed so they stay visible. -->
 - [ ] README refresh; `ROADMAP.md` final status.
 
 ---

@@ -10,6 +10,13 @@ export interface PomodoroSession {
   /** True when a full work session was completed, false when cut short. */
   completed: boolean;
   createdAt: string;
+  /** When the session actually ended. Null for rows predating the column. */
+  endedAt: string | null;
+  /**
+   * Minutes actually worked, as opposed to `durationMinutes` which is what the
+   * timer intended. Review compares the two.
+   */
+  actualMinutes: number | null;
 }
 
 export interface StartPomodoroRequest {
@@ -20,8 +27,10 @@ export interface StartPomodoroRequest {
 
 /** Logged only when a session ends (either completed or cut short). */
 export interface EndPomodoroRequest {
-  id: ID;
+  id: string;
   completed: boolean;
+  /** Measured minutes worked. Falls back to wall-clock elapsed when omitted. */
+  actualMinutes?: number;
 }
 
 export interface FocusTimeSummary {

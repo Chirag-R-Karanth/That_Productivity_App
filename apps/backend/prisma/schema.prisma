@@ -42,6 +42,19 @@ model User {
   chimeOnTheHour          Boolean  @default(true)
   onboardingComplete      Boolean  @default(false)
 
+  // Capacity window. "Usable time" is never the whole gap between classes —
+  // it is the awake day, minus fixed commitments, minus transition buffers.
+  // Stored as minutes-from-midnight so the window is timezone-agnostic.
+  // null = use the defaults applied in code (see services/dayModel.ts).
+  dayStartMinutes   Int? // null = default 7:00
+  dayEndMinutes     Int? // null = default 23:00
+  bufferMinutes     Int? // null = default 10 — recovery time around each commitment
+
+  // IANA zone ("Asia/Kolkata") used to decide which day it is, and where every
+  // day boundary falls. A server running in UTC must not call 00:30 local
+  // "yesterday". null = fall back to the zone the request reports, then UTC.
+  timezone          String?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -51,7 +64,9 @@ model User {
   attendanceRecords AttendanceRecord[]
   pomodoroSessions PomodoroSession[]
   googleCalendars  LinkedGoogleCalendar[]
+  googleConnections GoogleConnection[]
   events         Event[]
+  timetableEntries TimetableEntry[]
 
   @@map("users")
 }
@@ -73,6 +88,15 @@ model Task {
   dueDate String? // YYYY-MM-DD
   dueTime String? // HH:MM (24h)
 
+  // The day I have committed to actually doing this, which is deliberately
+  // separate from dueDate (the deadline). A plan can be light on a heavy day.
+  plannedDate String? // YYYY-MM-DD
+
+  // Effort estimate in minutes. This is the only input to "how much work have
+  // I planned", so it stays a single integer rather than a T-shirt size:
+  // a size cannot be compared against minutes of real capacity.
+  estimateMinutes Int?
+
   completed   Boolean  @default(false)
   completedAt DateTime?
   deletedAt   DateTime?
@@ -91,12 +115,31 @@ model Task {
   courseId String?
   course   Course? @relation(fields: [courseId], references: [id], onDelete: SetNull)
 
+  // ---- Google Tasks ----
+  // A task imported from Google. A Google task id is only unique within one
+  // task list of one account, so identity is the triple below.
+  connectionId     String?
+  googleTaskListId String?
+  googleTaskId     String?
+  /// Google's optimistic-concurrency token. A write returning 412 lost the
+  /// race, and the safe move is to re-read rather than overwrite.
+  googleETag       String?
+  /// A task deleted in Google. Kept as a tombstone so a later sync does not
+  /// resurrect it from a stale local copy.
+  googleDeleted    Boolean  @default(false)
+  /// When this row was last pushed successfully to Google.
+  googlePushedAt   DateTime?
+
+  connection GoogleConnection? @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   pomodoroSessions PomodoroSession[]
 
   @@index([userId, deletedAt])
   @@index([userId, courseId])
   @@index([userId, dueDate])
+  @@index([userId, plannedDate])
+  @@index([userId, connectionId, googleTaskId])
   @@map("tasks")
 }
 
@@ -117,9 +160,48 @@ model Course {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   tasks  Task[]
   attendanceRecords AttendanceRecord[]
+  timetableEntries TimetableEntry[]
 
   @@index([userId])
   @@map("courses")
+}
+
+/// A dated exception to, or addition to, the recurring weekly timetable.
+/// Additive: the weekly Course.schedule JSON is untouched.
+enum TimetableEntryKind {
+  EXAM
+  HOLIDAY
+  EXCEPTION
+  RESCHEDULED
+  EVENT
+}
+
+model TimetableEntry {
+  id       String @id @default(cuid())
+  userId   String
+  /// Null for entries that belong to no course, e.g. a campus holiday.
+  courseId String?
+  title    String
+  kind     TimetableEntryKind @default(EVENT)
+  /// YYYY-MM-DD, interpreted in the user's timezone.
+  date     String
+  /// Null for all-day entries such as holidays.
+  startTime String?
+  endTime   String?
+  location  String?
+  notes     String?
+  /// On RESCHEDULED entries: { dayOfWeek, startTime, endTime } of the slot moved.
+  replacesSlot Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course? @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([userId, date])
+  @@index([userId, date, startTime])
+  @@map("timetable_entries")
 }
 
 // ---------- Attendance ----------
@@ -164,6 +246,11 @@ model CalendarEvent {
   source    CalendarEventSource @default(LOCAL)
   googleEventId    String?
   sourceCalendarId String?
+  /// Which linked Google account produced this row. A Google event id is only
+  /// unique within one calendar of one account, so the previous key
+  /// (userId, googleEventId, sourceCalendarId) collides the moment a second
+  /// account is linked: both have a `primary` calendar and overlapping ids.
+  connectionId     String?
   title     String
   description String?
   startTime DateTime
@@ -181,25 +268,85 @@ model CalendarEvent {
   updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  connection GoogleConnection? @relation(fields: [connectionId], references: [id], onDelete: Cascade)
 
-  // A single Google event can appear across multiple calendars we dedup.
-  @@unique([userId, googleEventId, sourceCalendarId])
+  // A single Google event can appear across multiple calendars we dedup. All
+  // the source rows are kept, so this is a lookup index rather than a
+  // constraint: a remote event id is not unique on its own.
+  @@index([userId, connectionId, googleEventId, sourceCalendarId])
   @@index([userId, startTime])
   @@map("calendar_events")
 }
 
+/// A Google account linked to one of our users.
+///
+/// Tokens live here rather than on User because a user can link more than one
+/// Google account: each is a separate OAuth identity with its own calendars and
+/// task lists. Seven Google accounts feeding one user is seven of these rows.
+model GoogleConnection {
+  id String @id @default(cuid())
+  userId String
+
+  /// Google's stable per-account id (the `sub` claim). An email address can
+  /// change; this cannot, so a re-link matches on it.
+  googleAccountId String
+  email String
+  displayName String?
+
+  accessToken String // encrypted at rest
+  refreshToken String? // encrypted at rest; absent when the grant was incremental
+  tokenExpiresAt DateTime?
+  scopes String?
+
+  /// Set when Google refuses the refresh token. The usual causes are a revoked
+  /// grant and an expired Testing-mode token, and the fix is a human clicking
+  /// reconnect, so this is surfaced rather than retried forever.
+  /// Google task list that locally created tasks are pushed to. Discovered from
+  /// the account on first use rather than asked for, so an account that does
+  /// not use Google Tasks costs nothing.
+  defaultTaskListId String?
+
+  needsRelink Boolean @default(false)
+  lastSyncedAt DateTime?
+  lastError String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  calendars LinkedGoogleCalendar[]
+  events CalendarEvent[]
+  tasks Task[]
+
+  /// One row per Google account per user. Re-linking the same account updates
+  /// the existing row instead of accumulating duplicates.
+  @@unique([userId, googleAccountId])
+  @@index([userId, needsRelink])
+  @@map("google_connections")
+}
+
 model LinkedGoogleCalendar {
-  id          String @id
+  /// The Google calendar id. Not a key on its own: every Google account has a
+  /// calendar called `primary`, so this value legitimately repeats -- once per
+  /// linked account -- and the row is identified by the pair below.
+  id          String
   userId      String
+  /// Which Google account this calendar came from. A calendar id is only
+  /// unique within its account, so `primary` can legitimately exist 7 times.
+  connectionId String
   summary     String
   backgroundColor String?
   accessRole  String?
-  // OAuth tokens are per-user; calendar-level metadata here only.
   isLinked    Boolean @default(true)
+  // Kept in sync, but not counted as planned time. Opt-out, so existing
+  // calendars keep reserving capacity as they always have.
+  includeInDay Boolean @default(true)
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  connection GoogleConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, id])
+  @@id([connectionId, id])
+  @@index([userId])
   @@map("linked_google_calendars")
 }
 
@@ -213,6 +360,13 @@ model PomodoroSession {
   startedAt DateTime
   durationMinutes Int
   completed Boolean  @default(true)
+
+  // What actually happened, as opposed to what the timer intended.
+  // durationMinutes is the plan; these are the outcome. Review compares the
+  // two, which is the only way to learn that a task is chronically
+  // underestimated. Both stay null for rows written before this existed.
+  endedAt       DateTime?
+  actualMinutes Int?
 
   createdAt DateTime @default(now())
 

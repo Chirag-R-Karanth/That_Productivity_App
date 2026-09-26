@@ -10,3 +10,6 @@ allowBuilds:
   prisma: true
   protobufjs: true
   tesseract.js: true
+  # Ships a prebuilt napi binary for its resolver; without the postinstall the
+  # eslint import resolver cannot resolve TypeScript paths.
+  unrs-resolver: true

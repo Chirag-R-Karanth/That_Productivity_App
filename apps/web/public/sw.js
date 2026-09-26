@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 const CACHE = "prodapp-shell-v3";
 const API_CACHE = "prodapp-api-v1";
 const ROUTES = [

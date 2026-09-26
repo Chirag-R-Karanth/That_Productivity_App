@@ -54,8 +54,10 @@ export const ModelName = {
   User: 'User',
   Task: 'Task',
   Course: 'Course',
+  TimetableEntry: 'TimetableEntry',
   AttendanceRecord: 'AttendanceRecord',
   CalendarEvent: 'CalendarEvent',
+  GoogleConnection: 'GoogleConnection',
   LinkedGoogleCalendar: 'LinkedGoogleCalendar',
   PomodoroSession: 'PomodoroSession',
   PendingSync: 'PendingSync',
@@ -95,6 +97,10 @@ export const UserScalarFieldEnum = {
   pomodoroSessionsPerCycle: 'pomodoroSessionsPerCycle',
   chimeOnTheHour: 'chimeOnTheHour',
   onboardingComplete: 'onboardingComplete',
+  dayStartMinutes: 'dayStartMinutes',
+  dayEndMinutes: 'dayEndMinutes',
+  bufferMinutes: 'bufferMinutes',
+  timezone: 'timezone',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -109,6 +115,8 @@ export const TaskScalarFieldEnum = {
   notes: 'notes',
   dueDate: 'dueDate',
   dueTime: 'dueTime',
+  plannedDate: 'plannedDate',
+  estimateMinutes: 'estimateMinutes',
   completed: 'completed',
   completedAt: 'completedAt',
   deletedAt: 'deletedAt',
@@ -117,7 +125,13 @@ export const TaskScalarFieldEnum = {
   lastCompletedOccurrence: 'lastCompletedOccurrence',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  courseId: 'courseId'
+  courseId: 'courseId',
+  connectionId: 'connectionId',
+  googleTaskListId: 'googleTaskListId',
+  googleTaskId: 'googleTaskId',
+  googleETag: 'googleETag',
+  googleDeleted: 'googleDeleted',
+  googlePushedAt: 'googlePushedAt'
 } as const
 
 export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
@@ -135,6 +149,25 @@ export const CourseScalarFieldEnum = {
 } as const
 
 export type CourseScalarFieldEnum = (typeof CourseScalarFieldEnum)[keyof typeof CourseScalarFieldEnum]
+
+
+export const TimetableEntryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  courseId: 'courseId',
+  title: 'title',
+  kind: 'kind',
+  date: 'date',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  location: 'location',
+  notes: 'notes',
+  replacesSlot: 'replacesSlot',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TimetableEntryScalarFieldEnum = (typeof TimetableEntryScalarFieldEnum)[keyof typeof TimetableEntryScalarFieldEnum]
 
 
 export const AttendanceRecordScalarFieldEnum = {
@@ -157,6 +190,7 @@ export const CalendarEventScalarFieldEnum = {
   source: 'source',
   googleEventId: 'googleEventId',
   sourceCalendarId: 'sourceCalendarId',
+  connectionId: 'connectionId',
   title: 'title',
   description: 'description',
   startTime: 'startTime',
@@ -174,13 +208,36 @@ export const CalendarEventScalarFieldEnum = {
 export type CalendarEventScalarFieldEnum = (typeof CalendarEventScalarFieldEnum)[keyof typeof CalendarEventScalarFieldEnum]
 
 
+export const GoogleConnectionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  googleAccountId: 'googleAccountId',
+  email: 'email',
+  displayName: 'displayName',
+  accessToken: 'accessToken',
+  refreshToken: 'refreshToken',
+  tokenExpiresAt: 'tokenExpiresAt',
+  scopes: 'scopes',
+  defaultTaskListId: 'defaultTaskListId',
+  needsRelink: 'needsRelink',
+  lastSyncedAt: 'lastSyncedAt',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GoogleConnectionScalarFieldEnum = (typeof GoogleConnectionScalarFieldEnum)[keyof typeof GoogleConnectionScalarFieldEnum]
+
+
 export const LinkedGoogleCalendarScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  connectionId: 'connectionId',
   summary: 'summary',
   backgroundColor: 'backgroundColor',
   accessRole: 'accessRole',
-  isLinked: 'isLinked'
+  isLinked: 'isLinked',
+  includeInDay: 'includeInDay'
 } as const
 
 export type LinkedGoogleCalendarScalarFieldEnum = (typeof LinkedGoogleCalendarScalarFieldEnum)[keyof typeof LinkedGoogleCalendarScalarFieldEnum]
@@ -193,6 +250,8 @@ export const PomodoroSessionScalarFieldEnum = {
   startedAt: 'startedAt',
   durationMinutes: 'durationMinutes',
   completed: 'completed',
+  endedAt: 'endedAt',
+  actualMinutes: 'actualMinutes',
   createdAt: 'createdAt'
 } as const
 
@@ -238,6 +297,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {

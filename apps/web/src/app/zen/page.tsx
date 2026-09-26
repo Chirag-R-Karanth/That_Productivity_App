@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useRouter } from "next/navigation";
 import { animate } from "animejs";
 import { AuthGate } from "@/lib/authGate";
@@ -8,7 +8,8 @@ import { api } from "@/lib/api";
 import { FlipClock } from "@/components/FlipClock";
 import { CheckIcon, PauseIcon, PlayIcon, RestartIcon, SkipIcon, SpeakerOffIcon, SpeakerOnIcon } from "@/components/icons";
 import { wantsReducedMotion } from "@/lib/motion";
-import { isSoundEnabled, playChime, playHourChime, playTick, setSoundEnabled, toggleSound, unlock } from "@/lib/sounds";
+import { SOUND_KEY, parseSoundPref, playChime, playHourChime, playTick, toggleSound, unlock } from "@/lib/sounds";
+import { useStoredPref } from "@/lib/storedPref";
 
 type Kind = "focus" | "short" | "long";
 type Screen = "setup" | "running" | "paused" | "focus-done" | "break-done";
@@ -38,31 +39,78 @@ const CLOCK_FONT = { fontSize: "min(18vw, 60vh)" };
 const COUNTDOWN_FONT = { fontSize: "min(21vw, 63vh)" };
 const COUNTDOWN_FONT_HOURS = { fontSize: "min(13vw, 40vh)" };
 
+const TICK_MS = 250;
+
+// A module-level cached clock rather than a ref. `useSyncExternalStore` needs a
+// snapshot whose identity is stable between reads, and reading a ref during
+// render is not reactive, which is what forced the old `repaint` counter hack.
+let cachedNow = 0;
+let clockTimer: number | null = null;
+const clockSubscribers = new Set<() => void>();
+
+function subscribeClock(notify: () => void) {
+  clockSubscribers.add(notify);
+  if (clockTimer === null) {
+    cachedNow = Date.now();
+    clockTimer = window.setInterval(() => {
+      cachedNow = Date.now();
+      for (const sub of clockSubscribers) sub();
+    }, TICK_MS);
+  }
+  return () => {
+    clockSubscribers.delete(notify);
+    if (clockSubscribers.size === 0 && clockTimer !== null) {
+      window.clearInterval(clockTimer);
+      clockTimer = null;
+    }
+  };
+}
+
+const getClockSnapshot = () => cachedNow;
+const getClockServerSnapshot = () => 0;
+
+function useNow(): number {
+  return useSyncExternalStore(
+    subscribeClock,
+    getClockSnapshot,
+    getClockServerSnapshot,
+  );
+}
+
+interface Timer {
+  kind: Kind;
+  /** Total length in seconds, kept so a restart restores the full session. */
+  total: number;
+  /** Wall-clock ms at which the countdown reaches zero. */
+  endsAt: number;
+}
+
 const MODE_KEY = "prodapp:zen-mode";
+
+function parseModePref(raw: string | null): Mode {
+  return raw === "clock" || raw === "pomodoro" ? raw : "pomodoro";
+}
 
 export default function ZenPage() {
   const router = useRouter();
 
   const rootRef = useRef<HTMLDivElement>(null);
-  const nowRef = useRef<number>(Date.now());
-  const endsAtRef = useRef<number>(0);
-  const pausedRemainingRef = useRef<number>(0);
-  const timerKindRef = useRef<Kind>("focus");
-  const timerTotalRef = useRef(0);
   const serverIdRef = useRef<string | null>(null);
-  const serverClosedRef = useRef(false);
+  const [serverSessionOpen, setServerSessionOpen] = useState(false);
   const completedGuard = useRef(false);
   const lastMinuteRef = useRef<number>(-1);
   const lastSecRef = useRef<number>(-1);
   const lastHourRef = useRef<number>(0);
 
-  const [repaint, setRepaint] = useState(0);
+  const now = useNow();
+  const [timer, setTimer] = useState<Timer | null>(null);
+  const [pausedRemaining, setPausedRemaining] = useState(0);
   const [exiting, setExiting] = useState(false);
   const [screen, setScreen] = useState<Screen>("setup");
   const [running, setRunning] = useState(false);
   const [confirmQuit, setConfirmQuit] = useState(false);
-  const [mode, setModeState] = useState<Mode>("pomodoro");
-  const [soundOn, setSoundOn] = useState(true);
+  const [mode, setModePref] = useStoredPref(MODE_KEY, parseModePref, "pomodoro");
+  const [soundOn] = useStoredPref(SOUND_KEY, parseSoundPref, true);
 
   const [tasks, setTasks] = useState<ZenTask[]>([]);
   const [selectedTask, setSelectedTask] = useState<ZenTask | null>(null);
@@ -84,15 +132,9 @@ export default function ZenPage() {
   const longMinutes = longCustom ?? settings.pomodoroLongBreakMinutes ?? 15;
   const perCycle = cycleCustom ?? settings.pomodoroSessionsPerCycle ?? 4;
 
-  // Data + persisted prefs (mode, sound) once mounted.
+  // Mode and sound are read straight from the localStorage store, so only the
+  // remote data still needs loading.
   useEffect(() => {
-    try {
-      const m = localStorage.getItem(MODE_KEY);
-      if (m === "clock" || m === "pomodoro") setModeState(m);
-      setSoundOn(isSoundEnabled());
-    } catch {
-      /* ignore */
-    }
     void (async () => {
       const [tasksRes, meRes] = await Promise.all([
         api.get<ZenTask[]>("/api/tasks"),
@@ -138,41 +180,39 @@ export default function ZenPage() {
     };
   }, []);
 
-  // 250ms repaint tick (drift-corrected clock + wall clock).
-  useEffect(() => {
-    const id = window.setInterval(() => {
-      nowRef.current = Date.now();
-      setRepaint((n) => n + 1);
-    }, 250);
-    return () => window.clearInterval(id);
-  }, []);
-
+  // The ticker itself is the useNow() subscription above; nothing to poll here.
   const closeOpenServerSession = useCallback(async (completed: boolean) => {
     const id = serverIdRef.current;
-    if (!id || serverClosedRef.current) return;
-    serverClosedRef.current = true;
+    if (!id) return;
+    setServerSessionOpen(false);
     serverIdRef.current = null;
     void api.patch(`/api/pomodoro/${id}/end`, { completed });
   }, []);
 
   const beginSession = useCallback(
     (kind: Kind, totalMinutes: number) => {
-      timerKindRef.current = kind;
-      timerTotalRef.current = totalMinutes * 60;
-      endsAtRef.current = Date.now() + totalMinutes * 60_000;
+      setTimer({
+        kind,
+        total: totalMinutes * 60,
+        endsAt: Date.now() + totalMinutes * 60_000,
+      });
+      setPausedRemaining(0);
       completedGuard.current = false;
       setRunning(true);
       setScreen("running");
 
       if (kind === "focus") {
-        serverClosedRef.current = false;
+        setServerSessionOpen(false);
         void api
           .post<{ id: string }>("/api/pomodoro", {
             taskId: selectedTask?.id ?? null,
             durationMinutes: totalMinutes,
           })
           .then((res) => {
-            if ("ok" in res && res.ok) serverIdRef.current = res.data.id;
+            if ("ok" in res && res.ok) {
+              serverIdRef.current = res.data.id;
+              setServerSessionOpen(true);
+            }
           });
       }
     },
@@ -180,39 +220,42 @@ export default function ZenPage() {
   );
 
   const remaining = (() => {
-    if (!running) return pausedRemainingRef.current;
-    return Math.max(0, Math.ceil((endsAtRef.current - nowRef.current) / 1000));
+    if (!running || !timer) return pausedRemaining;
+    return Math.max(0, Math.ceil((timer.endsAt - now) / 1000));
   })();
+
+  /** The session currently loaded, if any — safe to read during render. */
+  const activeKind: Kind = timer?.kind ?? "focus";
 
   // One flip-clunk per tick: the 12-hour clock face flips every minute,
   // the countdown flips every second while live (paused/idle stays silent).
   useEffect(() => {
     if (mode === "clock") {
-      const minute = Math.floor(nowRef.current / 60_000);
+      const minute = Math.floor(now / 60_000);
       if (minute !== lastMinuteRef.current) {
         lastMinuteRef.current = minute;
         playTick();
       }
       return;
     }
-    const sec = Math.floor(nowRef.current / 1000);
+    const sec = Math.floor(now / 1000);
     const counting =
       (screen === "running" || screen === "paused") && running;
     if (sec !== lastSecRef.current) {
       lastSecRef.current = sec;
       if (counting) playTick();
     }
-  }, [repaint, mode, screen, running]);
+  }, [now, mode, screen, running]);
 
   // Hourly chime while sitting on the clock face.
   useEffect(() => {
     if (mode !== "clock" || !settings.chimeOnTheHour) return;
-    const hour = Math.floor(nowRef.current / 3_600_000);
+    const hour = Math.floor(now / 3_600_000);
     if (hour !== lastHourRef.current) {
       lastHourRef.current = hour;
       playHourChime();
     }
-  }, [repaint, mode, settings.chimeOnTheHour]);
+  }, [now, mode, settings.chimeOnTheHour]);
 
   // Complete when we cross zero (guarded, runs once per session) → chime.
   useEffect(() => {
@@ -220,7 +263,7 @@ export default function ZenPage() {
     if (remaining > 0) return;
     completedGuard.current = true;
     void (async () => {
-      const kind = timerKindRef.current;
+      const kind = activeKind;
       if (kind === "focus") {
         await closeOpenServerSession(true);
         setFocusesDone((n) => n + 1);
@@ -229,7 +272,7 @@ export default function ZenPage() {
       setScreen(kind === "focus" ? "focus-done" : "break-done");
       playChime();
     })();
-  }, [remaining, running, closeOpenServerSession]);
+  }, [remaining, running, activeKind, closeOpenServerSession]);
 
   const nextBreakKind = (afterCount: number): Kind =>
     afterCount % perCycle === 0 ? "long" : "short";
@@ -240,28 +283,30 @@ export default function ZenPage() {
   };
 
   const togglePause = useCallback(() => {
-    if (running) {
-      pausedRemainingRef.current = Math.max(
-        0,
-        Math.ceil((endsAtRef.current - nowRef.current) / 1000),
+    if (running && timer) {
+      setPausedRemaining(
+        Math.max(0, Math.ceil((timer.endsAt - now) / 1000)),
       );
       setRunning(false);
       setScreen("paused");
     } else {
-      endsAtRef.current = Date.now() + pausedRemainingRef.current * 1000;
+      setTimer((t) =>
+        t ? { ...t, endsAt: Date.now() + pausedRemaining * 1000 } : t,
+      );
       setRunning(true);
       setScreen("running");
     }
-  }, [running]);
+  }, [running, timer, now, pausedRemaining]);
 
   const restartSession = () => {
-    beginSession(timerKindRef.current, Math.round(timerTotalRef.current / 60));
+    if (!timer) return;
+    beginSession(timer.kind, Math.round(timer.total / 60));
   };
 
   const skipSession = async () => {
-    const kind = timerKindRef.current;
+    const kind = activeKind;
     if (kind === "focus") await closeOpenServerSession(false);
-    pausedRemainingRef.current = 0;
+    setPausedRemaining(0);
     setRunning(false);
     setScreen("setup");
   };
@@ -275,18 +320,13 @@ export default function ZenPage() {
   const switchMode = (m: Mode) => {
     if (m === mode) return;
     if (m === "pomodoro") setFocusesDone(0);
-    if (mode === "pomodoro" && timerKindRef.current === "focus" && !serverClosedRef.current) {
+    if (mode === "pomodoro" && activeKind === "focus" && serverSessionOpen) {
       void closeOpenServerSession(false);
     }
-    try {
-      localStorage.setItem(MODE_KEY, m);
-    } catch {
-      /* ignore */
-    }
-    setModeState(m);
+    setModePref(m);
     setScreen("setup");
     setRunning(false);
-    pausedRemainingRef.current = 0;
+    setPausedRemaining(0);
     setConfirmQuit(false);
   };
 
@@ -336,7 +376,7 @@ export default function ZenPage() {
 
   // Wall-clock pieces for Clock mode (reads the live ticker).
   const wallClock = (() => {
-    const d = new Date(nowRef.current);
+    const d = new Date(now);
     const hour = d.getHours();
     const phase =
       hour < 5 ? "Night" : hour < 12 ? "Morning" : hour < 17 ? "Afternoon" : hour < 21 ? "Evening" : "Night";
@@ -373,7 +413,7 @@ export default function ZenPage() {
             </div>
             {mode === "pomodoro" && (screen === "running" || screen === "paused") && (
               <span className="truncate text-sm text-text/80">
-                {selectedTask ? selectedTask.title : kindLabel[timerKindRef.current]}
+                {selectedTask ? selectedTask.title : kindLabel[activeKind]}
               </span>
             )}
           </div>
@@ -381,8 +421,7 @@ export default function ZenPage() {
             <button
               type="button"
               onClick={() => {
-                const on = toggleSound();
-                setSoundOn(on);
+                toggleSound();
               }}
               title={soundOn ? "Sound on" : "Sound off"}
               className="rounded-full border border-border p-2 text-text-muted transition-colors hover:border-text/20 hover:text-text"
@@ -424,7 +463,7 @@ export default function ZenPage() {
               </div>
               <div className="flex flex-col items-center gap-3">
                 <p className="text-xs uppercase tracking-[0.4em] text-text-muted">
-                  {running ? kindLabel[timerKindRef.current] : "Paused"}
+                  {running ? kindLabel[activeKind] : "Paused"}
                 </p>
                 <CycleDots done={focusesDone} cycle={perCycle} />
                 <div className="mt-1 flex items-center gap-2.5">
@@ -558,7 +597,7 @@ export default function ZenPage() {
             <div className="w-full max-w-xs rounded-2xl border border-border bg-surface p-6 text-center">
               <p className="mb-1 text-sm font-medium text-text">End focus early?</p>
               <p className="mb-5 text-xs text-text-muted">
-                {timerKindRef.current === "focus" && !serverClosedRef.current
+                {activeKind === "focus" && serverSessionOpen
                   ? "This session won&rsquo;t count toward your focus time."
                   : "You&rsquo;ll leave Zen and return where you were."}
               </p>
@@ -605,36 +644,16 @@ function CycleDots({ done, cycle }: { done: number; cycle: number }) {
   );
 }
 
-function SetupPanel(props: {
-  tasks: ZenTask[];
-  selectedTask: ZenTask | null;
-  onSelectTask: (t: ZenTask | null) => void;
-  workMinutes: number;
-  shortMinutes: number;
-  longMinutes: number;
-  perCycle: number;
-  workPresets: number[];
-  shortPresets: number[];
-  longPresets: number[];
-  cycleOptions: number[];
-  onCustomWork: (n: number | null) => void;
-  onCustomShort: (n: number | null) => void;
-  onCustomLong: (n: number | null) => void;
-  onCycleCustom: (n: number | null) => void;
-  onStart: () => void;
+// Hoisted to module scope on purpose: declared inside SetupPanel it would be a
+// new component type on every render, so React would unmount and remount the
+// presets (and the focused number input) on each keystroke.
+function Picker({
+  label, value, presets, onChange, min, max,
+}: {
+  label: string; value: number; presets: number[]; onChange: (n: number | null) => void;
+  min: number; max: number;
 }) {
-  const {
-    tasks, selectedTask, onSelectTask, workMinutes, shortMinutes, longMinutes, perCycle,
-    workPresets, shortPresets, longPresets, cycleOptions,
-    onCustomWork, onCustomShort, onCustomLong, onCycleCustom, onStart,
-  } = props;
-
-  const Picker = ({
-    label, value, presets, onChange, min, max,
-  }: {
-    label: string; value: number; presets: number[]; onChange: (n: number | null) => void;
-    min: number; max: number;
-  }) => (
+  return (
     <label className="block text-xs text-text-muted">
       {label} <span className="text-text-muted/60">(min)</span>
       <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
@@ -663,6 +682,31 @@ function SetupPanel(props: {
       </div>
     </label>
   );
+}
+
+function SetupPanel(props: {
+  tasks: ZenTask[];
+  selectedTask: ZenTask | null;
+  onSelectTask: (t: ZenTask | null) => void;
+  workMinutes: number;
+  shortMinutes: number;
+  longMinutes: number;
+  perCycle: number;
+  workPresets: number[];
+  shortPresets: number[];
+  longPresets: number[];
+  cycleOptions: number[];
+  onCustomWork: (n: number | null) => void;
+  onCustomShort: (n: number | null) => void;
+  onCustomLong: (n: number | null) => void;
+  onCycleCustom: (n: number | null) => void;
+  onStart: () => void;
+}) {
+  const {
+    tasks, selectedTask, onSelectTask, workMinutes, shortMinutes, longMinutes, perCycle,
+    workPresets, shortPresets, longPresets, cycleOptions,
+    onCustomWork, onCustomShort, onCustomLong, onCycleCustom, onStart,
+  } = props;
 
   return (
     <div className="w-full max-w-xl space-y-6">

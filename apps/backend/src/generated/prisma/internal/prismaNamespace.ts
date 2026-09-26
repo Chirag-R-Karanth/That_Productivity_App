@@ -400,8 +400,10 @@ export const ModelName = {
   User: 'User',
   Task: 'Task',
   Course: 'Course',
+  TimetableEntry: 'TimetableEntry',
   AttendanceRecord: 'AttendanceRecord',
   CalendarEvent: 'CalendarEvent',
+  GoogleConnection: 'GoogleConnection',
   LinkedGoogleCalendar: 'LinkedGoogleCalendar',
   PomodoroSession: 'PomodoroSession',
   PendingSync: 'PendingSync',
@@ -421,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "task" | "course" | "attendanceRecord" | "calendarEvent" | "linkedGoogleCalendar" | "pomodoroSession" | "pendingSync" | "event"
+    modelProps: "user" | "task" | "course" | "timetableEntry" | "attendanceRecord" | "calendarEvent" | "googleConnection" | "linkedGoogleCalendar" | "pomodoroSession" | "pendingSync" | "event"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -647,6 +649,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    TimetableEntry: {
+      payload: Prisma.$TimetableEntryPayload<ExtArgs>
+      fields: Prisma.TimetableEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TimetableEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TimetableEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.TimetableEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TimetableEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableEntryPayload>
+        }
+        findMany: {
+          args: Prisma.TimetableEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableEntryPayload>[]
+        }
+        create: {
+          args: Prisma.TimetableEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableEntryPayload>
+        }
+        createMany: {
+          args: Prisma.TimetableEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TimetableEntryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableEntryPayload>[]
+        }
+        delete: {
+          args: Prisma.TimetableEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableEntryPayload>
+        }
+        update: {
+          args: Prisma.TimetableEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.TimetableEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TimetableEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TimetableEntryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableEntryPayload>[]
+        }
+        upsert: {
+          args: Prisma.TimetableEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TimetableEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.TimetableEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTimetableEntry>
+        }
+        groupBy: {
+          args: Prisma.TimetableEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TimetableEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TimetableEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TimetableEntryCountAggregateOutputType> | number
+        }
+      }
+    }
     AttendanceRecord: {
       payload: Prisma.$AttendanceRecordPayload<ExtArgs>
       fields: Prisma.AttendanceRecordFieldRefs
@@ -792,6 +868,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.CalendarEventCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.CalendarEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    GoogleConnection: {
+      payload: Prisma.$GoogleConnectionPayload<ExtArgs>
+      fields: Prisma.GoogleConnectionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.GoogleConnectionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleConnectionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.GoogleConnectionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleConnectionPayload>
+        }
+        findFirst: {
+          args: Prisma.GoogleConnectionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleConnectionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.GoogleConnectionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleConnectionPayload>
+        }
+        findMany: {
+          args: Prisma.GoogleConnectionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleConnectionPayload>[]
+        }
+        create: {
+          args: Prisma.GoogleConnectionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleConnectionPayload>
+        }
+        createMany: {
+          args: Prisma.GoogleConnectionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.GoogleConnectionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleConnectionPayload>[]
+        }
+        delete: {
+          args: Prisma.GoogleConnectionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleConnectionPayload>
+        }
+        update: {
+          args: Prisma.GoogleConnectionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleConnectionPayload>
+        }
+        deleteMany: {
+          args: Prisma.GoogleConnectionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.GoogleConnectionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.GoogleConnectionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleConnectionPayload>[]
+        }
+        upsert: {
+          args: Prisma.GoogleConnectionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$GoogleConnectionPayload>
+        }
+        aggregate: {
+          args: Prisma.GoogleConnectionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateGoogleConnection>
+        }
+        groupBy: {
+          args: Prisma.GoogleConnectionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GoogleConnectionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.GoogleConnectionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.GoogleConnectionCountAggregateOutputType> | number
         }
       }
     }
@@ -1147,6 +1297,10 @@ export const UserScalarFieldEnum = {
   pomodoroSessionsPerCycle: 'pomodoroSessionsPerCycle',
   chimeOnTheHour: 'chimeOnTheHour',
   onboardingComplete: 'onboardingComplete',
+  dayStartMinutes: 'dayStartMinutes',
+  dayEndMinutes: 'dayEndMinutes',
+  bufferMinutes: 'bufferMinutes',
+  timezone: 'timezone',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1161,6 +1315,8 @@ export const TaskScalarFieldEnum = {
   notes: 'notes',
   dueDate: 'dueDate',
   dueTime: 'dueTime',
+  plannedDate: 'plannedDate',
+  estimateMinutes: 'estimateMinutes',
   completed: 'completed',
   completedAt: 'completedAt',
   deletedAt: 'deletedAt',
@@ -1169,7 +1325,13 @@ export const TaskScalarFieldEnum = {
   lastCompletedOccurrence: 'lastCompletedOccurrence',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  courseId: 'courseId'
+  courseId: 'courseId',
+  connectionId: 'connectionId',
+  googleTaskListId: 'googleTaskListId',
+  googleTaskId: 'googleTaskId',
+  googleETag: 'googleETag',
+  googleDeleted: 'googleDeleted',
+  googlePushedAt: 'googlePushedAt'
 } as const
 
 export type TaskScalarFieldEnum = (typeof TaskScalarFieldEnum)[keyof typeof TaskScalarFieldEnum]
@@ -1187,6 +1349,25 @@ export const CourseScalarFieldEnum = {
 } as const
 
 export type CourseScalarFieldEnum = (typeof CourseScalarFieldEnum)[keyof typeof CourseScalarFieldEnum]
+
+
+export const TimetableEntryScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  courseId: 'courseId',
+  title: 'title',
+  kind: 'kind',
+  date: 'date',
+  startTime: 'startTime',
+  endTime: 'endTime',
+  location: 'location',
+  notes: 'notes',
+  replacesSlot: 'replacesSlot',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TimetableEntryScalarFieldEnum = (typeof TimetableEntryScalarFieldEnum)[keyof typeof TimetableEntryScalarFieldEnum]
 
 
 export const AttendanceRecordScalarFieldEnum = {
@@ -1209,6 +1390,7 @@ export const CalendarEventScalarFieldEnum = {
   source: 'source',
   googleEventId: 'googleEventId',
   sourceCalendarId: 'sourceCalendarId',
+  connectionId: 'connectionId',
   title: 'title',
   description: 'description',
   startTime: 'startTime',
@@ -1226,13 +1408,36 @@ export const CalendarEventScalarFieldEnum = {
 export type CalendarEventScalarFieldEnum = (typeof CalendarEventScalarFieldEnum)[keyof typeof CalendarEventScalarFieldEnum]
 
 
+export const GoogleConnectionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  googleAccountId: 'googleAccountId',
+  email: 'email',
+  displayName: 'displayName',
+  accessToken: 'accessToken',
+  refreshToken: 'refreshToken',
+  tokenExpiresAt: 'tokenExpiresAt',
+  scopes: 'scopes',
+  defaultTaskListId: 'defaultTaskListId',
+  needsRelink: 'needsRelink',
+  lastSyncedAt: 'lastSyncedAt',
+  lastError: 'lastError',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GoogleConnectionScalarFieldEnum = (typeof GoogleConnectionScalarFieldEnum)[keyof typeof GoogleConnectionScalarFieldEnum]
+
+
 export const LinkedGoogleCalendarScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  connectionId: 'connectionId',
   summary: 'summary',
   backgroundColor: 'backgroundColor',
   accessRole: 'accessRole',
-  isLinked: 'isLinked'
+  isLinked: 'isLinked',
+  includeInDay: 'includeInDay'
 } as const
 
 export type LinkedGoogleCalendarScalarFieldEnum = (typeof LinkedGoogleCalendarScalarFieldEnum)[keyof typeof LinkedGoogleCalendarScalarFieldEnum]
@@ -1245,6 +1450,8 @@ export const PomodoroSessionScalarFieldEnum = {
   startedAt: 'startedAt',
   durationMinutes: 'durationMinutes',
   completed: 'completed',
+  endedAt: 'endedAt',
+  actualMinutes: 'actualMinutes',
   createdAt: 'createdAt'
 } as const
 
@@ -1290,6 +1497,14 @@ export const JsonNullValueInput = {
 } as const
 
 export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1411,6 +1626,20 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'TimetableEntryKind'
+ */
+export type EnumTimetableEntryKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TimetableEntryKind'>
+    
+
+
+/**
+ * Reference to a field of type 'TimetableEntryKind[]'
+ */
+export type ListEnumTimetableEntryKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'TimetableEntryKind[]'>
     
 
 
@@ -1623,8 +1852,10 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   task?: Prisma.TaskOmit
   course?: Prisma.CourseOmit
+  timetableEntry?: Prisma.TimetableEntryOmit
   attendanceRecord?: Prisma.AttendanceRecordOmit
   calendarEvent?: Prisma.CalendarEventOmit
+  googleConnection?: Prisma.GoogleConnectionOmit
   linkedGoogleCalendar?: Prisma.LinkedGoogleCalendarOmit
   pomodoroSession?: Prisma.PomodoroSessionOmit
   pendingSync?: Prisma.PendingSyncOmit

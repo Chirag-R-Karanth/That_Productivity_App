@@ -13,9 +13,10 @@ import {
   decodeState,
   encodeState,
   exchangeCode,
+  fetchGoogleIdentity,
   googleConfigured,
-  listCalendars,
 } from "../services/google.js";
+import { syncConnectionCalendars } from "../services/googleConnections.js";
 
 const router: RouterType = Router();
 
@@ -194,41 +195,130 @@ router.get("/google/callback", async (req, res) => {
     const verified = await verifyToken(payload.token);
 
     const stored = await exchangeCode(code);
+    // Google's own account id is what a re-link matches on. The email can
+    // change on the account, so keying connections by email would orphan the
+    // calendars and task lists of a renamed account.
+    const identity = await fetchGoogleIdentity(stored.accessToken);
 
-    const user = await prisma.user.update({
-      where: { id: verified.sub },
-      data: {
-        googleAccessToken: stored.accessToken,
-        googleRefreshToken: stored.refreshToken,
-        googleTokenExpiresAt: new Date(stored.expiresAt),
+    // One row per Google account, not per user: linking a second account adds a
+    // row instead of replacing the first one's tokens. Re-linking an account
+    // that is already connected refreshes that row in place.
+    const connection = await prisma.googleConnection.upsert({
+      where: {
+        userId_googleAccountId: {
+          userId: verified.sub,
+          googleAccountId: identity.sub,
+        },
+      },
+      create: {
+        userId: verified.sub,
+        googleAccountId: identity.sub,
+        email: identity.email,
+        displayName: identity.name,
+        accessToken: stored.accessToken,
+        refreshToken: stored.refreshToken,
+        tokenExpiresAt: stored.expiresAt,
+        scopes: stored.scopes,
+        // A reconnect is the cure for a dead grant, so clear the flag here.
+        needsRelink: false,
+        lastError: null,
+      },
+      update: {
+        email: identity.email,
+        displayName: identity.name,
+        accessToken: stored.accessToken,
+        // Google only sends a refresh token the first time. Overwriting with
+        // null here would throw away the token that keeps this account syncing.
+        ...(stored.refreshToken ? { refreshToken: stored.refreshToken } : {}),
+        tokenExpiresAt: stored.expiresAt,
+        scopes: stored.scopes,
+        needsRelink: false,
+        lastError: null,
       },
     });
 
-    // Materialize the user's calendar list into LinkedGoogleCalendar.
-    try {
-      const list = await listCalendars(user.googleAccessToken!);
-      await prisma.$transaction(
-        (list.items ?? []).map((item) =>
-          prisma.linkedGoogleCalendar.upsert({
-            where: { id: item.id },
-            create: {
-              id: item.id,
-              userId: user.id,
-              summary: item.summary,
-              backgroundColor: item.backgroundColor ?? null,
-              accessRole: item.accessRole ?? null,
-            },
-            update: { isLinked: true, summary: item.summary },
-          }),
-        ),
-      );
-    } catch {
-      // Token still stored; first sync can retry the calendar list.
+    // Materialize this account's calendar list. Best effort: the tokens are
+    // stored either way and the next sync can retry the list.
+    const synced = await syncConnectionCalendars(connection);
+    if (synced.error) {
+      await prisma.googleConnection.update({
+        where: { id: connection.id },
+        data: { lastError: synced.error },
+      });
+    } else {
+      await prisma.googleConnection.update({
+        where: { id: connection.id },
+        data: { lastSyncedAt: new Date(), lastError: null },
+      });
     }
 
-    res.redirect(`${env.webAppUrl}/settings?google=linked`);
-  } catch {
-    fail("oauth_failed");
+    res.redirect(
+      `${env.webAppUrl}/settings?${new URLSearchParams({ google: "linked", account: identity.email }).toString()}`,
+    );
+  } catch (err) {
+    fail(err instanceof Error ? err.message.slice(0, 200) : "unknown_error");
+  }
+});
+
+/**
+ * The accounts linked to the signed-in user.
+ *
+ * Returns one entry per Google account so the settings screen can list them and
+ * offer a reconnect for any that needs one. Tokens are never included.
+ */
+router.get("/google/connections", requireAuth, async (req, res, next) => {
+  try {
+    const connections = await prisma.googleConnection.findMany({
+      where: { userId: req.user.id },
+      orderBy: { createdAt: "asc" },
+      select: {
+        id: true,
+        email: true,
+        displayName: true,
+        needsRelink: true,
+        lastSyncedAt: true,
+        lastError: true,
+        tokenExpiresAt: true,
+        createdAt: true,
+        _count: { select: { calendars: true } },
+      },
+    });
+    res.json({
+      ok: true,
+      data: connections.map((c) => ({
+        id: c.id,
+        email: c.email,
+        displayName: c.displayName,
+        needsRelink: c.needsRelink,
+        lastSyncedAt: c.lastSyncedAt,
+        lastError: c.needsRelink ? c.lastError : null,
+        calendarCount: c._count.calendars,
+        createdAt: c.createdAt,
+      })),
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * Unlink one Google account.
+ *
+ * The events and tasks it produced cascade away with it, which is the honest
+ * outcome: they came from that account and cannot be maintained without it.
+ * Other linked accounts are untouched.
+ */
+router.delete("/google/connections/:id", requireAuth, async (req, res, next) => {
+  try {
+    const id = String(req.params.id);
+    // Scoped by userId so an id from another account cannot be unlinked.
+    const removed = await prisma.googleConnection.deleteMany({
+      where: { id, userId: req.user.id },
+    });
+    if (removed.count === 0) throw ApiError.notFound("No such linked Google account");
+    res.json({ ok: true, data: { disconnected: true } });
+  } catch (err) {
+    next(err);
   }
 });
 

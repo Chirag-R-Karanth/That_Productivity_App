@@ -1,15 +1,31 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import type { CalendarEvent, CreateCalendarEventRequest, Course, Task } from "@prodapp/shared-types";
+import type {
+  CalendarEvent,
+  CreateCalendarEventRequest,
+  Course,
+  CourseSlotType,
+  Task,
+  TimetableOccurrence,
+} from "@prodapp/shared-types";
 import { api } from "@/lib/api";
 import { AppShell } from "@/components/AppShell";
 import { Reveal } from "@/components/Reveal";
-import { courseColor } from "@/lib/timetable";
+import { courseColor, isCommitment, SLOT_KIND_META } from "@/lib/timetable";
 
 const DAY_NAMES = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 const EVENT_COLORS = ["#8fb0ff", "#5ce09e", "#f0a6a6", "#b3a6ff", "#ffd08f", "#82d8e6"];
 const TASK_COLOR = "#9be08f";
+/** Timetable items that are not classes still need a colour on the calendar. */
+const TIMETABLE_KIND_COLOR: Record<CourseSlotType, string> = {
+  CLASS: "#8fb0ff",
+  LAB: "#8fd0f0",
+  EXAM: "#ffc98f",
+  INTERNAL: "#c3a6ff",
+  HOLIDAY: "#7fe0a8",
+  EVENT: "#8fb0ff",
+};
 
 type Filter = "all" | "event" | "task" | "class";
 
@@ -23,6 +39,8 @@ interface CalItem {
   color: string;
   completed?: boolean;
   event?: CalendarEvent;
+  /** Set for timetable items, so an exam or a holiday is not drawn as a class. */
+  timetableType?: CourseSlotType;
   task?: Task;
   taskDate?: string;
   course?: Course;
@@ -107,6 +125,7 @@ export default function CalendarPage() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [recurringOccurrences, setRecurringOccurrences] = useState<TaskOccurrencesResponse[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [timetable, setTimetable] = useState<TimetableOccurrence[]>([]);
   const [filter, setFilter] = useState<Filter>("all");
   const [loading, setLoading] = useState(true);
   const [editingEvt, setEditingEvt] = useState<CalendarEvent | null>(null);
@@ -131,16 +150,20 @@ export default function CalendarPage() {
     const run = async () => {
       setLoading(true);
       try {
-        const [evRes, taskRes, occRes, courseRes] = await Promise.all([
+        const [evRes, taskRes, occRes, courseRes, timetableRes] = await Promise.all([
           api.get<CalendarEvent[]>(`/api/calendar?from=${range.from}&to=${range.to}`),
           api.get<Task[]>(`/api/tasks?filter=all&from=${range.fromYmd}&to=${range.toYmd}`),
           api.get<TaskOccurrencesResponse[]>(`/api/tasks/occurrences?from=${range.fromYmd}&to=${range.toYmd}`),
           api.get<Course[]>("/api/courses"),
+          // Resolved server-side, so holidays, exams and rescheduled classes
+          // land here exactly as the timetable and the day model show them.
+          api.get<TimetableOccurrence[]>(`/api/timetable/occurrences?from=${range.fromYmd}&to=${range.toYmd}`),
         ]);
         if ("ok" in evRes && evRes.ok) setEvents(evRes.data);
         if ("ok" in taskRes && taskRes.ok) setTasks(taskRes.data);
         if ("ok" in occRes && occRes.ok) setRecurringOccurrences(occRes.data);
         if ("ok" in courseRes && courseRes.ok) setCourses(courseRes.data);
+        if ("ok" in timetableRes && timetableRes.ok) setTimetable(timetableRes.data);
       } catch {
         setEvents([]);
       }
@@ -200,27 +223,22 @@ export default function CalendarPage() {
       }
     }
 
-    // Classes from course timetables — expanded across the visible window
-    for (const c of courses) {
-      for (const slot of c.schedule) {
-        let d = new Date(range.fromYmd + "T12:00:00");
-        const end = new Date(range.toYmd + "T12:00:00");
-        while (d <= end) {
-          if (d.getDay() === slot.dayOfWeek) {
-            list.push({
-              key: `class-${c.id}-${slot.dayOfWeek}-${slot.startTime}-${ymd(d)}`,
-              kind: "class",
-              title: c.name,
-              date: ymd(d),
-              startTime: slot.startTime,
-              endTime: slot.endTime,
-              color: courseColor(c.id),
-              course: c,
-            });
-          }
-          d = addDays(d, 1);
-        }
-      }
+    // Timetable items, already resolved with this month's holidays, exams and
+    // rescheduled classes applied.
+    for (const o of timetable) {
+      if (!o.happens) continue;
+      const allDay = o.type === "HOLIDAY" || o.startTime === "00:00";
+      list.push({
+        key: `tt-${o.key}-${o.date}`,
+        kind: isCommitment(o.type) ? "class" : "event",
+        title: o.courseName,
+        date: o.date,
+        startTime: allDay ? null : o.startTime,
+        endTime: allDay ? null : o.endTime,
+        color: isCommitment(o.type) && o.courseId ? courseColor(o.courseId) : TIMETABLE_KIND_COLOR[o.type],
+        timetableType: o.type,
+        course: courses.find((c) => c.id === o.courseId),
+      });
     }
 
     return list.sort((a, b) => {
@@ -229,7 +247,7 @@ export default function CalendarPage() {
       if (ta !== tb) return ta < tb ? -1 : 1;
       return a.title.localeCompare(b.title);
     });
-  }, [events, tasks, recurringOccurrences, courses, range]);
+  }, [events, tasks, recurringOccurrences, courses, timetable, range]);
 
   const filtered = useMemo(() => (filter === "all" ? items : items.filter((i) => i.kind === filter)), [items, filter]);
 
@@ -270,24 +288,47 @@ export default function CalendarPage() {
     ({ item }: { item: CalItem }) => {
       const time = item.startTime ? `${item.startTime}${item.endTime ? `–${item.endTime}` : ""}` : "All day";
       if (item.kind === "event") {
-        return (
-          <button
-            onClick={(ev) => { ev.stopPropagation(); if (item.event) { setEditingEvt(item.event); setFormErr(null); setShowForm(true); } }}
-            className="block w-full truncate rounded px-1.5 py-0.5 text-left text-[11px] font-medium text-[#0b0e14] transition-transform hover:scale-[1.02]"
-            style={{ backgroundColor: item.color }}
-          >
-            {item.startTime ? `${time} ` : ""}{item.title}
-          </button>
-        );
+        // A timetable item that is not a class (an exam, a holiday) is read-only
+        // here: it has no event row behind it, so the editor must not open.
+        const readOnly = item.timetableType !== undefined;
+          const label = (
+            <>
+              {item.timetableType && <span className="mr-1 opacity-60">{SLOT_KIND_META[item.timetableType].mark}</span>}
+              {item.startTime ? `${time} ` : ""}{item.title}
+            </>
+          );
+          if (readOnly) {
+            return (
+              <div
+                className="block w-full truncate rounded px-1.5 py-0.5 text-left text-[11px] font-medium text-[#0b0e14]"
+                style={{ backgroundColor: item.color }}
+                title={`${item.title} · ${SLOT_KIND_META[item.timetableType!].label}${item.startTime ? ` · ${time}` : ""}`}
+              >
+                {label}
+              </div>
+            );
+          }
+          return (
+            <button
+              onClick={(ev) => { ev.stopPropagation(); if (item.event) { setEditingEvt(item.event); setFormErr(null); setShowForm(true); } }}
+              className="block w-full truncate rounded px-1.5 py-0.5 text-left text-[11px] font-medium text-[#0b0e14] transition-transform hover:scale-[1.02]"
+              style={{ backgroundColor: item.color }}
+            >
+              {label}
+            </button>
+          );
       }
       if (item.kind === "class") {
         return (
           <div
             className="block w-full truncate rounded-r-md border-l-2 px-1.5 py-0.5 text-[11px] font-medium text-text"
             style={{ borderColor: item.color, backgroundColor: `${item.color}22` }}
-            title={`${item.title} class · ${time}`}
+            title={`${item.title} · ${time}`}
           >
-            {time} {item.title}
+            {item.timetableType && item.timetableType !== "CLASS" && (
+              <span className="mr-1 opacity-60">{SLOT_KIND_META[item.timetableType].mark}</span>
+            )}
+            {item.startTime ? `${time} ` : ""}{item.title}
           </div>
         );
       }

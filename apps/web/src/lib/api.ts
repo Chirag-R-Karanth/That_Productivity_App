@@ -9,12 +9,23 @@ export const API_BASE = (process.env.NEXT_PUBLIC_API_URL ?? "").trim();
 let authToken: string | null =
   typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
+const authTokenListeners = new Set<() => void>();
+
+/** Lets React read the token as an external store, so sign-in/sign-out re-renders. */
+export function subscribeAuthToken(onChange: () => void) {
+  authTokenListeners.add(onChange);
+  return () => {
+    authTokenListeners.delete(onChange);
+  };
+}
+
 export function setAuthToken(token: string | null) {
   authToken = token;
   if (typeof window !== "undefined") {
     if (token) localStorage.setItem("token", token);
     else localStorage.removeItem("token");
   }
+  for (const listener of authTokenListeners) listener();
 }
 
 export function getAuthToken(): string | null {
@@ -24,6 +35,23 @@ export function getAuthToken(): string | null {
 const MUTATING = ["POST", "PUT", "PATCH", "DELETE"];
 const REQUEST_TIMEOUT_MS = 10_000;
 
+/**
+ * The browser's own IANA zone, sent on every request.
+ *
+ * The server decides which day it is from this rather than from its own clock.
+ * Without it, a user in Asia/Kolkata would be told it is still yesterday for
+ * the first few hours of their morning, and any task reserved for "today" would
+ * be filed under the wrong date. Resolved lazily because the server renders too.
+ */
+function browserTimezone(): string | null {
+  if (typeof window === "undefined") return null;
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || null;
+  } catch {
+    return null;
+  }
+}
+
 async function request<T>(
   method: string,
   path: string,
@@ -32,6 +60,8 @@ async function request<T>(
   const headers: Record<string, string> = {};
   if (body !== undefined) headers["Content-Type"] = "application/json";
   if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+  const tz = browserTimezone();
+  if (tz) headers["X-Timezone"] = tz;
 
   // A per-request idempotency key lets offline replays avoid double-applying.
   const idempotencyKey = ["POST", "PUT", "PATCH"].includes(method) ? crypto.randomUUID() : undefined;
@@ -110,6 +140,8 @@ export const api = {
     };
     if (action.body !== undefined) headers["Content-Type"] = "application/json";
     if (authToken) headers["Authorization"] = `Bearer ${authToken}`;
+    const tz = browserTimezone();
+    if (tz) headers["X-Timezone"] = tz;
 
     const res = await fetch(`${API_BASE}${action.path}`, {
       method: action.method,

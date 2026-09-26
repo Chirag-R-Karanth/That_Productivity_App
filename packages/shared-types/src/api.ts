@@ -15,6 +15,8 @@ import type {
 } from './attendance';
 import type { CalendarDay, LinkedCalendar, SyncCalendarResult } from './calendar';
 import type { FocusTimeSummary, PomodoroSession, StartPomodoroRequest } from './pomodoro';
+import type { DayModel, Displacement, Capacity } from './day';
+import type { ReviewReport } from './review';
 
 /**
  * Single API contract shared by the web PWA and the Android app.
@@ -61,8 +63,19 @@ export interface ProductivityApi {
   pomodoro: {
     list(from: string, to: string): Promise<PomodoroSession[]>;
     start(req: StartPomodoroRequest): Promise<PomodoroSession>;
-    end(id: string, completed: boolean): Promise<PomodoroSession>;
+    end(id: string, completed: boolean, actualMinutes?: number): Promise<PomodoroSession>;
     focusSummary(from: string, to: string): Promise<FocusTimeSummary>;
+  };
+  day: {
+    /** Merged timeline + honest capacity for one day. */
+    model(date?: string): Promise<DayModel>;
+    /** What no longer fits, and where it could go. Advisory only. */
+    displacement(date: string): Promise<{ date: string; displacements: Displacement[] }>;
+    /** The awake window and transition buffer behind every verdict. */
+    capacity(patch: Partial<Capacity>): Promise<Capacity>;
+  };
+  review: {
+    report(period: 'day' | 'week', date?: string): Promise<ReviewReport>;
   };
 }
 

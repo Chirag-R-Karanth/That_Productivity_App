@@ -1,0 +1,17 @@
+{
+  "file": "/home/neo_phantom_byte/Documents/That_Productivity_App/deploy/backups/productivity-2026-09-25T18-26-43-157Z.sql",
+  "createdAt": "2026-09-25T18:26:43.594Z",
+  "viaContainer": true,
+  "tables": {
+    "users": 1,
+    "tasks": 2,
+    "courses": 7,
+    "attendance_records": 9,
+    "calendar_events": 0,
+    "pomodoro_sessions": 15,
+    "linked_google_calendars": 0,
+    "PendingSync": 77
+  },
+  "sha256": "793aa1e660e503c2be5f8f97089c03b750ba519894e97264dcef338a1cf4130d",
+  "bytes": 50434
+}

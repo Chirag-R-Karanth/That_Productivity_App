@@ -7,7 +7,8 @@ import { requireAuth } from "../middleware/auth.js";
 import { ApiError } from "../lib/errors.js";
 import { env } from "../lib/env.js";
 import { Prisma } from "../generated/prisma/client.js";
-import { EventType } from "../generated/prisma/enums.js";
+import { EventType, type TimetableEntryKind } from "../generated/prisma/enums.js";
+import { TIMETABLE_ENTRY_KINDS, isTimetableEntryKind } from "../lib/timetableKinds.js";
 
 const router: RouterType = Router();
 router.use(requireAuth);
@@ -46,7 +47,7 @@ function snapshotsDir(): string {
 const iso = (d: Date | null): string | null => (d ? d.toISOString() : null);
 
 async function collectSnapshot(userId: string) {
-  const [user, tasks, courses, attendance, calendarEvents, linkedCalendars, pomodoro, pendingSyncRows, events] =
+  const [user, tasks, courses, attendance, calendarEvents, linkedCalendars, pomodoro, pendingSyncRows, events, timetableEntries] =
     await Promise.all([
       prisma.user.findUnique({ where: { id: userId } }),
       prisma.task.findMany({ where: { userId } }),
@@ -57,6 +58,7 @@ async function collectSnapshot(userId: string) {
       prisma.pomodoroSession.findMany({ where: { userId } }),
       prisma.pendingSync.findMany({ where: { userId }, orderBy: { createdAt: "asc" } }),
       prisma.event.findMany({ where: { userId }, orderBy: { occurredAt: "asc" } }),
+      prisma.timetableEntry.findMany({ where: { userId }, orderBy: [{ date: "asc" }, { startTime: "asc" }] }),
     ]);
   if (!user) throw ApiError.notFound("User not found");
 
@@ -86,6 +88,12 @@ async function collectSnapshot(userId: string) {
       ...c,
       createdAt: c.createdAt.toISOString(),
       updatedAt: c.updatedAt.toISOString(),
+    })),
+    // Dated timetable exceptions travel with the courses they qualify.
+    timetableEntries: timetableEntries.map((e) => ({
+      ...e,
+      createdAt: e.createdAt.toISOString(),
+      updatedAt: e.updatedAt.toISOString(),
     })),
     attendanceRecords: attendance.map((a) => ({
       ...a,
@@ -258,6 +266,22 @@ function validSlot(s: unknown): s is Slot {
 }
 
 interface NormalizedSnapshot {
+  /**
+   * Optional: snapshots taken before timetable entries existed have none, and
+   * must still restore cleanly.
+   */
+  timetableEntries?: Array<{
+    id: string;
+    courseId: string | null;
+    title: string;
+    kind: TimetableEntryKind;
+    date: string;
+    startTime: string | null;
+    endTime: string | null;
+    location: string | null;
+    notes: string | null;
+    replacesSlot: unknown;
+  }>;
   courses: Array<{
     id: string;
     name: string;
@@ -360,6 +384,58 @@ function normalizeSnapshot(body: unknown): NormalizedSnapshot {
   });
 
   const courseIds = new Set(courses.map((c) => c.id));
+
+  // Timetable entries are optional, and are validated on the way in rather than
+  // trusted: a `courseId` that is not in this snapshot would attach the entry to
+  // somebody else's course, and the timetable reads a course name back out of
+  // that link. An unknown kind is not fatal either, since this column is
+  // extended over time; it falls back to EVENT.
+  const timetableEntries: NormalizedSnapshot["timetableEntries"] = b.timetableEntries === undefined
+    ? undefined
+    : (Array.isArray(b.timetableEntries) ? b.timetableEntries : fail('"timetableEntries" must be an array.')).map((raw) => {
+        if (typeof raw !== "object" || raw === null) fail("Invalid timetable entry.");
+        const o = raw as Record<string, unknown>;
+        const id = strOrNull(o, "id", "timetableEntries") ?? fail('Timetable entry missing "id".');
+        const title = typeof o.title === "string" && o.title.length > 0
+          ? o.title
+          : fail(`Timetable entry "${id}" missing a title.`);
+        const date = strOrNull(o, "date", `timetable entry ${id}`);
+        if (date === null || !YMD.test(date)) fail(`Timetable entry "${id}" has an invalid date.`);
+        const kind = typeof o.kind === "string" && isTimetableEntryKind(o.kind) ? o.kind : "EVENT";
+        const startTime = strOrNull(o, "startTime", `timetable entry ${id}`);
+        const endTime = strOrNull(o, "endTime", `timetable entry ${id}`);
+        if (startTime !== null && !HM.test(startTime)) fail(`Timetable entry "${id}" has an invalid startTime.`);
+        if (endTime !== null && !HM.test(endTime)) fail(`Timetable entry "${id}" has an invalid endTime.`);
+        if (startTime !== null && endTime !== null && endTime <= startTime) {
+          fail(`Timetable entry "${id}" ends before it starts.`);
+        }
+        const courseId = strOrNull(o, "courseId", `timetable entry ${id}`);
+        if (courseId !== null && !courseIds.has(courseId)) {
+          fail(`Timetable entry "${id}" references unknown course "${courseId}".`);
+        }
+        let replacesSlot: { dayOfWeek: number; startTime: string; endTime: string } | null = null;
+        if (o.replacesSlot !== null && o.replacesSlot !== undefined) {
+          if (!validSlot(o.replacesSlot)) fail(`Timetable entry "${id}" has an invalid replacesSlot.`);
+          const r = o.replacesSlot as unknown as Record<string, unknown>;
+          replacesSlot = {
+            dayOfWeek: r.dayOfWeek as number,
+            startTime: r.startTime as string,
+            endTime: r.endTime as string,
+          };
+        }
+        return {
+          id,
+          courseId,
+          title,
+          kind,
+          date,
+          startTime,
+          endTime,
+          location: strOrNull(o, "location", `timetable entry ${id}`),
+          notes: strOrNull(o, "notes", `timetable entry ${id}`),
+          replacesSlot,
+        };
+      });
 
   const tasks: NormalizedSnapshot["tasks"] = arr("tasks").map((raw) => {
     if (typeof raw !== "object" || raw === null) fail("Invalid task entry.");
@@ -525,6 +601,8 @@ const now = new Date().toISOString();
     const ops = [
       prisma.attendanceRecord.deleteMany({ where: { userId } }),
       prisma.task.deleteMany({ where: { userId } }),
+      // Entries reference courses, so they go first or the FK blocks the wipe.
+      prisma.timetableEntry.deleteMany({ where: { userId } }),
       prisma.course.deleteMany({ where: { userId } }),
       prisma.event.deleteMany({ where: { userId } }),
       prisma.pendingSync.deleteMany({ where: { userId } }),
@@ -543,6 +621,27 @@ const now = new Date().toISOString();
             code: c.code,
             schedule: c.schedule as unknown as Prisma.InputJsonValue,
             attendanceThreshold: c.attendanceThreshold,
+            createdAt: now,
+            updatedAt: now,
+          })),
+        }),
+      );
+    }
+    if (data.timetableEntries?.length) {
+      ops.push(
+        prisma.timetableEntry.createMany({
+          data: data.timetableEntries.map((e) => ({
+            id: e.id,
+            userId,
+            courseId: e.courseId,
+            title: e.title,
+            kind: e.kind,
+            date: e.date,
+            startTime: e.startTime,
+            endTime: e.endTime,
+            location: e.location,
+            notes: e.notes,
+            replacesSlot: (e.replacesSlot ?? Prisma.JsonNull) as Prisma.InputJsonValue,
             createdAt: now,
             updatedAt: now,
           })),
@@ -613,20 +712,13 @@ const now = new Date().toISOString();
         }),
       );
     }
-    if (data.linkedGoogleCalendars.length) {
-      ops.push(
-        prisma.linkedGoogleCalendar.createMany({
-          data: data.linkedGoogleCalendars.map((l) => ({
-            id: l.id,
-            userId,
-            summary: l.summary,
-            backgroundColor: l.backgroundColor,
-            accessRole: l.accessRole,
-            isLinked: l.isLinked,
-          })),
-        }),
-      );
-    }
+    // Calendar links are deliberately NOT restored. A link now belongs to a
+    // Google account, and a snapshot carries no OAuth tokens, so there is
+    // nothing to attach one to. Re-creating the rows would produce calendars
+    // that can never sync and that block the `connectionId` foreign key. The
+    // user re-links their Google accounts and the calendars come back from
+    // Google; only the synced events themselves are restored above.
+    void data.linkedGoogleCalendars;
     if (data.pomodoroSessions.length) {
       ops.push(
         prisma.pomodoroSession.createMany({

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { animate } from "animejs";
 import type { CourseAttendanceSummary, TodayClass, AttendanceRecordWithCourse, AttendanceStatus } from "@prodapp/shared-types";
 import { api } from "@/lib/api";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
@@ -114,8 +113,12 @@ export default function AttendancePage() {
         <div className="space-y-3">
           <h2 className="text-sm font-medium uppercase tracking-wider text-text-muted">Today&apos;s classes</h2>
           {today.length === 0 && !loading && (
-            <div className="rounded-2xl border border-dashed border-border py-12 text-center">
-              <p className="text-sm text-text-muted">No classes scheduled today.</p>
+            <div className="rounded-2xl border border-dashed border-border px-6 py-12 text-center">
+              <p className="text-[14px] font-medium text-text">Nothing scheduled today.</p>
+              <p className="mx-auto mt-1.5 max-w-sm text-[12.5px] leading-relaxed text-text-muted">
+                No classes on the timetable for today, so there is no attendance to
+                confirm. Tomorrow&apos;s classes appear here once the day starts.
+              </p>
             </div>
           )}
           {today.map((tc) => {

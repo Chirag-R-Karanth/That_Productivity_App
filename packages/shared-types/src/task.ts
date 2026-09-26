@@ -15,6 +15,17 @@ export interface Task {
   notes: string | null;
   dueDate: string | null;
   dueTime: string | null;
+  /**
+   * The day this work is reserved for, as distinct from `dueDate` (the
+   * deadline). A plan can be light on a heavy day; a deadline cannot move.
+   */
+  plannedDate?: string | null;
+  /**
+   * Effort in minutes. Kept as a single integer rather than a T-shirt size,
+   * because only minutes can be compared against minutes of real capacity.
+   * Null means "not thought about", and is shown as such rather than guessed.
+   */
+  estimateMinutes?: number | null;
   completed: boolean;
   completedAt: string | null;
   createdAt: string;
@@ -41,6 +52,10 @@ export interface CreateTaskRequest {
   notes?: string | null;
   dueDate?: string | null;
   dueTime?: string | null;
+  /** Reserve this work for a specific day. */
+  plannedDate?: string | null;
+  /** Effort in minutes. */
+  estimateMinutes?: number | null;
   courseId?: string | null;
   /** iCalendar RRULE, e.g. "FREQ=WEEKLY;BYDAY=FR" */
   recurrenceRule?: string | null;
@@ -52,6 +67,8 @@ export interface UpdateTaskRequest {
   notes?: string | null;
   dueDate?: string | null;
   dueTime?: string | null;
+  plannedDate?: string | null;
+  estimateMinutes?: number | null;
   courseId?: string | null;
   recurrenceRule?: string | null;
   priority?: TaskPriority;

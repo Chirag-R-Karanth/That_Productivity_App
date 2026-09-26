@@ -1,24 +1,27 @@
 // Synthesized flip-clock sounds (no audio files needed). All timers are
 // created lazily from a user gesture; the Web Audio API requires that.
+import { readStored, writeStored } from "@/lib/storedPref";
+
 const KEY = "prodapp:sound";
 
 let ctx: AudioContext | null = null;
 let master: GainNode | null = null;
 
+export const SOUND_KEY = KEY;
+
+/** Stable parser for `useStoredPref`; sound is on unless explicitly "off". */
+export function parseSoundPref(raw: string | null): boolean {
+  return raw !== "off";
+}
+
 export function isSoundEnabled(): boolean {
-  try {
-    return localStorage.getItem(KEY) !== "off";
-  } catch {
-    return true;
-  }
+  return readStored(KEY, parseSoundPref, true);
 }
 
 export function setSoundEnabled(on: boolean) {
-  try {
-    localStorage.setItem(KEY, on ? "on" : "off");
-  } catch {
-    /* ignore */
-  }
+  // Routed through the store so every mounted `useStoredPref` subscriber
+  // updates, including the one in Zen.
+  writeStored(KEY, on ? "on" : "off");
   if (on) unlock();
 }
 
