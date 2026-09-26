@@ -11,6 +11,7 @@
 import cron from "node-cron";
 import { prisma } from "../lib/prisma.js";
 import { addDaysTz, dayKeyInTz, minutesOfDayInTz } from "../lib/tz.js";
+import { dismissAttendancePrompt } from "./attendanceNotifications.js";
 import {
   resolveDay,
   generatesAttendance,
@@ -79,6 +80,17 @@ async function usersWithCourses(): Promise<{ id: string; timezone: string | null
   });
 }
 
+/**
+ * Take down any prompt still asking about a record that has just been settled.
+ *
+ * Fire-and-forget on purpose: auto-mark runs over every user on a timer, and a
+ * phone that cannot be reached must not hold up — or roll back — the
+ * attendance write that has already been committed.
+ */
+function settle(recordId: string, userId: string): void {
+  void dismissAttendancePrompt(userId, recordId).catch(() => {});
+}
+
 export async function generateTodayAttendance(
   now: Date = new Date(),
   /** Restrict to one user. Used by the checks; the cron always passes none. */
@@ -96,10 +108,19 @@ export async function generateTodayAttendance(
     // Only records the user has not touched are adjusted.
     const notDue = allCourseIds.filter((id) => !dueCourseIds.includes(id));
     if (notDue.length > 0) {
-      await prisma.attendanceRecord.updateMany({
+      const withdrawn = await prisma.attendanceRecord.updateMany({
         where: { courseId: { in: notDue }, date, status: "UNCONFIRMED" },
         data: { status: "CANCELLED", confirmedAt: now },
       });
+      if (withdrawn.count > 0) {
+        // A prompt may already be sitting in a tray for a class that turned out
+        // not to happen. It is now answering a question nobody needs answered.
+        const cancelled = await prisma.attendanceRecord.findMany({
+          where: { userId: user.id, date, status: "CANCELLED", confirmedAt: now },
+          select: { id: true },
+        });
+        for (const record of cancelled) settle(record.id, user.id);
+      }
     }
 
     for (const courseId of dueCourseIds) {
@@ -198,6 +219,7 @@ export async function autoMarkStaleRecords(
             where: { id: record.id },
             data: { status: "CANCELLED", confirmedAt: now },
           });
+          settle(record.id, user.id);
           marked++;
           continue;
         }
@@ -209,6 +231,7 @@ export async function autoMarkStaleRecords(
         where: { id: record.id },
         data: { status: "ATTENDED", confirmedAt: now },
       });
+      settle(record.id, user.id);
       marked++;
     }
   }

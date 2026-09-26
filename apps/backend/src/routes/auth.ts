@@ -41,6 +41,10 @@ const updateUserSchema = z.object({
   chimeOnTheHour: z.boolean().optional(),
   fcmToken: z.string().nullable().optional(),
   onboardingComplete: z.boolean().optional(),
+  notifyAttendance: z.boolean().optional(),
+  notifyCalendar: z.boolean().optional(),
+  notifyTasks: z.boolean().optional(),
+  notifyFocus: z.boolean().optional(),
 });
 
 function toPublicUser(user: {
@@ -113,6 +117,10 @@ router.get("/me", requireAuth, async (req, res, next) => {
         pomodoroSessionsPerCycle: user.pomodoroSessionsPerCycle,
         chimeOnTheHour: user.chimeOnTheHour,
         onboardingComplete: user.onboardingComplete,
+        notifyAttendance: user.notifyAttendance,
+        notifyCalendar: user.notifyCalendar,
+        notifyTasks: user.notifyTasks,
+        notifyFocus: user.notifyFocus,
         googleCalendarLinked: user.googleRefreshToken != null,
       },
     });
@@ -137,6 +145,10 @@ router.patch("/me", requireAuth, async (req, res, next) => {
         chimeOnTheHour: body.chimeOnTheHour,
         fcmToken: body.fcmToken,
         onboardingComplete: body.onboardingComplete,
+        notifyAttendance: body.notifyAttendance,
+        notifyCalendar: body.notifyCalendar,
+        notifyTasks: body.notifyTasks,
+        notifyFocus: body.notifyFocus,
       },
     });
 

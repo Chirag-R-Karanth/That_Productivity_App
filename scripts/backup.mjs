@@ -8,9 +8,16 @@
  *                                             the row-count snapshot recorded at backup time
  *   node scripts/backup.mjs list              list existing backups
  *
- * The database runs in the `productivity-db` docker container; this script prefers
+ * The database the deployed app uses runs in a docker container; this script prefers
  * `docker exec`, falling back to host `pg_dump`/`psql` when the container is absent.
  * No third-party dependencies. Connection settings come from the root `.env`.
+ *
+ * Which database is production is NOT something to guess: this repo has had two
+ * postgres containers up at once, one of them the deployed app's and one a dev
+ * copy, and a silent fallback to the dev copy produces a backup, a row-count
+ * snapshot and a green "IDENTICAL" that all describe the wrong data. So the
+ * container is resolved explicitly, the resolved target is printed on every run,
+ * and `DB_CONTAINER` overrides it.
  *
  * Data safety: a backup is a full SQL dump (plain format) plus a `.meta.json`
  * sidecar recording per-table row counts and a SHA-256 of the dump. `verify` diffs the
@@ -24,7 +31,13 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = dirname(dirname(fileURLToPath(import.meta.url)));
 const BACKUP_DIR = join(ROOT, "deploy", "backups");
-const CONTAINER = "productivity-db";
+
+/**
+ * Containers this app's database has lived in, most-current first. The first
+ * one that is actually running wins, so a renamed or re-created container does
+ * not need a code change — but an explicit `DB_CONTAINER` still beats both.
+ */
+const KNOWN_CONTAINERS = ["prodapp-postgres-1", "productivity-db"];
 
 // ---------------------------------------------------------------------------
 // Environment
@@ -69,13 +82,46 @@ const PGPASSWORD_ENV = (pass) => ({ ...process.env, PGPASSWORD: pass });
 // Docker detection
 // ---------------------------------------------------------------------------
 
-async function containerRunning() {
+let cachedContainer;
+
+/**
+ * Which container holds the database to back up, or null to use host tools.
+ *
+ * Resolved once and printed, because "which database did that actually capture"
+ * is the one question a backup cannot answer from its own output otherwise.
+ */
+async function resolveContainer() {
+  if (cachedContainer !== undefined) return cachedContainer;
+  const forced = process.env.DB_CONTAINER;
+  let running = [];
   try {
     const out = await execCapture("docker", ["ps", "--format", "{{.Names}}"], {});
-    return out.split("\n").includes(CONTAINER);
+    running = out.split("\n").map((l) => l.trim()).filter(Boolean);
   } catch {
-    return false;
+    running = [];
   }
+  if (forced) {
+    if (!running.includes(forced)) {
+      throw new Error(
+        `DB_CONTAINER=${forced} is not running. Set it to a container that is up, ` +
+          `or unset it to fall back to the host tools in .env.`,
+      );
+    }
+    cachedContainer = forced;
+  } else {
+    cachedContainer = KNOWN_CONTAINERS.find((name) => running.includes(name)) ?? null;
+  }
+  return cachedContainer;
+}
+
+/** A one-line description of the database this run will touch. */
+function describeTarget(conn, container) {
+  return container
+    ? `container ${container} database ${conn.db}`
+    : `host ${conn.host}:${conn.port} database ${conn.db} (from DATABASE_URL)`
+      + `\nwarning: no known database container is running, so this fell back to the`
+      + `\n         host connection in .env. If that is not the deployed database,`
+      + `         this backup describes the wrong data.`;
 }
 
 // ---------------------------------------------------------------------------
@@ -127,6 +173,7 @@ const TABLES = [
   ["pomodoro_sessions", "pomodoro_sessions"],
   ["linked_google_calendars", "linked_google_calendars"],
   ["PendingSync", '"PendingSync"'],
+  ["push_subscriptions", "push_subscriptions"],
 ];
 
 function countQuery() {
@@ -158,15 +205,15 @@ function timestamp() {
 // Commands
 // ---------------------------------------------------------------------------
 
-async function pgDumpArgs(conn, viaContainer) {
-  if (viaContainer) {
+async function pgDumpArgs(conn, container) {
+  if (container) {
     return {
       cmd: "docker",
       args: [
         "exec",
         "-e",
         `PGPASSWORD=${conn.password}`,
-        CONTAINER,
+        container,
         "pg_dump",
         "-U",
         conn.user,
@@ -192,12 +239,12 @@ async function pgDumpArgs(conn, viaContainer) {
   };
 }
 
-async function psqlArgs(conn, sql, viaContainer) {
-  if (viaContainer) {
+async function psqlArgs(conn, sql, container) {
+  if (container) {
     return {
       cmd: "docker",
       args: [
-        "exec", "-e", `PGPASSWORD=${conn.password}`, CONTAINER,
+        "exec", "-e", `PGPASSWORD=${conn.password}`, container,
         "psql", "-U", conn.user, "-d", conn.db, "-t", "-A", "-F|", "-c", sql,
       ],
       env: {},
@@ -216,13 +263,13 @@ async function psqlArgs(conn, sql, viaContainer) {
   };
 }
 
-async function currentCounts(conn, viaContainer) {
-  const { cmd, args, env } = await psqlArgs(conn, countQuery(), viaContainer);
+async function currentCounts(conn, container) {
+  const { cmd, args, env } = await psqlArgs(conn, countQuery(), container);
   const out = await execCapture(cmd, args, env);
   return parseCounts(out);
 }
 
-async function backup(conn, viaContainer) {
+async function backup(conn, container) {
   const stamp = timestamp();
   const file = join(BACKUP_DIR, `productivity-${stamp}.sql`);
   if (!existsSync(BACKUP_DIR)) {
@@ -230,15 +277,15 @@ async function backup(conn, viaContainer) {
     mkdirSync(BACKUP_DIR, { recursive: true });
   }
 
-  const { cmd, args, env } = await pgDumpArgs(conn, viaContainer);
+  const { cmd, args, env } = await pgDumpArgs(conn, container);
   const dump = await execCapture(cmd, args, env);
   writeFileSync(file, dump, "utf8");
 
-  const counts = await currentCounts(conn, viaContainer);
+  const counts = await currentCounts(conn, container);
   const meta = {
     file: file,
     createdAt: new Date().toISOString(),
-    viaContainer,
+    container,
     tables: counts,
     sha256: sha256(file),
     bytes: Buffer.byteLength(dump, "utf8"),
@@ -251,7 +298,7 @@ async function backup(conn, viaContainer) {
   return meta;
 }
 
-async function verify(conn, viaContainer, target) {
+async function verify(conn, container, target) {
   const candidates = readdirSync(BACKUP_DIR)
     .filter((f) => f.endsWith(".sql"))
     .sort()
@@ -266,10 +313,27 @@ async function verify(conn, viaContainer, target) {
   }
   const meta = JSON.parse(readFileSync(metaPath, "utf8"));
 
+  // Comparing a snapshot taken of one database against another one is the exact
+  // failure this script exists to prevent, and it produces a confident "no
+  // differences" when it happens. The dump itself records which container it
+  // came from, so the two can be required to match.
+  const tookIn = meta.container ?? (meta.viaContainer ? "productivity-db" : null);
+  if ((tookIn ?? null) !== (container ?? null)) {
+    throw new Error(
+      [
+        `refusing to verify: this snapshot was taken of ${tookIn ? `container ${tookIn}` : "a host connection"},`,
+        `but this run is pointed at ${container ? `container ${container}` : "a host connection"}.`,
+        "Those are different databases, so every row count below would be meaningless.",
+        "Either point at the right one (DB_CONTAINER=...) or verify the other file by path:",
+        "  node scripts/backup.mjs verify deploy/backups/<file>.sql",
+      ].join("\n"),
+    );
+  }
+
   const size = statSync(file).size;
   const hash = sha256(file);
   const integrityOk = hash === meta.sha256;
-  const counts = await currentCounts(conn, viaContainer);
+  const counts = await currentCounts(conn, container);
 
   const changed = {};
   for (const key of Object.keys({ ...meta.tables, ...counts })) {
@@ -324,13 +388,16 @@ async function main() {
   }
 
   const conn = dbConnection();
-  const viaContainer = await containerRunning();
+  const container = await resolveContainer();
+  // Printed before anything else happens, and printed on every command, so a
+  // backup or a verify can never be mistaken for one about the other database.
+  process.stdout.write(`target: ${describeTarget(conn, container)}\n`);
 
   try {
     if (cmd === "backup") {
-      await backup(conn, viaContainer);
+      await backup(conn, container);
     } else if (cmd === "verify") {
-      const { integrityOk, changed } = await verify(conn, viaContainer, arg);
+      const { integrityOk, changed } = await verify(conn, container, arg);
       if (!integrityOk || Object.keys(changed).length > 0) process.exitCode = 1;
     } else {
       process.stdout.write(`unknown command: ${cmd}\n`);

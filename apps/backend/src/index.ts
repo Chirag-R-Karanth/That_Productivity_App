@@ -12,8 +12,10 @@ import eventsRouter from "./routes/events.js";
 import dayRouter from "./routes/day.js";
 import reviewRouter from "./routes/review.js";
 import timetableRouter from "./routes/timetable.js";
+import notificationsRouter from "./routes/notifications.js";
 import { notFound, errorHandler } from "./middleware/errorHandler.js";
 import { startAttendanceCron, generateCatchUp } from "./services/attendanceCron.js";
+import { startNotificationCron } from "./services/notificationCron.js";
 
 const app = express();
 
@@ -37,6 +39,7 @@ app.use("/api/events", eventsRouter);
 app.use("/api/day", dayRouter);
 app.use("/api/review", reviewRouter);
 app.use("/api/timetable", timetableRouter);
+app.use("/api/notifications", notificationsRouter);
 
 app.use(notFound);
 app.use(errorHandler);
@@ -46,5 +49,6 @@ app.listen(env.port, () => {
 
   // Attendance cron jobs
   startAttendanceCron();
+  startNotificationCron();
   void generateCatchUp();
 });
