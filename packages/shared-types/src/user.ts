@@ -30,6 +30,11 @@ export interface UserCredentials {
   dayStartMinutes: number | null;
   dayEndMinutes: number | null;
   bufferMinutes: number | null;
+  /** Per-type notification switches. See NotificationPreferences. */
+  notifyAttendance: boolean;
+  notifyCalendar: boolean;
+  notifyTasks: boolean;
+  notifyFocus: boolean;
 }
 
 export interface AuthResponse {
@@ -58,6 +63,10 @@ export interface UpdateUserRequest {
   /** Endpoint only — client sends the new FCM token. */
   fcmToken?: string | null;
   onboardingComplete?: boolean;
+  notifyAttendance?: boolean;
+  notifyCalendar?: boolean;
+  notifyTasks?: boolean;
+  notifyFocus?: boolean;
 }
 
 export interface AttendanceSettings {

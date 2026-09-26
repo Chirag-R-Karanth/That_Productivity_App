@@ -49,23 +49,62 @@ function summarize(type: string, payload: Payload): string {
   return title ? `${label}: ${title}` : label;
 }
 
-// Recent activity feed (newest first). Powers the desktop notification bell.
+/**
+ * Where an event happened, so the bell can link to the thing rather than only
+ * report that it occurred. Anything unrecognised lands on Today, which is the
+ * one page guaranteed to be a sensible place to arrive.
+ */
+function linkFor(type: string): string {
+  if (type.startsWith("ATTENDANCE")) return "/attendance";
+  if (type.startsWith("FOCUS")) return "/zen";
+  if (type.startsWith("TASK")) return "/tasks";
+  if (type.startsWith("CALENDAR") || type.startsWith("CLASS")) return "/calendar";
+  return "/";
+}
+
+// The notification feed behind the desktop bell.
+//
+// Two kinds of thing, because they want different things from a reader. An
+// attendance record nobody has answered is still actionable and is therefore
+// listed first, whatever its date; the event log behind it is history, and is
+// only worth showing in order.
 router.get("/", requireAuth, async (req, res, next) => {
   try {
-    const events = await prisma.event.findMany({
-      where: { userId: req.user.id },
-      orderBy: { occurredAt: "desc" },
-      take: 50,
-    });
+    const [events, pending] = await Promise.all([
+      prisma.event.findMany({
+        where: { userId: req.user.id },
+        orderBy: { occurredAt: "desc" },
+        take: 50,
+      }),
+      // A day back, not a day forward: an unanswered record from yesterday is
+      // still unanswered, and hiding it behind a date boundary would quietly
+      // drop the one item the bell exists to nag about.
+      prisma.attendanceRecord.findMany({
+        where: { userId: req.user.id, status: "UNCONFIRMED" },
+        include: { course: { select: { name: true } } },
+        orderBy: [{ date: "desc" }, { createdAt: "desc" }],
+        take: 20,
+      }),
+    ]);
 
     res.json({
       ok: true,
-      data: events.map((e) => ({
-        id: e.id,
-        type: e.type,
-        title: summarize(e.type, (e.payload ?? {}) as Payload),
-        occurredAt: e.occurredAt.toISOString(),
-      })),
+      data: {
+        events: events.map((e) => ({
+          id: e.id,
+          type: e.type,
+          title: summarize(e.type, (e.payload ?? {}) as Payload),
+          occurredAt: e.occurredAt.toISOString(),
+          url: linkFor(e.type),
+        })),
+        pendingAttendance: pending.map((r) => ({
+          recordId: r.id,
+          courseId: r.courseId,
+          courseName: r.course.name,
+          date: r.date,
+          prompted: r.attendancePromptedAt != null,
+        })),
+      },
     });
   } catch (err) {
     next(err);

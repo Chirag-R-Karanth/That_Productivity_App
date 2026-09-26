@@ -6,6 +6,7 @@ import { requireAuth } from "../middleware/auth.js";
 import { idempotency } from "../middleware/idempotency.js";
 import { ApiError } from "../lib/errors.js";
 import { recordEvent } from "../services/events.js";
+import { dismissAttendancePrompt } from "../services/attendanceNotifications.js";
 import { EventType } from "../generated/prisma/enums.js";
 import type { AttendanceRecord, AttendanceRecordWithCourse, TodayClass, AttendanceStatus } from "@prodapp/shared-types";
 import type { CourseScheduleSlot } from "@prodapp/shared-types";
@@ -235,6 +236,10 @@ router.patch("/:id/resolve", async (req, res, next) => {
       date: updated.date,
       status: updated.status,
     });
+    // The question has an answer now, so the notification asking it is taken
+    // back down. Deliberately after the write and not awaited into it: a phone
+    // that cannot be reached must not cost the user their attendance record.
+    void dismissAttendancePrompt(req.user.id, updated.id).catch(() => {});
   } catch (err) {
     next(err);
   }

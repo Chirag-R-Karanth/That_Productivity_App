@@ -100,3 +100,14 @@ export type PendingSync = Prisma.PendingSyncModel
  * 
  */
 export type Event = Prisma.EventModel
+/**
+ * Model PushSubscription
+ * A Web Push subscription belonging to one of our users.
+ * 
+ * Rows live on `User` rather than on a device record because the browser
+ * endpoint *is* the identity: it is unique per browser profile, survives a
+ * reload, and is the exact string a push service needs to be handed. Storing
+ * a key we could recompute instead would mean trusting our own copy of a
+ * secret the browser will not give us back.
+ */
+export type PushSubscription = Prisma.PushSubscriptionModel
