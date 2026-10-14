@@ -3,14 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { api } from "@/lib/api";
+import type { NotificationFeed } from "@prodapp/shared-types";
 import { BellIcon, CloseIcon } from "@/components/icons";
-
-interface EventItem {
-  id: string;
-  type: string;
-  title: string;
-  occurredAt: string;
-}
 
 const READ_KEY = "prodapp:events-read";
 
@@ -41,16 +35,18 @@ function timeAgo(iso: string): string {
   return `${d}d ago`;
 }
 
+const typeLabel = (type: string) => type.replace(/_/g, " ").toLowerCase();
+
 export function NotificationBell({ className }: { className?: string }) {
-  const [items, setItems] = useState<EventItem[]>([]);
+  const [feed, setFeed] = useState<NotificationFeed>({ events: [], pendingAttendance: [] });
   const [open, setOpen] = useState(false);
   const [read, setRead] = useState<Set<string>>(() => readIds());
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open) return;
-    void api.get<EventItem[]>("/api/events").then((res) => {
-      if ("ok" in res && res.ok) setItems(res.data);
+    void api.get<NotificationFeed>("/api/events").then((res) => {
+      if ("ok" in res && res.ok) setFeed(res.data);
     });
   }, [open]);
 
@@ -62,11 +58,16 @@ export function NotificationBell({ className }: { className?: string }) {
     return () => document.removeEventListener("mousedown", onDown);
   }, []);
 
-  const unread = items.filter((i) => !read.has(i.id)).length;
+  // An unanswered attendance record is the one item here that is still
+  // actionable, so it counts towards the badge whether or not it has been
+  // "read" before: reading about a question is not the same as answering it.
+  const unreadEvents = feed.events.filter((i) => !read.has(i.id)).length;
+  const unread = unreadEvents + feed.pendingAttendance.length;
+  const empty = feed.events.length === 0 && feed.pendingAttendance.length === 0;
 
   const markAllRead = () => {
     const next = new Set(read);
-    for (const i of items) next.add(i.id);
+    for (const i of feed.events) next.add(i.id);
     setRead(next);
     saveRead(next);
   };
@@ -76,6 +77,7 @@ export function NotificationBell({ className }: { className?: string }) {
       <button
         type="button"
         aria-label={`Notifications${unread ? ` (${unread} new)` : ""}`}
+        aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
         className="focus-ring relative flex h-9 w-9 items-center justify-center rounded-lg border border-border text-text-muted transition-colors hover:text-text"
       >
@@ -90,9 +92,9 @@ export function NotificationBell({ className }: { className?: string }) {
       {open && (
         <div className="absolute right-0 top-11 z-40 w-80 overflow-hidden rounded-xl border border-border bg-surface shadow-2xl">
           <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
-            <h3 className="text-sm font-medium text-text">Activity</h3>
+            <h3 className="text-sm font-medium text-text">Notifications</h3>
             <div className="flex items-center gap-1">
-              {items.length > 0 && (
+              {feed.events.length > 0 && (
                 <button
                   type="button"
                   onClick={markAllRead}
@@ -112,33 +114,73 @@ export function NotificationBell({ className }: { className?: string }) {
             </div>
           </div>
 
-          <div className="max-h-80 overflow-y-auto">
-            {items.length === 0 ? (
+          <div className="max-h-96 overflow-y-auto">
+            {empty ? (
               <p className="px-4 py-8 text-center text-sm text-text-muted">
-                No activity yet — your latest actions will appear here.
+                Nothing to report. A class you haven&apos;t marked will show up here, and so
+                will the focus sessions and tasks you finish.
               </p>
             ) : (
               <ul>
-                {items.map((i) => (
+                {feed.pendingAttendance.map((p) => (
+                  <li key={p.recordId} className="border-b border-border bg-accent-soft/30">
+                    <Link
+                      href={`/attendance?record=${p.recordId}`}
+                      onClick={() => setOpen(false)}
+                      className="block px-4 py-3 transition-colors hover:bg-surface-elevated"
+                    >
+                      <p className="text-sm text-text">
+                        Did you attend {p.courseName}?
+                      </p>
+                      <p className="mt-0.5 text-[11px] uppercase tracking-wider text-text-muted">
+                        {p.date} · waiting on your answer
+                      </p>
+                    </Link>
+                  </li>
+                ))}
+
+                {feed.events.map((i) => (
                   <li key={i.id} className="border-b border-border last:border-b-0">
-                    <div className={`px-4 py-3 ${read.has(i.id) ? "" : "bg-accent-soft/40"}`}>
+                    <Link
+                      href={i.url}
+                      onClick={() => {
+                        const next = new Set(read);
+                        next.add(i.id);
+                        setRead(next);
+                        saveRead(next);
+                        setOpen(false);
+                      }}
+                      className={`block px-4 py-3 transition-colors hover:bg-surface-elevated ${
+                        read.has(i.id) ? "" : "bg-accent-soft/40"
+                      }`}
+                    >
                       <p className="text-sm text-text">{i.title}</p>
                       <p className="mt-0.5 text-[11px] uppercase tracking-wider text-text-muted">
-                        {i.type.replace(/_/g, " ").toLowerCase()} · {timeAgo(i.occurredAt)}
+                        {typeLabel(i.type)} · {timeAgo(i.occurredAt)}
                       </p>
-                    </div>
+                    </Link>
                   </li>
                 ))}
               </ul>
             )}
           </div>
 
-          <Link
-            href="/settings?tab=data-sync"
-            className="block border-t border-border px-4 py-2.5 text-xs text-text-muted transition-colors hover:bg-surface-elevated hover:text-text"
-          >
-            Sync &amp; data settings
-          </Link>
+          <div className="flex border-t border-border">
+            <Link
+              href="/settings?tab=notifications"
+              onClick={() => setOpen(false)}
+              className="flex-1 px-4 py-2.5 text-xs text-text-muted transition-colors hover:bg-surface-elevated hover:text-text"
+            >
+              Notification settings
+            </Link>
+            <Link
+              href="/attendance"
+              onClick={() => setOpen(false)}
+              className="border-l border-border px-4 py-2.5 text-xs text-text-muted transition-colors hover:bg-surface-elevated hover:text-text"
+            >
+              Attendance
+            </Link>
+          </div>
         </div>
       )}
     </div>

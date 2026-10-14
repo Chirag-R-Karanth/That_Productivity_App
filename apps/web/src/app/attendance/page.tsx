@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { Suspense, useState, useEffect, useRef, useCallback } from "react";
+import { useSearchParams } from "next/navigation";
 import type { CourseAttendanceSummary, TodayClass, AttendanceRecordWithCourse, AttendanceStatus } from "@prodapp/shared-types";
 import { api } from "@/lib/api";
 import { AnimatedNumber } from "@/components/AnimatedNumber";
@@ -16,28 +17,80 @@ const STATUS_STYLES: Record<AttendanceStatus, { bg: string; text: string; label:
 
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
+/**
+ * `useSearchParams` opts a route out of static prerendering unless it sits
+ * behind a Suspense boundary, so the reading of it is confined to this child
+ * and the shell around it can still be prerendered.
+ */
 export default function AttendancePage() {
+  return (
+    <Suspense fallback={<AttendanceShell />}>
+      <AttendanceView />
+    </Suspense>
+  );
+}
+
+function AttendanceShell({ children }: { children?: React.ReactNode }) {
+  return (
+    <AppShell>
+      <div className="space-y-6">
+        <header>
+          <h1 className="text-2xl font-semibold tracking-tight">Attendance</h1>
+          <p className="mt-1 text-sm text-text-muted">Loading…</p>
+        </header>
+        {children}
+      </div>
+    </AppShell>
+  );
+}
+
+function AttendanceView() {
   const [summaries, setSummaries] = useState<CourseAttendanceSummary[]>([]);
   const [today, setToday] = useState<TodayClass[]>([]);
   const [history, setHistory] = useState<{ date: string; records: AttendanceRecordWithCourse[] }[]>([]);
-  const [tab, setTab] = useState<"today" | "history">("today");
   const [loading, setLoading] = useState(true);
   const gaugeRef = useRef<HTMLDivElement>(null);
+  const search = useSearchParams();
+  const deepLink = search.get("record");
+
+  const load = useCallback(async () => {
+    const [s, t, h] = await Promise.all([
+      api.get<CourseAttendanceSummary[]>("/api/courses/summaries"),
+      api.get<TodayClass[]>("/api/attendance/today"),
+      api.get<{ date: string; records: AttendanceRecordWithCourse[] }[]>("/api/attendance"),
+    ]);
+    if ("ok" in s && s.ok) setSummaries(s.data);
+    if ("ok" in t && t.ok) setToday(t.data);
+    if ("ok" in h && h.ok) setHistory(h.data);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { void load(); }, [load]);
+
+  /**
+   * A push notification or bell row links straight at the record it is about,
+   * which is frequently not one of today's classes — a prompt can outlive the
+   * class it came from. Landing on the Today tab with nothing highlighted would
+   * tell the user to go and look for something, which is the opposite of what
+   * they clicked for, so the link decides the tab until they pick another one.
+   */
+  const deepLinked = Boolean(
+    deepLink && history.some((d) => d.records.some((r) => r.id === deepLink)),
+  );
+  const [chosenTab, setChosenTab] = useState<"today" | "history" | null>(null);
+  const tab = chosenTab ?? (deepLinked ? "history" : "today");
+  const focused = deepLinked ? deepLink : null;
 
   useEffect(() => {
-    const run = async () => {
-      const [s, t, h] = await Promise.all([
-        api.get<CourseAttendanceSummary[]>("/api/courses/summaries"),
-        api.get<TodayClass[]>("/api/attendance/today"),
-        api.get<{ date: string; records: AttendanceRecordWithCourse[] }[]>("/api/attendance"),
-      ]);
-      if ("ok" in s && s.ok) setSummaries(s.data);
-      if ("ok" in t && t.ok) setToday(t.data);
-      if ("ok" in h && h.ok) setHistory(h.data);
-      setLoading(false);
-    };
-    void run();
-  }, []);
+    if (!deepLinked || !deepLink) return;
+    // Wait for the History tab to paint before scrolling to the row in it.
+    const raf = requestAnimationFrame(() => {
+      document
+        .querySelector(`[data-record-id="${deepLink}"]`)
+        ?.scrollIntoView({ block: "center", behavior: "smooth" });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [deepLinked, deepLink, history]);
 
   const resolveRecord = async (recordId: string, status: Exclude<AttendanceStatus, "UNCONFIRMED">) => {
     const res = await api.patch<{ ok?: boolean }>(`/api/attendance/${recordId}/resolve`, { status });
@@ -48,6 +101,19 @@ export default function AttendancePage() {
             ? { ...c, attendanceRecord: { ...c.attendanceRecord, status, confirmedAt: new Date().toISOString() } }
             : c,
         ),
+      );
+      // History is where a record answered from a notification usually is, so
+      // it has to be updated in place — otherwise the badge the user just
+      // cleared reappears on the next fetch.
+      setHistory((prev) =>
+        prev.map((d) => ({
+          ...d,
+          records: d.records.map((r) =>
+            r.id === recordId
+              ? { ...r, status, confirmedAt: new Date().toISOString() }
+              : r,
+          ),
+        })),
       );
       // Refresh summaries
       const s = await api.get<CourseAttendanceSummary[]>("/api/courses/summaries");
@@ -66,8 +132,8 @@ export default function AttendancePage() {
           </p>
         </div>
         <div className="flex gap-1 rounded-lg border border-border bg-surface p-1">
-          {(["today", "history"] as const).map((t) => (
-            <button key={t} onClick={() => setTab(t)}
+            {(["today", "history"] as const).map((t) => (
+              <button key={t} onClick={() => setChosenTab(t)}
               className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
                 tab === t ? "bg-surface-elevated text-text" : "text-text-muted hover:text-text"
               }`}>
@@ -175,11 +241,40 @@ export default function AttendancePage() {
                 {day.records.map((r) => {
                   const style = STATUS_STYLES[r.status];
                   return (
-                    <div key={r.id} className="flex items-center justify-between rounded-lg bg-surface px-4 py-2.5">
+                    <div
+                      key={r.id}
+                      data-record-id={r.id}
+                      className={`flex items-center justify-between gap-3 rounded-lg bg-surface px-4 py-2.5 transition-shadow ${
+                        focused === r.id ? "ring-1 ring-accent" : ""
+                      }`}
+                    >
                       <span className="text-sm text-text">{r.course.name}</span>
-                      <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${style.bg} ${style.text}`}>
-                        {style.label}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        <span className={`rounded-full px-2.5 py-1 text-[11px] font-medium ${style.bg} ${style.text}`}>
+                          {style.label}
+                        </span>
+                        {/* A record can still be unanswered here: the class was
+                            on a day that has already rolled over, and a prompt
+                            for it may have arrived after midnight. Answering must
+                            be possible wherever the record is shown, or the
+                            notification that links here is a dead end. */}
+                        {r.status === "UNCONFIRMED" && (
+                          <div className="flex gap-1">
+                            <button onClick={() => void resolveRecord(r.id, "ATTENDED")}
+                              className="rounded-lg bg-[#1a2e23] px-2.5 py-1 text-[11px] font-medium text-[#5ce09e] transition-colors hover:bg-[#253b2e]">
+                              Yes
+                            </button>
+                            <button onClick={() => void resolveRecord(r.id, "MISSED")}
+                              className="rounded-lg bg-[#3a1e24] px-2.5 py-1 text-[11px] font-medium text-[#f0a6a6] transition-colors hover:bg-[#4a2e34]">
+                              No
+                            </button>
+                            <button onClick={() => void resolveRecord(r.id, "CANCELLED")}
+                              className="rounded-lg bg-surface-elevated px-2.5 py-1 text-[11px] font-medium text-text-muted transition-colors hover:bg-border">
+                              Cancelled
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   );
                 })}

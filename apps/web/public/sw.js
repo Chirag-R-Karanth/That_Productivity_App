@@ -1,4 +1,4 @@
-const CACHE = "prodapp-shell-v3";
+const CACHE = "prodapp-shell-v4";
 const API_CACHE = "prodapp-api-v1";
 const ROUTES = [
   "/",
@@ -7,7 +7,7 @@ const ROUTES = [
   "/timetable",
   "/attendance",
   "/calendar",
-  "/pomodoro",
+  "/zen",
   "/settings",
   "/manifest.webmanifest",
 ];
@@ -80,9 +80,9 @@ self.addEventListener("fetch", (event) => {
 
 // Tell pages to replay their queued writes. The page owns the queue and its
 // replay dispatches a "sync-refresh" event for live UI updates.
-function notifyClients() {
+function notifyClients(type = "queue-flushed") {
   self.clients.matchAll({ includeUncontrolled: true }).then((clients) => {
-    clients.forEach((c) => c.postMessage({ type: "queue-flushed" }));
+    clients.forEach((c) => c.postMessage({ type }));
   });
 }
 
@@ -96,7 +96,13 @@ self.addEventListener("online", () => {
   notifyClients();
 });
 
-// ---- Push notifications (FCM web) ----
+// ---- Push notifications ----
+//
+// Payloads are the flat shape the backend sends: { title, body, url, tag,
+// requireInteraction, data }. A dismissal is a payload with an empty body and
+// type "attendance_dismiss" — there is no unsubscribe channel a push service
+// offers, so "take this notification down" has to be expressed as another push.
+
 self.addEventListener("push", (event) => {
   let data = { title: "ProdApp", body: "", url: "/" };
   try {
@@ -106,12 +112,37 @@ self.addEventListener("push", (event) => {
         title: payload.notification.title || data.title,
         body: payload.notification.body || data.body,
         url: payload.notification.url || payload.url || data.url,
+        tag: payload.notification.tag || payload.tag,
+        requireInteraction: !!payload.notification.requireInteraction,
+        type: payload.data?.type ?? payload.type,
+        recordId: payload.data?.recordId,
       };
     } else if (payload.title || payload.body) {
-      data = { title: payload.title, body: payload.body || "", url: payload.url || "/" };
+      data = {
+        title: payload.title,
+        body: payload.body || "",
+        url: payload.url || "/",
+        tag: payload.tag,
+        requireInteraction: !!payload.requireInteraction,
+        type: payload.data?.type ?? payload.type,
+        recordId: payload.data?.recordId,
+      };
     }
   } catch {
     data = { title: "ProdApp", body: event.data?.text() || "", url: "/" };
+  }
+
+  // A dismissal carries no body: close whatever is filed under the same tag and
+  // show nothing. The tag is what ties a prompt to the record it is about, so
+  // the OS tray is never left asking a question that has since been answered.
+  if (data.type === "attendance_dismiss" && data.tag) {
+    event.waitUntil(
+      self.registration
+        .getNotifications({ tag: data.tag })
+        .then((existing) => Promise.all(existing.map((n) => n.close())))
+        .catch(() => {}),
+    );
+    return;
   }
 
   event.waitUntil(
@@ -120,7 +151,13 @@ self.addEventListener("push", (event) => {
         body: data.body,
         icon: "/icon.png",
         badge: "/icon.png",
-        data: { url: data.url },
+        // Grouping and replacement both work off the tag. Without one, two
+        // prompts for the same class sit side by side as separate items.
+        tag: data.tag,
+        // Stays in the tray until answered. A prompt you have to answer is not
+        // one that should be missed because you looked away.
+        requireInteraction: !!data.requireInteraction,
+        data: { url: data.url, tag: data.tag, recordId: data.recordId, type: data.type },
       })
       .catch(() => {}),
   );
@@ -143,9 +180,11 @@ self.addEventListener("notificationclick", (event) => {
 });
 
 self.addEventListener("pushsubscriptionchange", (event) => {
-  // Re-subscribe handled by the page; notify it so it can register a new FCM
-  // token. Payload is speculative for FCM topics-based setup.
-  event.waitUntil(
-    notifyClients(),
-  );
+  // A browser drops and re-issues push subscriptions on its own schedule (a
+  // VAPID key rotation, a profile tidy-up) and will not tell us the new
+  // address — only that the old one is void. Re-subscribing needs the
+  // application server key and an authenticated POST, neither of which a
+  // service worker can do, so this hands the job back to the page instead of
+  // pretending to handle it.
+  event.waitUntil(notifyClients("push-invalidated"));
 });

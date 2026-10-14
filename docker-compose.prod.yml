@@ -29,6 +29,9 @@ services:
       # redirects). Required in prod — the localhost default is dev-only.
       WEB_APP_URL: ${WEB_APP_URL:?Set WEB_APP_URL in .env to the public origin, e.g. https://app.example.com}
       PORT: "4000"
+    # VAPID_*, GOOGLE_*, FCM_* and everything else come in through env_file.
+    # They are listed nowhere else on purpose: one source of truth for secrets
+    # is worth more than a visible list that can drift out of date.
     env_file: .env
     depends_on:
       postgres:

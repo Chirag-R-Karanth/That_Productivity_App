@@ -32,7 +32,16 @@ Status: `done`
       <!-- done: deploy/backups/audit-initial.json — 7 courses, timetable contract frozen -->
 - [x] Add `pnpm backup` (timestamped pg_dump → `deploy/backups/`) and `pnpm backup:verify`
       (row-count diff) scripts.
-      <!-- done: scripts/backup.mjs; verified end-to-end against the live DB -->
+      <!-- done: scripts/backup.mjs; verified end-to-end against the live DB.
+           Corrected 2026-09-26: the script resolved the database by a hardcoded
+           container name, so after the app moved to the `prodapp` compose project
+           it silently fell back to the host connection in .env and produced
+           backups, row-count snapshots and a green "IDENTICAL" for the *dev*
+           database while the deployed app was using another one. The container is
+           now resolved from a known list (DB_CONTAINER overrides), the resolved
+           target is printed on every run, the snapshot records which container it
+           came from, verify refuses to compare across two databases, and
+           push_subscriptions is in the count list. -->
 - [x] Document backup/restore in the README.
       <!-- done: "Backups (data safety)" section -->
 - [x] Fix hardcoded attendance-history year (`apps/web/src/app/attendance/page.tsx`).
@@ -245,14 +254,40 @@ Known limits: Tasks refresh tokens in unverified OAuth Testing mode expire after
 
 ## Phase 7 — Notifications
 
-Status: `pending`
+Status: `complete`
 
-- [ ] Attendance prompts via Web Push (VAPID + existing `/sw.js`).
-- [ ] Android FCM path wired (`fcm.ts` + `firebase-admin`), dedup via additive
+- [x] Attendance prompts via Web Push (VAPID + existing `/sw.js`). `PushSubscription` keyed on the
+      browser endpoint, so a reload or a re-subscribe updates one row instead of piling up dead
+      ones. Delivery reports 404/410/401/403 as gone and deletes the row; anything else is counted
+      and kept, because a phone that is merely offline should come back.
+- [x] Android FCM path wired (`fcm.ts` + `firebase-admin`), dedup via additive
       `attendancePromptedAt`, dismiss on resolve/auto-mark.
-- [ ] Per-type notification controls on the user (Attendance / Calendar / Tasks / Focus).
-- [ ] Desktop bell surfaces latest attendance/event/focus notifications.
-- [ ] Settings → Notifications functional; `.env.example`/compose gains `VAPID_*` + FCM vars.
+- [x] The prompt fires **after** the class ends, judged in the user's timezone and read through
+      the same timetable resolver as the grid — so a class moved by an exception or lost to a
+      holiday is never asked about, and a class still running is never asked about.
+- [x] The receipt is only written when a message was really accepted. A user with no subscribed
+      browser and no phone keeps the prompt owed rather than having it silently written off.
+- [x] Per-type notification controls on the user (Attendance / Calendar / Tasks / Focus).
+- [x] Desktop bell surfaces latest attendance/event/focus notifications, with unanswered
+      attendance first whatever its date, and a link straight to the record.
+- [x] Settings → Notifications functional; `.env.example`/compose gains `VAPID_*` + FCM vars.
+
+### What is and is not delivered
+
+Delivered over Web Push today: **attendance prompts only**, plus dismissal of a prompt once its
+question has an answer. The Calendar / Tasks / Focus switches are stored and returned by
+`/api/auth/me` and drive nothing yet — there is no dispatcher for those three, and the bell does
+not filter on them. They are the Phase 9 work, not a claim made here.
+
+Live: deployed and verified against the production API on `:8090` with a real VAPID keypair.
+`verify-push` (43) and `smoke-notifications` (27) both green; the attendance checks
+(`verify-attendance-cron`, 24) still pass. The send path is exercised end to end — a real
+VAPID-signed, encrypted POST — against a local stand-in push service, so a dead endpoint really is
+pruned, without a network or a browser.
+
+The one thing no script can check is a real browser showing a real notification, which needs
+notification permission granted by hand. Everything up to the service worker's `showNotification`
+is verified; that last hop is not.
 
 ## Phase 8 — Analytics
 

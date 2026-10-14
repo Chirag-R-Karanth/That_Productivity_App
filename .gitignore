@@ -10,3 +10,14 @@ android/.gradle/
 android/app/build/
 # server-side JSON snapshot backups (created via the Data & Sync page)
 **/snapshots/
+
+# Database dumps. `pnpm backup` writes here, and a dump is the entire database:
+# password hashes, timetable, attendance, calendar payloads and every linked
+# Google account's live access + refresh token. Committing one leaks all of it,
+# so the directory is local-only. Backups belong in this directory, not in git.
+deploy/backups/
+*.dump
+
+# Deliberately NOT a blanket `*.sql`: Prisma migration files are .sql and must
+# stay tracked, and a rule that swallowed them would only bite on the next
+# migration someone adds.

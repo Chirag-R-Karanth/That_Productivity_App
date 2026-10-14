@@ -61,7 +61,8 @@ export const ModelName = {
   LinkedGoogleCalendar: 'LinkedGoogleCalendar',
   PomodoroSession: 'PomodoroSession',
   PendingSync: 'PendingSync',
-  Event: 'Event'
+  Event: 'Event',
+  PushSubscription: 'PushSubscription'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -97,6 +98,10 @@ export const UserScalarFieldEnum = {
   pomodoroSessionsPerCycle: 'pomodoroSessionsPerCycle',
   chimeOnTheHour: 'chimeOnTheHour',
   onboardingComplete: 'onboardingComplete',
+  notifyAttendance: 'notifyAttendance',
+  notifyCalendar: 'notifyCalendar',
+  notifyTasks: 'notifyTasks',
+  notifyFocus: 'notifyFocus',
   dayStartMinutes: 'dayStartMinutes',
   dayEndMinutes: 'dayEndMinutes',
   bufferMinutes: 'bufferMinutes',
@@ -177,6 +182,7 @@ export const AttendanceRecordScalarFieldEnum = {
   date: 'date',
   status: 'status',
   confirmedAt: 'confirmedAt',
+  attendancePromptedAt: 'attendancePromptedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -282,6 +288,23 @@ export const EventScalarFieldEnum = {
 } as const
 
 export type EventScalarFieldEnum = (typeof EventScalarFieldEnum)[keyof typeof EventScalarFieldEnum]
+
+
+export const PushSubscriptionScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  userAgent: 'userAgent',
+  failureCount: 'failureCount',
+  lastError: 'lastError',
+  lastUsedAt: 'lastUsedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PushSubscriptionScalarFieldEnum = (typeof PushSubscriptionScalarFieldEnum)[keyof typeof PushSubscriptionScalarFieldEnum]
 
 
 export const SortOrder = {

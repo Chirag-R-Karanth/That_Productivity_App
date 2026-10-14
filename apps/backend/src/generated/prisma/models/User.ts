@@ -65,6 +65,10 @@ export type UserMinAggregateOutputType = {
   pomodoroSessionsPerCycle: number | null
   chimeOnTheHour: boolean | null
   onboardingComplete: boolean | null
+  notifyAttendance: boolean | null
+  notifyCalendar: boolean | null
+  notifyTasks: boolean | null
+  notifyFocus: boolean | null
   dayStartMinutes: number | null
   dayEndMinutes: number | null
   bufferMinutes: number | null
@@ -90,6 +94,10 @@ export type UserMaxAggregateOutputType = {
   pomodoroSessionsPerCycle: number | null
   chimeOnTheHour: boolean | null
   onboardingComplete: boolean | null
+  notifyAttendance: boolean | null
+  notifyCalendar: boolean | null
+  notifyTasks: boolean | null
+  notifyFocus: boolean | null
   dayStartMinutes: number | null
   dayEndMinutes: number | null
   bufferMinutes: number | null
@@ -115,6 +123,10 @@ export type UserCountAggregateOutputType = {
   pomodoroSessionsPerCycle: number
   chimeOnTheHour: number
   onboardingComplete: number
+  notifyAttendance: number
+  notifyCalendar: number
+  notifyTasks: number
+  notifyFocus: number
   dayStartMinutes: number
   dayEndMinutes: number
   bufferMinutes: number
@@ -164,6 +176,10 @@ export type UserMinAggregateInputType = {
   pomodoroSessionsPerCycle?: true
   chimeOnTheHour?: true
   onboardingComplete?: true
+  notifyAttendance?: true
+  notifyCalendar?: true
+  notifyTasks?: true
+  notifyFocus?: true
   dayStartMinutes?: true
   dayEndMinutes?: true
   bufferMinutes?: true
@@ -189,6 +205,10 @@ export type UserMaxAggregateInputType = {
   pomodoroSessionsPerCycle?: true
   chimeOnTheHour?: true
   onboardingComplete?: true
+  notifyAttendance?: true
+  notifyCalendar?: true
+  notifyTasks?: true
+  notifyFocus?: true
   dayStartMinutes?: true
   dayEndMinutes?: true
   bufferMinutes?: true
@@ -214,6 +234,10 @@ export type UserCountAggregateInputType = {
   pomodoroSessionsPerCycle?: true
   chimeOnTheHour?: true
   onboardingComplete?: true
+  notifyAttendance?: true
+  notifyCalendar?: true
+  notifyTasks?: true
+  notifyFocus?: true
   dayStartMinutes?: true
   dayEndMinutes?: true
   bufferMinutes?: true
@@ -326,6 +350,10 @@ export type UserGroupByOutputType = {
   pomodoroSessionsPerCycle: number | null
   chimeOnTheHour: boolean
   onboardingComplete: boolean
+  notifyAttendance: boolean
+  notifyCalendar: boolean
+  notifyTasks: boolean
+  notifyFocus: boolean
   dayStartMinutes: number | null
   dayEndMinutes: number | null
   bufferMinutes: number | null
@@ -374,6 +402,10 @@ export type UserWhereInput = {
   pomodoroSessionsPerCycle?: Prisma.IntNullableFilter<"User"> | number | null
   chimeOnTheHour?: Prisma.BoolFilter<"User"> | boolean
   onboardingComplete?: Prisma.BoolFilter<"User"> | boolean
+  notifyAttendance?: Prisma.BoolFilter<"User"> | boolean
+  notifyCalendar?: Prisma.BoolFilter<"User"> | boolean
+  notifyTasks?: Prisma.BoolFilter<"User"> | boolean
+  notifyFocus?: Prisma.BoolFilter<"User"> | boolean
   dayStartMinutes?: Prisma.IntNullableFilter<"User"> | number | null
   dayEndMinutes?: Prisma.IntNullableFilter<"User"> | number | null
   bufferMinutes?: Prisma.IntNullableFilter<"User"> | number | null
@@ -389,6 +421,7 @@ export type UserWhereInput = {
   googleConnections?: Prisma.GoogleConnectionListRelationFilter
   events?: Prisma.EventListRelationFilter
   timetableEntries?: Prisma.TimetableEntryListRelationFilter
+  pushSubscriptions?: Prisma.PushSubscriptionListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -408,6 +441,10 @@ export type UserOrderByWithRelationInput = {
   pomodoroSessionsPerCycle?: Prisma.SortOrderInput | Prisma.SortOrder
   chimeOnTheHour?: Prisma.SortOrder
   onboardingComplete?: Prisma.SortOrder
+  notifyAttendance?: Prisma.SortOrder
+  notifyCalendar?: Prisma.SortOrder
+  notifyTasks?: Prisma.SortOrder
+  notifyFocus?: Prisma.SortOrder
   dayStartMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   dayEndMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   bufferMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -423,6 +460,7 @@ export type UserOrderByWithRelationInput = {
   googleConnections?: Prisma.GoogleConnectionOrderByRelationAggregateInput
   events?: Prisma.EventOrderByRelationAggregateInput
   timetableEntries?: Prisma.TimetableEntryOrderByRelationAggregateInput
+  pushSubscriptions?: Prisma.PushSubscriptionOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -445,6 +483,10 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   pomodoroSessionsPerCycle?: Prisma.IntNullableFilter<"User"> | number | null
   chimeOnTheHour?: Prisma.BoolFilter<"User"> | boolean
   onboardingComplete?: Prisma.BoolFilter<"User"> | boolean
+  notifyAttendance?: Prisma.BoolFilter<"User"> | boolean
+  notifyCalendar?: Prisma.BoolFilter<"User"> | boolean
+  notifyTasks?: Prisma.BoolFilter<"User"> | boolean
+  notifyFocus?: Prisma.BoolFilter<"User"> | boolean
   dayStartMinutes?: Prisma.IntNullableFilter<"User"> | number | null
   dayEndMinutes?: Prisma.IntNullableFilter<"User"> | number | null
   bufferMinutes?: Prisma.IntNullableFilter<"User"> | number | null
@@ -460,6 +502,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   googleConnections?: Prisma.GoogleConnectionListRelationFilter
   events?: Prisma.EventListRelationFilter
   timetableEntries?: Prisma.TimetableEntryListRelationFilter
+  pushSubscriptions?: Prisma.PushSubscriptionListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -479,6 +522,10 @@ export type UserOrderByWithAggregationInput = {
   pomodoroSessionsPerCycle?: Prisma.SortOrderInput | Prisma.SortOrder
   chimeOnTheHour?: Prisma.SortOrder
   onboardingComplete?: Prisma.SortOrder
+  notifyAttendance?: Prisma.SortOrder
+  notifyCalendar?: Prisma.SortOrder
+  notifyTasks?: Prisma.SortOrder
+  notifyFocus?: Prisma.SortOrder
   dayStartMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   dayEndMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
   bufferMinutes?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -512,6 +559,10 @@ export type UserScalarWhereWithAggregatesInput = {
   pomodoroSessionsPerCycle?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   chimeOnTheHour?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   onboardingComplete?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  notifyAttendance?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  notifyCalendar?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  notifyTasks?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
+  notifyFocus?: Prisma.BoolWithAggregatesFilter<"User"> | boolean
   dayStartMinutes?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   dayEndMinutes?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
   bufferMinutes?: Prisma.IntNullableWithAggregatesFilter<"User"> | number | null
@@ -537,6 +588,10 @@ export type UserCreateInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -552,6 +607,7 @@ export type UserCreateInput = {
   googleConnections?: Prisma.GoogleConnectionCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -571,6 +627,10 @@ export type UserUncheckedCreateInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -586,6 +646,7 @@ export type UserUncheckedCreateInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -605,6 +666,10 @@ export type UserUpdateInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -620,6 +685,7 @@ export type UserUpdateInput = {
   googleConnections?: Prisma.GoogleConnectionUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -639,6 +705,10 @@ export type UserUncheckedUpdateInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -654,6 +724,7 @@ export type UserUncheckedUpdateInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -673,6 +744,10 @@ export type UserCreateManyInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -698,6 +773,10 @@ export type UserUpdateManyMutationInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -723,6 +802,10 @@ export type UserUncheckedUpdateManyInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -748,6 +831,10 @@ export type UserCountOrderByAggregateInput = {
   pomodoroSessionsPerCycle?: Prisma.SortOrder
   chimeOnTheHour?: Prisma.SortOrder
   onboardingComplete?: Prisma.SortOrder
+  notifyAttendance?: Prisma.SortOrder
+  notifyCalendar?: Prisma.SortOrder
+  notifyTasks?: Prisma.SortOrder
+  notifyFocus?: Prisma.SortOrder
   dayStartMinutes?: Prisma.SortOrder
   dayEndMinutes?: Prisma.SortOrder
   bufferMinutes?: Prisma.SortOrder
@@ -784,6 +871,10 @@ export type UserMaxOrderByAggregateInput = {
   pomodoroSessionsPerCycle?: Prisma.SortOrder
   chimeOnTheHour?: Prisma.SortOrder
   onboardingComplete?: Prisma.SortOrder
+  notifyAttendance?: Prisma.SortOrder
+  notifyCalendar?: Prisma.SortOrder
+  notifyTasks?: Prisma.SortOrder
+  notifyFocus?: Prisma.SortOrder
   dayStartMinutes?: Prisma.SortOrder
   dayEndMinutes?: Prisma.SortOrder
   bufferMinutes?: Prisma.SortOrder
@@ -809,6 +900,10 @@ export type UserMinOrderByAggregateInput = {
   pomodoroSessionsPerCycle?: Prisma.SortOrder
   chimeOnTheHour?: Prisma.SortOrder
   onboardingComplete?: Prisma.SortOrder
+  notifyAttendance?: Prisma.SortOrder
+  notifyCalendar?: Prisma.SortOrder
+  notifyTasks?: Prisma.SortOrder
+  notifyFocus?: Prisma.SortOrder
   dayStartMinutes?: Prisma.SortOrder
   dayEndMinutes?: Prisma.SortOrder
   bufferMinutes?: Prisma.SortOrder
@@ -991,6 +1086,20 @@ export type UserUpdateOneRequiredWithoutEventsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEventsInput, Prisma.UserUpdateWithoutEventsInput>, Prisma.UserUncheckedUpdateWithoutEventsInput>
 }
 
+export type UserCreateNestedOneWithoutPushSubscriptionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPushSubscriptionsInput, Prisma.UserUncheckedCreateWithoutPushSubscriptionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPushSubscriptionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutPushSubscriptionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutPushSubscriptionsInput, Prisma.UserUncheckedCreateWithoutPushSubscriptionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutPushSubscriptionsInput
+  upsert?: Prisma.UserUpsertWithoutPushSubscriptionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutPushSubscriptionsInput, Prisma.UserUpdateWithoutPushSubscriptionsInput>, Prisma.UserUncheckedUpdateWithoutPushSubscriptionsInput>
+}
+
 export type UserCreateWithoutTasksInput = {
   id?: string
   email: string
@@ -1008,6 +1117,10 @@ export type UserCreateWithoutTasksInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1022,6 +1135,7 @@ export type UserCreateWithoutTasksInput = {
   googleConnections?: Prisma.GoogleConnectionCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTasksInput = {
@@ -1041,6 +1155,10 @@ export type UserUncheckedCreateWithoutTasksInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1055,6 +1173,7 @@ export type UserUncheckedCreateWithoutTasksInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTasksInput = {
@@ -1090,6 +1209,10 @@ export type UserUpdateWithoutTasksInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1104,6 +1227,7 @@ export type UserUpdateWithoutTasksInput = {
   googleConnections?: Prisma.GoogleConnectionUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTasksInput = {
@@ -1123,6 +1247,10 @@ export type UserUncheckedUpdateWithoutTasksInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1137,6 +1265,7 @@ export type UserUncheckedUpdateWithoutTasksInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCoursesInput = {
@@ -1156,6 +1285,10 @@ export type UserCreateWithoutCoursesInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1170,6 +1303,7 @@ export type UserCreateWithoutCoursesInput = {
   googleConnections?: Prisma.GoogleConnectionCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCoursesInput = {
@@ -1189,6 +1323,10 @@ export type UserUncheckedCreateWithoutCoursesInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1203,6 +1341,7 @@ export type UserUncheckedCreateWithoutCoursesInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCoursesInput = {
@@ -1238,6 +1377,10 @@ export type UserUpdateWithoutCoursesInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1252,6 +1395,7 @@ export type UserUpdateWithoutCoursesInput = {
   googleConnections?: Prisma.GoogleConnectionUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCoursesInput = {
@@ -1271,6 +1415,10 @@ export type UserUncheckedUpdateWithoutCoursesInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1285,6 +1433,7 @@ export type UserUncheckedUpdateWithoutCoursesInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTimetableEntriesInput = {
@@ -1304,6 +1453,10 @@ export type UserCreateWithoutTimetableEntriesInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1318,6 +1471,7 @@ export type UserCreateWithoutTimetableEntriesInput = {
   googleCalendars?: Prisma.LinkedGoogleCalendarCreateNestedManyWithoutUserInput
   googleConnections?: Prisma.GoogleConnectionCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTimetableEntriesInput = {
@@ -1337,6 +1491,10 @@ export type UserUncheckedCreateWithoutTimetableEntriesInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1351,6 +1509,7 @@ export type UserUncheckedCreateWithoutTimetableEntriesInput = {
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedCreateNestedManyWithoutUserInput
   googleConnections?: Prisma.GoogleConnectionUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTimetableEntriesInput = {
@@ -1386,6 +1545,10 @@ export type UserUpdateWithoutTimetableEntriesInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1400,6 +1563,7 @@ export type UserUpdateWithoutTimetableEntriesInput = {
   googleCalendars?: Prisma.LinkedGoogleCalendarUpdateManyWithoutUserNestedInput
   googleConnections?: Prisma.GoogleConnectionUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTimetableEntriesInput = {
@@ -1419,6 +1583,10 @@ export type UserUncheckedUpdateWithoutTimetableEntriesInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1433,6 +1601,7 @@ export type UserUncheckedUpdateWithoutTimetableEntriesInput = {
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedUpdateManyWithoutUserNestedInput
   googleConnections?: Prisma.GoogleConnectionUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAttendanceRecordsInput = {
@@ -1452,6 +1621,10 @@ export type UserCreateWithoutAttendanceRecordsInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1466,6 +1639,7 @@ export type UserCreateWithoutAttendanceRecordsInput = {
   googleConnections?: Prisma.GoogleConnectionCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
@@ -1485,6 +1659,10 @@ export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1499,6 +1677,7 @@ export type UserUncheckedCreateWithoutAttendanceRecordsInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAttendanceRecordsInput = {
@@ -1534,6 +1713,10 @@ export type UserUpdateWithoutAttendanceRecordsInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1548,6 +1731,7 @@ export type UserUpdateWithoutAttendanceRecordsInput = {
   googleConnections?: Prisma.GoogleConnectionUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
@@ -1567,6 +1751,10 @@ export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1581,6 +1769,7 @@ export type UserUncheckedUpdateWithoutAttendanceRecordsInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCalendarEventsInput = {
@@ -1600,6 +1789,10 @@ export type UserCreateWithoutCalendarEventsInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1614,6 +1807,7 @@ export type UserCreateWithoutCalendarEventsInput = {
   googleConnections?: Prisma.GoogleConnectionCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCalendarEventsInput = {
@@ -1633,6 +1827,10 @@ export type UserUncheckedCreateWithoutCalendarEventsInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1647,6 +1845,7 @@ export type UserUncheckedCreateWithoutCalendarEventsInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCalendarEventsInput = {
@@ -1682,6 +1881,10 @@ export type UserUpdateWithoutCalendarEventsInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1696,6 +1899,7 @@ export type UserUpdateWithoutCalendarEventsInput = {
   googleConnections?: Prisma.GoogleConnectionUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCalendarEventsInput = {
@@ -1715,6 +1919,10 @@ export type UserUncheckedUpdateWithoutCalendarEventsInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1729,6 +1937,7 @@ export type UserUncheckedUpdateWithoutCalendarEventsInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutGoogleConnectionsInput = {
@@ -1748,6 +1957,10 @@ export type UserCreateWithoutGoogleConnectionsInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1762,6 +1975,7 @@ export type UserCreateWithoutGoogleConnectionsInput = {
   googleCalendars?: Prisma.LinkedGoogleCalendarCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGoogleConnectionsInput = {
@@ -1781,6 +1995,10 @@ export type UserUncheckedCreateWithoutGoogleConnectionsInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1795,6 +2013,7 @@ export type UserUncheckedCreateWithoutGoogleConnectionsInput = {
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGoogleConnectionsInput = {
@@ -1830,6 +2049,10 @@ export type UserUpdateWithoutGoogleConnectionsInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1844,6 +2067,7 @@ export type UserUpdateWithoutGoogleConnectionsInput = {
   googleCalendars?: Prisma.LinkedGoogleCalendarUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGoogleConnectionsInput = {
@@ -1863,6 +2087,10 @@ export type UserUncheckedUpdateWithoutGoogleConnectionsInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1877,6 +2105,7 @@ export type UserUncheckedUpdateWithoutGoogleConnectionsInput = {
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutGoogleCalendarsInput = {
@@ -1896,6 +2125,10 @@ export type UserCreateWithoutGoogleCalendarsInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1910,6 +2143,7 @@ export type UserCreateWithoutGoogleCalendarsInput = {
   googleConnections?: Prisma.GoogleConnectionCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGoogleCalendarsInput = {
@@ -1929,6 +2163,10 @@ export type UserUncheckedCreateWithoutGoogleCalendarsInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -1943,6 +2181,7 @@ export type UserUncheckedCreateWithoutGoogleCalendarsInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGoogleCalendarsInput = {
@@ -1978,6 +2217,10 @@ export type UserUpdateWithoutGoogleCalendarsInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1992,6 +2235,7 @@ export type UserUpdateWithoutGoogleCalendarsInput = {
   googleConnections?: Prisma.GoogleConnectionUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGoogleCalendarsInput = {
@@ -2011,6 +2255,10 @@ export type UserUncheckedUpdateWithoutGoogleCalendarsInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2025,6 +2273,7 @@ export type UserUncheckedUpdateWithoutGoogleCalendarsInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutPomodoroSessionsInput = {
@@ -2044,6 +2293,10 @@ export type UserCreateWithoutPomodoroSessionsInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -2058,6 +2311,7 @@ export type UserCreateWithoutPomodoroSessionsInput = {
   googleConnections?: Prisma.GoogleConnectionCreateNestedManyWithoutUserInput
   events?: Prisma.EventCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutPomodoroSessionsInput = {
@@ -2077,6 +2331,10 @@ export type UserUncheckedCreateWithoutPomodoroSessionsInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -2091,6 +2349,7 @@ export type UserUncheckedCreateWithoutPomodoroSessionsInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedCreateNestedManyWithoutUserInput
   events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutPomodoroSessionsInput = {
@@ -2126,6 +2385,10 @@ export type UserUpdateWithoutPomodoroSessionsInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2140,6 +2403,7 @@ export type UserUpdateWithoutPomodoroSessionsInput = {
   googleConnections?: Prisma.GoogleConnectionUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPomodoroSessionsInput = {
@@ -2159,6 +2423,10 @@ export type UserUncheckedUpdateWithoutPomodoroSessionsInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2173,6 +2441,7 @@ export type UserUncheckedUpdateWithoutPomodoroSessionsInput = {
   googleConnections?: Prisma.GoogleConnectionUncheckedUpdateManyWithoutUserNestedInput
   events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutEventsInput = {
@@ -2192,6 +2461,10 @@ export type UserCreateWithoutEventsInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -2206,6 +2479,7 @@ export type UserCreateWithoutEventsInput = {
   googleCalendars?: Prisma.LinkedGoogleCalendarCreateNestedManyWithoutUserInput
   googleConnections?: Prisma.GoogleConnectionCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutEventsInput = {
@@ -2225,6 +2499,10 @@ export type UserUncheckedCreateWithoutEventsInput = {
   pomodoroSessionsPerCycle?: number | null
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: number | null
   dayEndMinutes?: number | null
   bufferMinutes?: number | null
@@ -2239,6 +2517,7 @@ export type UserUncheckedCreateWithoutEventsInput = {
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedCreateNestedManyWithoutUserInput
   googleConnections?: Prisma.GoogleConnectionUncheckedCreateNestedManyWithoutUserInput
   timetableEntries?: Prisma.TimetableEntryUncheckedCreateNestedManyWithoutUserInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutEventsInput = {
@@ -2274,6 +2553,10 @@ export type UserUpdateWithoutEventsInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2288,6 +2571,7 @@ export type UserUpdateWithoutEventsInput = {
   googleCalendars?: Prisma.LinkedGoogleCalendarUpdateManyWithoutUserNestedInput
   googleConnections?: Prisma.GoogleConnectionUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEventsInput = {
@@ -2307,6 +2591,10 @@ export type UserUncheckedUpdateWithoutEventsInput = {
   pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
   onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
   dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2320,6 +2608,175 @@ export type UserUncheckedUpdateWithoutEventsInput = {
   pomodoroSessions?: Prisma.PomodoroSessionUncheckedUpdateManyWithoutUserNestedInput
   googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedUpdateManyWithoutUserNestedInput
   googleConnections?: Prisma.GoogleConnectionUncheckedUpdateManyWithoutUserNestedInput
+  timetableEntries?: Prisma.TimetableEntryUncheckedUpdateManyWithoutUserNestedInput
+  pushSubscriptions?: Prisma.PushSubscriptionUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutPushSubscriptionsInput = {
+  id?: string
+  email: string
+  name?: string
+  passwordHash?: string | null
+  authProvider?: $Enums.AuthProvider
+  googleRefreshToken?: string | null
+  googleAccessToken?: string | null
+  googleTokenExpiresAt?: Date | string | null
+  fcmToken?: string | null
+  attendanceAutoMarkHours?: number | null
+  pomodoroWorkMinutes?: number | null
+  pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
+  chimeOnTheHour?: boolean
+  onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
+  dayStartMinutes?: number | null
+  dayEndMinutes?: number | null
+  bufferMinutes?: number | null
+  timezone?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tasks?: Prisma.TaskCreateNestedManyWithoutUserInput
+  courses?: Prisma.CourseCreateNestedManyWithoutUserInput
+  calendarEvents?: Prisma.CalendarEventCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceRecordCreateNestedManyWithoutUserInput
+  pomodoroSessions?: Prisma.PomodoroSessionCreateNestedManyWithoutUserInput
+  googleCalendars?: Prisma.LinkedGoogleCalendarCreateNestedManyWithoutUserInput
+  googleConnections?: Prisma.GoogleConnectionCreateNestedManyWithoutUserInput
+  events?: Prisma.EventCreateNestedManyWithoutUserInput
+  timetableEntries?: Prisma.TimetableEntryCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutPushSubscriptionsInput = {
+  id?: string
+  email: string
+  name?: string
+  passwordHash?: string | null
+  authProvider?: $Enums.AuthProvider
+  googleRefreshToken?: string | null
+  googleAccessToken?: string | null
+  googleTokenExpiresAt?: Date | string | null
+  fcmToken?: string | null
+  attendanceAutoMarkHours?: number | null
+  pomodoroWorkMinutes?: number | null
+  pomodoroBreakMinutes?: number | null
+  pomodoroLongBreakMinutes?: number | null
+  pomodoroSessionsPerCycle?: number | null
+  chimeOnTheHour?: boolean
+  onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
+  dayStartMinutes?: number | null
+  dayEndMinutes?: number | null
+  bufferMinutes?: number | null
+  timezone?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tasks?: Prisma.TaskUncheckedCreateNestedManyWithoutUserInput
+  courses?: Prisma.CourseUncheckedCreateNestedManyWithoutUserInput
+  calendarEvents?: Prisma.CalendarEventUncheckedCreateNestedManyWithoutUserInput
+  attendanceRecords?: Prisma.AttendanceRecordUncheckedCreateNestedManyWithoutUserInput
+  pomodoroSessions?: Prisma.PomodoroSessionUncheckedCreateNestedManyWithoutUserInput
+  googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedCreateNestedManyWithoutUserInput
+  googleConnections?: Prisma.GoogleConnectionUncheckedCreateNestedManyWithoutUserInput
+  events?: Prisma.EventUncheckedCreateNestedManyWithoutUserInput
+  timetableEntries?: Prisma.TimetableEntryUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutPushSubscriptionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutPushSubscriptionsInput, Prisma.UserUncheckedCreateWithoutPushSubscriptionsInput>
+}
+
+export type UserUpsertWithoutPushSubscriptionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutPushSubscriptionsInput, Prisma.UserUncheckedUpdateWithoutPushSubscriptionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutPushSubscriptionsInput, Prisma.UserUncheckedCreateWithoutPushSubscriptionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutPushSubscriptionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutPushSubscriptionsInput, Prisma.UserUncheckedUpdateWithoutPushSubscriptionsInput>
+}
+
+export type UserUpdateWithoutPushSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleAccessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fcmToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tasks?: Prisma.TaskUpdateManyWithoutUserNestedInput
+  courses?: Prisma.CourseUpdateManyWithoutUserNestedInput
+  calendarEvents?: Prisma.CalendarEventUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceRecordUpdateManyWithoutUserNestedInput
+  pomodoroSessions?: Prisma.PomodoroSessionUpdateManyWithoutUserNestedInput
+  googleCalendars?: Prisma.LinkedGoogleCalendarUpdateManyWithoutUserNestedInput
+  googleConnections?: Prisma.GoogleConnectionUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUpdateManyWithoutUserNestedInput
+  timetableEntries?: Prisma.TimetableEntryUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutPushSubscriptionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authProvider?: Prisma.EnumAuthProviderFieldUpdateOperationsInput | $Enums.AuthProvider
+  googleRefreshToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleAccessToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  googleTokenExpiresAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  fcmToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attendanceAutoMarkHours?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroWorkMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroLongBreakMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  pomodoroSessionsPerCycle?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  chimeOnTheHour?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyAttendance?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyCalendar?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyTasks?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyFocus?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  dayStartMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  dayEndMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  bufferMinutes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tasks?: Prisma.TaskUncheckedUpdateManyWithoutUserNestedInput
+  courses?: Prisma.CourseUncheckedUpdateManyWithoutUserNestedInput
+  calendarEvents?: Prisma.CalendarEventUncheckedUpdateManyWithoutUserNestedInput
+  attendanceRecords?: Prisma.AttendanceRecordUncheckedUpdateManyWithoutUserNestedInput
+  pomodoroSessions?: Prisma.PomodoroSessionUncheckedUpdateManyWithoutUserNestedInput
+  googleCalendars?: Prisma.LinkedGoogleCalendarUncheckedUpdateManyWithoutUserNestedInput
+  googleConnections?: Prisma.GoogleConnectionUncheckedUpdateManyWithoutUserNestedInput
+  events?: Prisma.EventUncheckedUpdateManyWithoutUserNestedInput
   timetableEntries?: Prisma.TimetableEntryUncheckedUpdateManyWithoutUserNestedInput
 }
 
@@ -2338,6 +2795,7 @@ export type UserCountOutputType = {
   googleConnections: number
   events: number
   timetableEntries: number
+  pushSubscriptions: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2350,6 +2808,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   googleConnections?: boolean | UserCountOutputTypeCountGoogleConnectionsArgs
   events?: boolean | UserCountOutputTypeCountEventsArgs
   timetableEntries?: boolean | UserCountOutputTypeCountTimetableEntriesArgs
+  pushSubscriptions?: boolean | UserCountOutputTypeCountPushSubscriptionsArgs
 }
 
 /**
@@ -2425,6 +2884,13 @@ export type UserCountOutputTypeCountTimetableEntriesArgs<ExtArgs extends runtime
   where?: Prisma.TimetableEntryWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountPushSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PushSubscriptionWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2443,6 +2909,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   pomodoroSessionsPerCycle?: boolean
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: boolean
   dayEndMinutes?: boolean
   bufferMinutes?: boolean
@@ -2458,6 +2928,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   googleConnections?: boolean | Prisma.User$googleConnectionsArgs<ExtArgs>
   events?: boolean | Prisma.User$eventsArgs<ExtArgs>
   timetableEntries?: boolean | Prisma.User$timetableEntriesArgs<ExtArgs>
+  pushSubscriptions?: boolean | Prisma.User$pushSubscriptionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -2478,6 +2949,10 @@ export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   pomodoroSessionsPerCycle?: boolean
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: boolean
   dayEndMinutes?: boolean
   bufferMinutes?: boolean
@@ -2503,6 +2978,10 @@ export type UserSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   pomodoroSessionsPerCycle?: boolean
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: boolean
   dayEndMinutes?: boolean
   bufferMinutes?: boolean
@@ -2528,6 +3007,10 @@ export type UserSelectScalar = {
   pomodoroSessionsPerCycle?: boolean
   chimeOnTheHour?: boolean
   onboardingComplete?: boolean
+  notifyAttendance?: boolean
+  notifyCalendar?: boolean
+  notifyTasks?: boolean
+  notifyFocus?: boolean
   dayStartMinutes?: boolean
   dayEndMinutes?: boolean
   bufferMinutes?: boolean
@@ -2536,7 +3019,7 @@ export type UserSelectScalar = {
   updatedAt?: boolean
 }
 
-export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "passwordHash" | "authProvider" | "googleRefreshToken" | "googleAccessToken" | "googleTokenExpiresAt" | "fcmToken" | "attendanceAutoMarkHours" | "pomodoroWorkMinutes" | "pomodoroBreakMinutes" | "pomodoroLongBreakMinutes" | "pomodoroSessionsPerCycle" | "chimeOnTheHour" | "onboardingComplete" | "dayStartMinutes" | "dayEndMinutes" | "bufferMinutes" | "timezone" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "email" | "name" | "passwordHash" | "authProvider" | "googleRefreshToken" | "googleAccessToken" | "googleTokenExpiresAt" | "fcmToken" | "attendanceAutoMarkHours" | "pomodoroWorkMinutes" | "pomodoroBreakMinutes" | "pomodoroLongBreakMinutes" | "pomodoroSessionsPerCycle" | "chimeOnTheHour" | "onboardingComplete" | "notifyAttendance" | "notifyCalendar" | "notifyTasks" | "notifyFocus" | "dayStartMinutes" | "dayEndMinutes" | "bufferMinutes" | "timezone" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
 export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tasks?: boolean | Prisma.User$tasksArgs<ExtArgs>
   courses?: boolean | Prisma.User$coursesArgs<ExtArgs>
@@ -2547,6 +3030,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   googleConnections?: boolean | Prisma.User$googleConnectionsArgs<ExtArgs>
   events?: boolean | Prisma.User$eventsArgs<ExtArgs>
   timetableEntries?: boolean | Prisma.User$timetableEntriesArgs<ExtArgs>
+  pushSubscriptions?: boolean | Prisma.User$pushSubscriptionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -2564,6 +3048,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     googleConnections: Prisma.$GoogleConnectionPayload<ExtArgs>[]
     events: Prisma.$EventPayload<ExtArgs>[]
     timetableEntries: Prisma.$TimetableEntryPayload<ExtArgs>[]
+    pushSubscriptions: Prisma.$PushSubscriptionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2582,6 +3067,10 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     pomodoroSessionsPerCycle: number | null
     chimeOnTheHour: boolean
     onboardingComplete: boolean
+    notifyAttendance: boolean
+    notifyCalendar: boolean
+    notifyTasks: boolean
+    notifyFocus: boolean
     dayStartMinutes: number | null
     dayEndMinutes: number | null
     bufferMinutes: number | null
@@ -2991,6 +3480,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   googleConnections<T extends Prisma.User$googleConnectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$googleConnectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GoogleConnectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   events<T extends Prisma.User$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   timetableEntries<T extends Prisma.User$timetableEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$timetableEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TimetableEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  pushSubscriptions<T extends Prisma.User$pushSubscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$pushSubscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PushSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3036,6 +3526,10 @@ export interface UserFieldRefs {
   readonly pomodoroSessionsPerCycle: Prisma.FieldRef<"User", 'Int'>
   readonly chimeOnTheHour: Prisma.FieldRef<"User", 'Boolean'>
   readonly onboardingComplete: Prisma.FieldRef<"User", 'Boolean'>
+  readonly notifyAttendance: Prisma.FieldRef<"User", 'Boolean'>
+  readonly notifyCalendar: Prisma.FieldRef<"User", 'Boolean'>
+  readonly notifyTasks: Prisma.FieldRef<"User", 'Boolean'>
+  readonly notifyFocus: Prisma.FieldRef<"User", 'Boolean'>
   readonly dayStartMinutes: Prisma.FieldRef<"User", 'Int'>
   readonly dayEndMinutes: Prisma.FieldRef<"User", 'Int'>
   readonly bufferMinutes: Prisma.FieldRef<"User", 'Int'>
@@ -3648,6 +4142,30 @@ export type User$timetableEntriesArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.TimetableEntryScalarFieldEnum | Prisma.TimetableEntryScalarFieldEnum[]
+}
+
+/**
+ * User.pushSubscriptions
+ */
+export type User$pushSubscriptionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PushSubscription
+   */
+  select?: Prisma.PushSubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PushSubscription
+   */
+  omit?: Prisma.PushSubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PushSubscriptionInclude<ExtArgs> | null
+  where?: Prisma.PushSubscriptionWhereInput
+  orderBy?: Prisma.PushSubscriptionOrderByWithRelationInput | Prisma.PushSubscriptionOrderByWithRelationInput[]
+  cursor?: Prisma.PushSubscriptionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PushSubscriptionScalarFieldEnum | Prisma.PushSubscriptionScalarFieldEnum[]
 }
 
 /**

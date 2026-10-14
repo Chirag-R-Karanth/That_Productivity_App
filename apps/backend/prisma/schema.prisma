@@ -42,6 +42,14 @@ model User {
   chimeOnTheHour          Boolean  @default(true)
   onboardingComplete      Boolean  @default(false)
 
+  // Per-type notification controls. Default on, because reaching them at all
+  // requires granting the browser permission and registering a subscription;
+  // these switches exist to turn a channel off, not to opt into it.
+  notifyAttendance        Boolean  @default(true)
+  notifyCalendar          Boolean  @default(true)
+  notifyTasks             Boolean  @default(true)
+  notifyFocus             Boolean  @default(true)
+
   // Capacity window. "Usable time" is never the whole gap between classes —
   // it is the awake day, minus fixed commitments, minus transition buffers.
   // Stored as minutes-from-midnight so the window is timezone-agnostic.
@@ -67,6 +75,7 @@ model User {
   googleConnections GoogleConnection[]
   events         Event[]
   timetableEntries TimetableEntry[]
+  pushSubscriptions PushSubscription[]
 
   @@map("users")
 }
@@ -220,6 +229,12 @@ model AttendanceRecord {
   date      String // YYYY-MM-DD
   status    AttendanceStatus @default(UNCONFIRMED)
   confirmedAt DateTime?
+
+  /// When a push prompt was last sent for this record. Null means "never
+  /// asked", which is what stops the 15-minute prompt cron from asking the
+  /// same question all evening. Cleared when the prompt is dismissed, so a
+  /// re-prompt is possible if the user genuinely never answered.
+  attendancePromptedAt DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -430,4 +445,39 @@ model Event {
   @@index([userId, occurredAt])
   @@index([userId, type])
   @@map("events")
+}
+
+// ---------- Push notifications ----------
+// One row per browser that has granted this app permission to notify it.
+
+/// A Web Push subscription belonging to one of our users.
+///
+/// Rows live on `User` rather than on a device record because the browser
+/// endpoint *is* the identity: it is unique per browser profile, survives a
+/// reload, and is the exact string a push service needs to be handed. Storing
+/// a key we could recompute instead would mean trusting our own copy of a
+/// secret the browser will not give us back.
+model PushSubscription {
+  id       String @id @default(cuid())
+  userId   String
+  /// The push service endpoint for this browser. Unique across all users: the
+  /// same browser can only belong to one account, and re-subscribing must
+  /// update the existing row instead of accumulating dead duplicates.
+  endpoint String @unique
+  p256dh   String
+  auth     String
+  /// Shown in Settings so a user with three devices can tell them apart.
+  userAgent String?
+  /// Consecutive delivery failures. A subscription that keeps failing is
+  /// reported in Settings rather than silently retried forever.
+  failureCount Int @default(0)
+  lastError     String?
+  lastUsedAt    DateTime?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscriptions")
 }

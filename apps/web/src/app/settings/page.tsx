@@ -10,6 +10,7 @@ import { useTheme } from "@/lib/theme";
 import { AppShell } from "@/components/AppShell";
 import { Reveal } from "@/components/Reveal";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { PushNotificationsPanel } from "@/components/PushNotificationsPanel";
 import Link from "next/link";
 import { CommandIcon } from "@/components/icons";
 
@@ -22,6 +23,10 @@ interface MeResponse {
   pomodoroLongBreakMinutes: number | null;
   pomodoroSessionsPerCycle: number | null;
   chimeOnTheHour: boolean;
+  notifyAttendance: boolean;
+  notifyCalendar: boolean;
+  notifyTasks: boolean;
+  notifyFocus: boolean;
   googleCalendarLinked: boolean;
 }
 
@@ -73,6 +78,38 @@ const SHORTCUTS: { keys: string[]; action: string }[] = [
   { keys: ["Esc"], action: "Close dialog / palette" },
 ];
 
+/**
+ * The four notification switches, each described by the moment it would fire
+ * rather than by its category name. "Attendance" on its own does not tell
+ * anyone whether they want to be interrupted about it.
+ */
+const CHANNELS: {
+  key: "notifyAttendance" | "notifyCalendar" | "notifyTasks" | "notifyFocus";
+  label: string;
+  hint: string;
+}[] = [
+  {
+    key: "notifyAttendance",
+    label: "Attendance",
+    hint: "Ask whether I attended a class, once it has finished.",
+  },
+  {
+    key: "notifyCalendar",
+    label: "Calendar",
+    hint: "Tell me when a linked calendar changes.",
+  },
+  {
+    key: "notifyTasks",
+    label: "Tasks",
+    hint: "Tell me when a task list changes in Google Tasks.",
+  },
+  {
+    key: "notifyFocus",
+    label: "Focus",
+    hint: "Tell me when a focus session finishes.",
+  },
+];
+
 export default function SettingsPage() {
   const { logout } = useAuth();
   const { reduceMotion, setReduceMotion } = useTheme();
@@ -105,6 +142,12 @@ export default function SettingsPage() {
   const [pomodoroSessionsPerCycle, setPomodoroSessionsPerCycle] = useState(4);
   const [autoMarkHours, setAutoMarkHours] = useState<number | null>(null);
   const [chime, setChime] = useState(true);
+  const [channels, setChannels] = useState({
+    notifyAttendance: true,
+    notifyCalendar: true,
+    notifyTasks: true,
+    notifyFocus: true,
+  });
 
   const justLinked =
     typeof window !== "undefined" &&
@@ -126,6 +169,12 @@ export default function SettingsPage() {
       setPomodoroSessionsPerCycle(meRes.data.pomodoroSessionsPerCycle ?? 4);
       setAutoMarkHours(meRes.data.attendanceAutoMarkHours);
       setChime(meRes.data.chimeOnTheHour ?? true);
+      setChannels({
+        notifyAttendance: meRes.data.notifyAttendance ?? true,
+        notifyCalendar: meRes.data.notifyCalendar ?? true,
+        notifyTasks: meRes.data.notifyTasks ?? true,
+        notifyFocus: meRes.data.notifyFocus ?? true,
+      });
     }
     if ("ok" in calRes && calRes.ok) setCalendars(calRes.data);
     if ("ok" in statusRes && statusRes.ok) setGoogleConfigured(statusRes.data.configured);
@@ -176,6 +225,19 @@ export default function SettingsPage() {
       else setStatus("Preferences saved.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "Couldn't save.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const saveChannels = async () => {
+    setSaving(true);
+    setError(null);
+    try {
+      await api.patch("/api/auth/me", channels);
+      setStatus("Notification settings saved.");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Couldn't save notification settings.");
     } finally {
       setSaving(false);
     }
@@ -414,51 +476,112 @@ export default function SettingsPage() {
 
         {tab === "notifications" && (
           <Reveal delay={40}>
-            <section className="rounded-2xl border border-border bg-surface p-5">
-              <h2 className="mb-1 text-sm font-medium uppercase tracking-wider text-text-muted">Focus &amp; reminders</h2>
-              <p className="mb-4 text-xs text-text-muted">
-                In-app activity shows in the bell icon. Push/email notifications arrive once
-                integrations ship.
-              </p>
-              <div className="grid max-w-lg gap-4 sm:grid-cols-3">
-                <label className="text-xs text-text-muted">
-                  Pomodoro work (min)
-                  <input type="number" min={1} max={120} value={pomodoroWork} onChange={(e) => setPomodoroWork(+e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent" />
+            <div className="space-y-6">
+              <section className="rounded-2xl border border-border bg-surface p-5">
+                <h2 className="mb-1 text-sm font-medium uppercase tracking-wider text-text-muted">
+                  This device
+                </h2>
+                <p className="mb-4 text-xs text-text-muted">
+                  Push notifications reach this browser even when the app is closed. The
+                  permission prompt only appears when you press the button — a site that
+                  asks on its own gets refused for good.
+                </p>
+                <PushNotificationsPanel />
+              </section>
+
+              <section className="rounded-2xl border border-border bg-surface p-5">
+                <h2 className="mb-1 text-sm font-medium uppercase tracking-wider text-text-muted">
+                  What you get notified about
+                </h2>
+                <p className="mb-4 text-xs text-text-muted">
+                  These apply to every device, and to the prompts in the bell icon. Turning
+                  attendance off means the app will stop asking whether you turned up, and
+                  will leave it to the auto-mark rule below.
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {CHANNELS.map((c) => (
+                    <label
+                      key={c.key}
+                      className="flex cursor-pointer items-start gap-2.5 rounded-lg bg-surface-elevated px-3 py-2.5"
+                    >
+                      <input
+                        type="checkbox"
+                        checked={channels[c.key]}
+                        disabled={saving}
+                        onChange={(e) => setChannels((prev) => ({ ...prev, [c.key]: e.target.checked }))}
+                        className="mt-0.5 h-3.5 w-3.5 shrink-0 accent-accent"
+                      />
+                      <span className="min-w-0">
+                        <span className="block text-sm text-text">{c.label}</span>
+                        <span className="block text-[11px] leading-relaxed text-text-muted">
+                          {c.hint}
+                        </span>
+                      </span>
+                    </label>
+                  ))}
+                </div>
+                <div className="mt-4 flex justify-end">
+                  <button
+                    onClick={() => void saveChannels()}
+                    disabled={saving}
+                    className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50"
+                  >
+                    {saving ? "…" : "Save"}
+                  </button>
+                </div>
+              </section>
+
+              <section className="rounded-2xl border border-border bg-surface p-5">
+                <h2 className="mb-1 text-sm font-medium uppercase tracking-wider text-text-muted">
+                  Focus &amp; reminders
+                </h2>
+                <p className="mb-4 text-xs text-text-muted">
+                  Timers and the in-app bell. Push arrives from the section above.
+                </p>
+                <div className="grid max-w-lg gap-4 sm:grid-cols-3">
+                  <label className="text-xs text-text-muted">
+                    Pomodoro work (min)
+                    <input type="number" min={1} max={120} value={pomodoroWork} onChange={(e) => setPomodoroWork(+e.target.value)}
+                      className="mt-1 w-full rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent" />
+                  </label>
+                  <label className="text-xs text-text-muted">
+                    Short break (min)
+                    <input type="number" min={1} max={60} value={pomodoroBreak} onChange={(e) => setPomodoroBreak(+e.target.value)}
+                      className="mt-1 w-full rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent" />
+                  </label>
+                  <label className="text-xs text-text-muted">
+                    Long break (min)
+                    <input type="number" min={5} max={120} value={pomodoroLongBreak} onChange={(e) => setPomodoroLongBreak(+e.target.value)}
+                      className="mt-1 w-full rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent" />
+                  </label>
+                  <label className="text-xs text-text-muted">
+                    Focus sessions / cycle
+                    <input type="number" min={2} max={12} value={pomodoroSessionsPerCycle} onChange={(e) => setPomodoroSessionsPerCycle(+e.target.value)}
+                      className="mt-1 w-full rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent" />
+                  </label>
+                  <label className="text-xs text-text-muted">
+                    Auto-mark attendance (hrs)
+                    <input type="number" min={0} value={autoMarkHours ?? ""} placeholder="Never"
+                      onChange={(e) => setAutoMarkHours(e.target.value === "" ? null : +e.target.value)}
+                      className="mt-1 w-full rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent" />
+                  </label>
+                </div>
+                <label className="mt-4 flex items-center gap-2 text-sm text-text">
+                  <input type="checkbox" checked={chime} onChange={(e) => setChime(e.target.checked)} className="accent-accent" />
+                  Chime on the hour
                 </label>
-                <label className="text-xs text-text-muted">
-                  Short break (min)
-                  <input type="number" min={1} max={60} value={pomodoroBreak} onChange={(e) => setPomodoroBreak(+e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent" />
-                </label>
-                <label className="text-xs text-text-muted">
-                  Long break (min)
-                  <input type="number" min={5} max={120} value={pomodoroLongBreak} onChange={(e) => setPomodoroLongBreak(+e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent" />
-                </label>
-                <label className="text-xs text-text-muted">
-                  Focus sessions / cycle
-                  <input type="number" min={2} max={12} value={pomodoroSessionsPerCycle} onChange={(e) => setPomodoroSessionsPerCycle(+e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent" />
-                </label>
-                <label className="text-xs text-text-muted">
-                  Auto-mark attendance (hrs)
-                  <input type="number" min={0} value={autoMarkHours ?? ""} placeholder="Never"
-                    onChange={(e) => setAutoMarkHours(e.target.value === "" ? null : +e.target.value)}
-                    className="mt-1 w-full rounded-lg border border-border bg-surface-elevated px-3 py-2 text-sm text-text outline-none focus:border-accent" />
-                </label>
-              </div>
-              <label className="mt-4 flex items-center gap-2 text-sm text-text">
-                <input type="checkbox" checked={chime} onChange={(e) => setChime(e.target.checked)} className="accent-accent" />
-                Chime on the hour
-              </label>
-              <div className="mt-4 flex justify-end">
-                <button onClick={() => void savePrefs()} disabled={saving}
-                  className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50">
-                  {saving ? "…" : "Save preferences"}
-                </button>
-              </div>
-            </section>
+                <p className="mt-1 text-xs text-text-muted">
+                  An unanswered record is marked attended this many hours after the class
+                  ends. Leave it blank to keep asking instead.
+                </p>
+                <div className="mt-4 flex justify-end">
+                  <button onClick={() => void savePrefs()} disabled={saving}
+                    className="rounded-lg bg-accent px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-accent-hover disabled:opacity-50">
+                    {saving ? "…" : "Save preferences"}
+                  </button>
+                </div>
+              </section>
+            </div>
           </Reveal>
         )}
 

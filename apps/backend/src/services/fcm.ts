@@ -8,11 +8,14 @@
  * When a user taps an action, FCM delivers the response which the backend
  * processes to resolve the attendance record.
  *
+ * Which records deserve a prompt is decided in attendanceNotifications.ts,
+ * which reads the timetable through the resolver and judges the clock in the
+ * user's own timezone. This module only knows how to talk to FCM.
+ *
  * NOTE: Full FCM integration requires a Firebase project and service account.
  * This module provides the interface + a no-op fallback when FCM is not configured.
  */
 import { env } from "../lib/env.js";
-import { prisma } from "../lib/prisma.js";
 
 interface FcmNotification {
   /** FCM registration token from the Android device. */
@@ -67,7 +70,6 @@ export async function sendAttendancePrompt(params: {
   courseName: string;
   courseId: string;
   recordId: string;
-  date: string;
 }): Promise<boolean> {
   const messagingClient = await getMessaging();
   if (!messagingClient) {
@@ -86,7 +88,6 @@ export async function sendAttendancePrompt(params: {
         type: "attendance_prompt",
         courseId: params.courseId,
         recordId: params.recordId,
-        date: params.date,
         courseName: params.courseName,
       },
       android: {
@@ -141,55 +142,4 @@ export async function dismissAttendanceNotification(
   } catch {
     return false;
   }
-}
-
-/**
- * Send attendance prompt to all users with an FCM token and a
- * matching UNCONFIRMED record. Called after generateTodayAttendance.
- */
-export async function sendAttendancePrompts(): Promise<{ sent: number; failed: number }> {
-  const now = new Date();
-  const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-  const currentTime = `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
-  const todayDow = now.getDay();
-
-  const unconfirmedRecords = await prisma.attendanceRecord.findMany({
-    where: {
-      date: today,
-      status: "UNCONFIRMED",
-    },
-    include: { course: true, user: true },
-  });
-
-  let sent = 0;
-  let failed = 0;
-
-  for (const record of unconfirmedRecords) {
-    // Only send after the class has ended (based on schedule end time)
-    const schedule = (record.course.schedule as unknown[]) as { dayOfWeek: number; endTime: string }[];
-    const todaySlot = schedule.find((s) => s.dayOfWeek === todayDow);
-    if (!todaySlot) continue;
-    if (todaySlot.endTime > currentTime) continue; // Class hasn't ended yet
-
-    // Only send if user has an FCM token
-    if (!record.user.fcmToken) continue;
-
-    // Check if already sent (prevent duplicates within the same hour)
-    // Use a simple heuristic: if record was already confirmed within 5 minutes of class end,
-    // skip sending.
-    if (record.status !== "UNCONFIRMED") continue;
-
-    const success = await sendAttendancePrompt({
-      token: record.user.fcmToken,
-      courseName: record.course.name,
-      courseId: record.courseId,
-      recordId: record.id,
-      date: record.date,
-    });
-
-    if (success) sent++;
-    else failed++;
-  }
-
-  return { sent, failed };
 }

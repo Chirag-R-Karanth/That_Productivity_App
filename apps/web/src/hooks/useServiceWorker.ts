@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { api, setAuthToken, getAuthToken } from "@/lib/api";
 import { pushAction, getPendingActions, removeAction } from "@/lib/offlineQueue";
 import { emitSync, setLastSyncAt } from "@/lib/syncStatus";
+import { reregisterPush } from "@/lib/push";
 
 const SYNC_TAG = "prodapp-flush";
 const AUTH_TOKEN_STORAGE_KEY = "token";
@@ -49,6 +50,12 @@ export function useServiceWorker() {
     const onMessage = (event: MessageEvent) => {
       if (event.data?.type === "queue-flushed") {
         void replayOfflineQueue();
+      }
+      // The browser voided its push subscription. Hand the new address (if any)
+      // straight back to the server so notifications keep arriving instead of
+      // stopping silently.
+      if (event.data?.type === "push-invalidated") {
+        void reregisterPush();
       }
     };
     navigator.serviceWorker.addEventListener("message", onMessage);

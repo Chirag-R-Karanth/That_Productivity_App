@@ -39,4 +39,13 @@ export const env = {
   fcmProjectId: process.env.FCM_PROJECT_ID ?? "",
   fcmPrivateKey: process.env.FCM_PRIVATE_KEY ?? "",
   fcmClientEmail: process.env.FCM_CLIENT_EMAIL ?? "",
+  // Web Push (VAPID). Generate a pair once with:
+  //   pnpm --filter backend exec web-push generate-vapid-keys --json
+  // The public key is handed to the browser, so it is safe to expose; the
+  // private key signs every push this server sends and never leaves it.
+  vapidPublicKey: process.env.VAPID_PUBLIC_KEY ?? "",
+  vapidPrivateKey: process.env.VAPID_PRIVATE_KEY ?? "",
+  // A contact the push service can attribute abuse to. Chrome accepts
+  // "mailto:" or an https URL and refuses anything else.
+  vapidSubject: process.env.VAPID_SUBJECT ?? "mailto:notifications@example.com",
 } as const;

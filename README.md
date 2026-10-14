@@ -46,6 +46,31 @@ pnpm build                      # typecheck + build every package
 Apps are wired through `web` (browser → `NEXT_PUBLIC_API_URL` → API) and
 `mobile` (Metro bundles `EXPO_PUBLIC_API_URL`, default `http://localhost:4000`).
 
+Note the two databases: `docker compose up -d` (default file) gives the **dev**
+Postgres on `:5434`, which is what `DATABASE_URL` points at, while the deployed
+app in `docker-compose.prod.yml` uses its own `postgres` service. Keep backups
+and local scripts pointed at the right one — see *Backups* above.
+
+## Notifications (web push)
+
+Web push needs a VAPID keypair, generated once:
+
+```bash
+pnpm --filter backend exec web-push generate-vapid-keys --json
+```
+
+Put `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` and a `mailto:` or `https://`
+`VAPID_SUBJECT` in `.env` (all three are in `.env.example`). Rotating the pair
+invalidates every existing browser subscription, so users re-enable notifications
+in Settings → Notifications once after a change. Without the keys the API still
+runs and `GET /api/notifications/push/status` reports `configured: false` with a
+reason, which is what the Settings panel shows instead of a dead toggle.
+
+The only notification actually dispatched today is the attendance prompt: sent
+once a class has finished, deduplicated per record by `attendancePromptedAt`, and
+withdrawn as soon as the record is resolved or auto-marked. The Calendar / Tasks
+/ Focus switches are stored but drive nothing yet.
+
 ## Backups (data safety)
 
 The database is the source of truth for tasks, courses, **timetable slots**
@@ -59,9 +84,24 @@ pnpm backup:verify   # checks the newest dump's integrity + diffs current row co
 pnpm backup:list     # list existing dumps
 ```
 
-The database typically runs in the `productivity-db` Docker container; the
-script prefers `docker exec` and falls back to host `pg_dump`/`psql` when the
-container is absent. Connection settings come from `DATABASE_URL` in `.env`.
+**Which database gets backed up.** There is more than one PostgreSQL container
+on this machine, and only one of them is the database the deployed app uses, so
+the target is never guessed:
+
+- The script resolves the container from a known list — `prodapp-postgres-1`
+  first, then `productivity-db` — and only falls back to the host connection in
+  `.env` if neither is running (which it now warns about).
+- Every run prints `target: …` before doing anything. Read it.
+- `DB_CONTAINER=<name>` overrides the choice, and a name that is not running is
+  an error rather than a silent fallback.
+- Each snapshot records the container it came from, and `backup:verify` **refuses
+  to run** when the snapshot and the current target are different databases —
+  comparing two databases would otherwise report a confident "IDENTICAL" while
+  describing data that was never backed up.
+
+Migrations are applied by the backend container's own `migrate deploy` on
+startup, so deploying is also what applies a pending migration. Take a backup
+first, with `target:` confirmed as the production container.
 
 **Migration rules enforced across this repo:**
 
